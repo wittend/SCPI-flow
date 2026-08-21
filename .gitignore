@@ -1,0 +1,26 @@
+# Deno
+.deno/
+deno.lock
+cov_profile/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Documentation
+.docs/_build/
+
+# Project Directories
+projects/
+assets/vendored/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

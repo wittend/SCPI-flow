@@ -1,0 +1,15 @@
+{
+  "source_connectors": [
+    {
+      "name": "CH1",
+      "type": "analog"
+    }
+  ],
+  "sink_connectors": [
+    {
+      "name": "Trigger",
+      "type": "digital"
+    }
+  ],
+  "code": "console.log('Oscilloscope processing data');"
+}

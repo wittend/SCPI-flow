@@ -1,0 +1,9 @@
+[
+  {
+    "guid": "c7b3b9a1-1234-4567-8901-234567890abc",
+    "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "name": "Oscilloscope",
+    "ordinal": 0,
+    "icon": "assets/icons/oscilloscope.svg"
+  }
+]

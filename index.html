@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCPI-flow</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --header-bg: #f0f0f0;
+            --border-color: #cccccc;
+            --palette-bg: #f9f9f9;
+        }
+        [data-theme="dark"] {
+            --bg-color: #2d2d2d;
+            --text-color: #eeeeee;
+            --header-bg: #3d3d3d;
+            --border-color: #555555;
+            --palette-bg: #333333;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #menu-bar {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 5px 10px;
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+        #toolbar {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 5px 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .menu-item {
+            position: relative;
+            cursor: pointer;
+        }
+        .menu-content {
+            display: none;
+            position: absolute;
+            background-color: var(--header-bg);
+            min-width: 120px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 100;
+            border: 1px solid var(--border-color);
+            top: 100%;
+            left: 0;
+        }
+        .menu-item:hover .menu-content {
+            display: block;
+        }
+        .menu-content a {
+            color: var(--text-color);
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+            font-size: 12px;
+        }
+        .menu-content a:hover {
+            background-color: var(--border-color);
+        }
+        #menu-bar span {
+            cursor: pointer;
+            padding: 2px 5px;
+        }
+        #main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        #palette {
+            width: 200px;
+            background-color: var(--palette-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 10px;
+            overflow-y: auto;
+        }
+        #workspace {
+            flex: 1;
+            position: relative;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: auto;
+        }
+        .workspace-object {
+            position: absolute;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            padding: 5px;
+            cursor: move;
+            min-width: 80px;
+            text-align: center;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            user-select: none;
+        }
+        .connector {
+            width: 10px;
+            height: 10px;
+            background-color: #888;
+            border-radius: 50%;
+            position: absolute;
+            cursor: crosshair;
+        }
+        .connector:hover {
+            background-color: #555;
+            transform: scale(1.2);
+        }
+        .source-connector {
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .sink-connector {
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .workspace-object img {
+            width: 30px;
+            height: 30px;
+            pointer-events: none;
+        }
+        .workspace-object .name {
+            font-size: 10px;
+            pointer-events: none;
+        }
+        #workspace-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .connection-line {
+            fill: none;
+            stroke: var(--text-color);
+            stroke-width: 2;
+            pointer-events: visibleStroke;
+        }
+        .arrowhead {
+            fill: var(--text-color);
+        }
+        #status-bar {
+            background-color: var(--header-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 2px 10px;
+            font-size: 12px;
+        }
+        .palette-item {
+            border: 1px solid var(--border-color);
+            padding: 5px;
+            margin-bottom: 5px;
+            text-align: center;
+            cursor: grab;
+            background: var(--bg-color);
+        }
+        .palette-item img {
+            width: 40px;
+            height: 40px;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-bar">
+        <div class="menu-item">
+            <span>File</span>
+            <div class="menu-content">
+                <a href="#" onclick="newProject()">New</a>
+                <a href="#" onclick="saveProject()">Save</a>
+                <a href="#" onclick="loadProject()">Load</a>
+            </div>
+        </div>
+        <div class="menu-item">
+            <span>Edit</span>
+            <div class="menu-content">
+                <a href="#">Undo</a>
+                <a href="#">Redo</a>
+            </div>
+        </div>
+        <div class="menu-item">
+            <span>Tools</span>
+            <div class="menu-content">
+                <a href="#" onclick="toggleTheme()">Toggle Theme</a>
+            </div>
+        </div>
+        <div class="menu-item">
+            <span>Help</span>
+            <div class="menu-content">
+                <a href="#">Documentation</a>
+                <a href="#">About</a>
+            </div>
+        </div>
+    </div>
+    <div id="toolbar">
+        <button onclick="newProject()">New</button>
+        <button onclick="saveProject()">Save</button>
+        <button onclick="loadProject()">Save As</button>
+    </div>
+    <div id="main-container">
+        <div id="palette">
+            <h3>Palette</h3>
+            <div id="palette-items"></div>
+        </div>
+        <div id="workspace" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <svg id="workspace-svg">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                    refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" class="arrowhead" />
+                    </marker>
+                </defs>
+            </svg>
+            <!-- Objects will be added here -->
+        </div>
+    </div>
+    <div id="status-bar">
+        Ready
+    </div>
+
+    <script>
+        let currentProject = {
+            objects: [],
+            connections: []
+        };
+        let connectionStarted = null;
+
+        async function loadPalette() {
+            try {
+                const response = await fetch('/api/palette');
+                const palette = await response.json();
+                const container = document.getElementById('palette-items');
+                palette.sort((a, b) => a.ordinal - b.ordinal).forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'palette-item';
+                    div.draggable = true;
+                    div.innerHTML = `
+                        <img src="${item.icon}" alt="${item.name}">
+                        <div>${item.name}</div>
+                    `;
+                    div.ondragstart = (e) => {
+                        e.dataTransfer.setData("text/plain", JSON.stringify(item));
+                    };
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                console.error('Failed to load palette', e);
+            }
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        async function drop(ev) {
+            ev.preventDefault();
+            const dataStr = ev.dataTransfer.getData("text/plain");
+            if (!dataStr) return;
+            const item = JSON.parse(dataStr);
+            
+            const rect = document.getElementById('workspace').getBoundingClientRect();
+            const x = ev.clientX - rect.left;
+            const y = ev.clientY - rect.top;
+
+            // Fetch full object definition to get connectors
+            try {
+                const resp = await fetch(`/api/obj/${item.guid}`);
+                const objDef = await resp.json();
+                addObjectToWorkspace(item, x, y, objDef);
+            } catch (e) {
+                console.error("Failed to load object definition", e);
+                addObjectToWorkspace(item, x, y, { source_connectors: [], sink_connectors: [] });
+            }
+        }
+
+        function addObjectToWorkspace(item, x, y, objDef) {
+            const id = 'obj-' + Date.now();
+            const obj = {
+                id,
+                guid: item.guid,
+                name: item.name,
+                icon: item.icon,
+                x,
+                y,
+                sources: objDef.source_connectors || [],
+                sinks: objDef.sink_connectors || []
+            };
+            currentProject.objects.push(obj);
+            renderObject(obj);
+        }
+
+        function renderObject(obj) {
+            const workspace = document.getElementById('workspace');
+            const div = document.createElement('div');
+            div.id = obj.id;
+            div.className = 'workspace-object';
+            div.style.left = obj.x + 'px';
+            div.style.top = obj.y + 'px';
+            div.innerHTML = `
+                <img src="${obj.icon}">
+                <div class="name">${obj.name}</div>
+            `;
+            
+            // Render connectors
+            obj.sources.forEach((src, idx) => {
+                const conn = document.createElement('div');
+                conn.className = 'connector source-connector';
+                conn.title = src.name;
+                conn.style.top = `${20 + idx * 15}px`;
+                conn.onmousedown = (e) => startConnection(e, obj, src, 'source');
+                div.appendChild(conn);
+            });
+
+            obj.sinks.forEach((sink, idx) => {
+                const conn = document.createElement('div');
+                conn.className = 'connector sink-connector';
+                conn.title = sink.name;
+                conn.style.top = `${20 + idx * 15}px`;
+                conn.onmouseup = (e) => endConnection(e, obj, sink, 'sink');
+                div.appendChild(conn);
+            });
+
+            // Basic dragging within workspace
+            let isDragging = false;
+            let offset = { x: 0, y: 0 };
+
+            div.onmousedown = (e) => {
+                if (e.target.classList.contains('connector')) return;
+                isDragging = true;
+                offset = {
+                    x: e.clientX - div.offsetLeft,
+                    y: e.clientY - div.offsetTop
+                };
+            };
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const newX = e.clientX - offset.x;
+                    const newY = e.clientY - offset.y;
+                    div.style.left = newX + 'px';
+                    div.style.top = newY + 'px';
+                    obj.x = newX;
+                    obj.y = newY;
+                    drawConnections();
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            workspace.appendChild(div);
+        }
+
+        function startConnection(e, obj, connector, type) {
+            e.stopPropagation();
+            connectionStarted = { obj, connector, type };
+            console.log("Started connection from", obj.name, connector.name);
+        }
+
+        function endConnection(e, obj, connector, type) {
+            e.stopPropagation();
+            if (connectionStarted && connectionStarted.type !== type) {
+                // We have a connection!
+                const source = connectionStarted.type === 'source' ? connectionStarted : { obj, connector };
+                const sink = connectionStarted.type === 'sink' ? connectionStarted : { obj, connector };
+                
+                currentProject.connections.push({
+                    fromId: source.obj.id,
+                    fromPort: source.connector.name,
+                    toId: sink.obj.id,
+                    toPort: sink.connector.name
+                });
+                drawConnections();
+            }
+            connectionStarted = null;
+        }
+
+        function drawConnections() {
+            const svg = document.getElementById('workspace-svg');
+            // Keep defs
+            const defs = svg.querySelector('defs');
+            svg.innerHTML = '';
+            svg.appendChild(defs);
+
+            currentProject.connections.forEach(conn => {
+                const fromObj = currentProject.objects.find(o => o.id === conn.fromId);
+                const toObj = currentProject.objects.find(o => o.id === conn.toId);
+                if (!fromObj || !toObj) return;
+
+                const fromIdx = fromObj.sources.findIndex(s => s.name === conn.fromPort);
+                const toIdx = toObj.sinks.findIndex(s => s.name === conn.toPort);
+
+                const x1 = fromObj.x + 80; // approximate width
+                const y1 = fromObj.y + 25 + (fromIdx * 15);
+                const x2 = toObj.x;
+                const y2 = toObj.y + 25 + (toIdx * 15);
+
+                const dx = Math.abs(x2 - x1) / 2;
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`);
+                path.setAttribute("class", "connection-line");
+                path.setAttribute("marker-end", "url(#arrowhead)");
+                svg.appendChild(path);
+            });
+        }
+
+        function newProject() {
+            currentProject = { objects: [], connections: [] };
+            const workspace = document.getElementById('workspace');
+            const objects = workspace.querySelectorAll('.workspace-object');
+            objects.forEach(o => o.remove());
+            const svg = document.getElementById('workspace-svg');
+            const defs = svg.querySelector('defs');
+            svg.innerHTML = '';
+            svg.appendChild(defs);
+        }
+
+        async function saveProject() {
+            const name = prompt("Enter project name:", "default");
+            if (!name) return;
+            try {
+                const resp = await fetch(`/api/projects/${name}`, {
+                    method: 'POST',
+                    body: JSON.stringify(currentProject),
+                    headers: { 'content-type': 'application/json' }
+                });
+                if (resp.ok) {
+                    alert("Project saved successfully");
+                }
+            } catch (e) {
+                console.error('Save failed', e);
+            }
+        }
+
+        async function loadProject() {
+            const name = prompt("Enter project name to load:", "default");
+            if (!name) return;
+            try {
+                const resp = await fetch(`/api/projects/${name}`);
+                if (resp.ok) {
+                    currentProject = await resp.json();
+                    const workspace = document.getElementById('workspace');
+                    // Remove existing objects
+                    const objects = workspace.querySelectorAll('.workspace-object');
+                    objects.forEach(o => o.remove());
+                    
+                    const svg = document.getElementById('workspace-svg');
+                    const defs = svg.querySelector('defs');
+                    svg.innerHTML = '';
+                    svg.appendChild(defs);
+
+                    currentProject.objects.forEach(renderObject);
+                    drawConnections();
+                } else {
+                    alert("Project not found");
+                }
+            } catch (e) {
+                console.error('Load failed', e);
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        window.onload = loadPalette;
+    </script>
+</body>
+</html>
