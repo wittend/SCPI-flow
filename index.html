@@ -1,493 +1,1656 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCPI-flow</title>
+    <title>SCPI-flow & Oscilloscope Simulation</title>
     <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #333333;
-            --header-bg: #f0f0f0;
-            --border-color: #cccccc;
-            --palette-bg: #f9f9f9;
-        }
-        [data-theme="dark"] {
-            --bg-color: #2d2d2d;
-            --text-color: #eeeeee;
-            --header-bg: #3d3d3d;
-            --border-color: #555555;
-            --palette-bg: #333333;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-        #menu-bar {
-            background-color: var(--header-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 5px 10px;
-            display: flex;
-            gap: 20px;
-            font-size: 14px;
-        }
-        #toolbar {
-            background-color: var(--header-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 5px 10px;
-            display: flex;
-            gap: 10px;
-        }
-        .menu-item {
-            position: relative;
-            cursor: pointer;
-        }
-        .menu-content {
-            display: none;
-            position: absolute;
-            background-color: var(--header-bg);
-            min-width: 120px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 100;
-            border: 1px solid var(--border-color);
-            top: 100%;
-            left: 0;
-        }
-        .menu-item:hover .menu-content {
-            display: block;
-        }
-        .menu-content a {
-            color: var(--text-color);
-            padding: 8px 12px;
-            text-decoration: none;
-            display: block;
-            font-size: 12px;
-        }
-        .menu-content a:hover {
-            background-color: var(--border-color);
-        }
-        #menu-bar span {
-            cursor: pointer;
-            padding: 2px 5px;
-        }
-        #main-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-        #palette {
-            width: 200px;
-            background-color: var(--palette-bg);
-            border-right: 1px solid var(--border-color);
-            padding: 10px;
-            overflow-y: auto;
-        }
-        #workspace {
-            flex: 1;
-            position: relative;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
-            background-size: 20px 20px;
-            overflow: auto;
-        }
-        .workspace-object {
-            position: absolute;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-color);
-            padding: 5px;
-            cursor: move;
-            min-width: 80px;
-            text-align: center;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            user-select: none;
-        }
-        .connector {
-            width: 10px;
-            height: 10px;
-            background-color: #888;
-            border-radius: 50%;
-            position: absolute;
-            cursor: crosshair;
-        }
-        .connector:hover {
-            background-color: #555;
-            transform: scale(1.2);
-        }
-        .source-connector {
-            right: -5px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .sink-connector {
-            left: -5px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .workspace-object img {
-            width: 30px;
-            height: 30px;
-            pointer-events: none;
-        }
-        .workspace-object .name {
-            font-size: 10px;
-            pointer-events: none;
-        }
-        #workspace-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .connection-line {
-            fill: none;
-            stroke: var(--text-color);
-            stroke-width: 2;
-            pointer-events: visibleStroke;
-        }
-        .arrowhead {
-            fill: var(--text-color);
-        }
-        #status-bar {
-            background-color: var(--header-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 2px 10px;
-            font-size: 12px;
-        }
-        .palette-item {
-            border: 1px solid var(--border-color);
-            padding: 5px;
-            margin-bottom: 5px;
-            text-align: center;
-            cursor: grab;
-            background: var(--bg-color);
-        }
-        .palette-item img {
-            width: 40px;
-            height: 40px;
-            display: block;
-            margin: 0 auto;
-        }
+      :root {
+        --bg-color: #1e1e24;
+        --surface-bg: #2b2d42;
+        --panel-bg: #181920;
+        --text-color: #edf2f4;
+        --text-dim: #8d99ae;
+        --header-bg: #111217;
+        --border-color: #3f4254;
+        --accent-ch1: #f5c518;
+        --accent-ch2: #00d2ff;
+        --accent-trig: #ff5964;
+        --btn-bg: #35374d;
+        --btn-hover: #474a68;
+      }
+      [data-theme="light"] {
+        --bg-color: #f4f5f7;
+        --surface-bg: #ffffff;
+        --panel-bg: #e9ecef;
+        --text-color: #2b2d42;
+        --text-dim: #6c757d;
+        --header-bg: #dfe3e6;
+        --border-color: #ced4da;
+        --accent-ch1: #d4a000;
+        --accent-ch2: #0088cc;
+        --accent-trig: #e63946;
+        --btn-bg: #dee2e6;
+        --btn-hover: #ced4da;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+      }
+      #menu-bar {
+        background-color: var(--header-bg);
+        border-bottom: 1px solid var(--border-color);
+        padding: 6px 15px;
+        display: flex;
+        gap: 20px;
+        font-size: 13px;
+        align-items: center;
+      }
+      #toolbar {
+        background-color: var(--surface-bg);
+        border-bottom: 1px solid var(--border-color);
+        padding: 6px 15px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      button, select, input {
+        background-color: var(--btn-bg);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 4px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: var(--btn-hover);
+      }
+      .menu-item {
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+      }
+      .menu-content {
+        display: none;
+        position: absolute;
+        background-color: var(--surface-bg);
+        min-width: 150px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        top: 100%;
+        left: 0;
+      }
+      .menu-item:hover .menu-content {
+        display: block;
+      }
+      .menu-content a {
+        color: var(--text-color);
+        padding: 8px 14px;
+        text-decoration: none;
+        display: block;
+        font-size: 12px;
+      }
+      .menu-content a:hover {
+        background-color: var(--btn-hover);
+      }
+
+      .tab-btn {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        padding: 6px 12px;
+        font-weight: 600;
+      }
+      .tab-btn.active {
+        border-bottom-color: var(--accent-ch2);
+        color: var(--accent-ch2);
+      }
+
+      #main-view {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+      .view-panel {
+        display: none;
+        flex: 1;
+        width: 100%;
+        height: 100%;
+      }
+      .view-panel.active {
+        display: flex;
+      }
+
+      /* Workspace & Flow styles */
+      #flow-container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+      #palette {
+        width: 220px;
+        background-color: var(--panel-bg);
+        border-right: 1px solid var(--border-color);
+        padding: 12px;
+        overflow-y: auto;
+      }
+      #workspace {
+        flex: 1;
+        position: relative;
+        background-color: var(--bg-color);
+        background-image: radial-gradient(
+          var(--border-color) 1px,
+          transparent 1px
+        );
+        background-size: 20px 20px;
+        overflow: auto;
+      }
+      .workspace-object {
+        position: absolute;
+        border: 1px solid var(--border-color);
+        background-color: var(--surface-bg);
+        padding: 8px;
+        border-radius: 6px;
+        cursor: move;
+        min-width: 90px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        user-select: none;
+        z-index: 10;
+      }
+      .connector {
+        width: 12px;
+        height: 12px;
+        background-color: #8d99ae;
+        border: 2px solid var(--surface-bg);
+        border-radius: 50%;
+        position: absolute;
+        cursor: crosshair;
+      }
+      .connector:hover {
+        background-color: var(--accent-ch2);
+        transform: scale(1.2);
+      }
+      .source-connector {
+        right: -6px;
+      }
+      .sink-connector {
+        left: -6px;
+      }
+      .workspace-object img {
+        width: 36px;
+        height: 36px;
+        pointer-events: none;
+      }
+      .workspace-object .name {
+        font-size: 11px;
+        margin-top: 4px;
+        pointer-events: none;
+      }
+      #workspace-svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+      }
+      .connection-line {
+        fill: none;
+        stroke: var(--accent-ch2);
+        stroke-width: 2.5;
+        pointer-events: stroke;
+      }
+      .palette-item {
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 8px;
+        margin-bottom: 8px;
+        text-align: center;
+        cursor: grab;
+        background: var(--surface-bg);
+      }
+      .palette-item img {
+        width: 36px;
+        height: 36px;
+        display: block;
+        margin: 0 auto;
+      }
+
+      /* Oscilloscope Simulation View styles */
+      #scope-container {
+        display: flex;
+        flex: 1;
+        flex-direction: row;
+        overflow: hidden;
+        background: #0d0e12;
+      }
+      #scope-screen-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      #scope-canvas-container {
+        position: relative;
+        background: #000000;
+        border: 3px solid #333644;
+        border-radius: 8px;
+        box-shadow:
+          inset 0 0 10px rgba(0, 0, 0, 0.8),
+          0 8px 24px rgba(0, 0, 0, 0.5);
+        max-width: 100%;
+        max-height: 100%;
+      }
+      #scope-canvas {
+        display: block;
+        border-radius: 5px;
+      }
+      #scope-controls-area {
+        width: 420px;
+        background-color: var(--surface-bg);
+        border-left: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        padding: 12px;
+        gap: 12px;
+      }
+      .control-group {
+        background-color: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 10px;
+      }
+      .control-group h4 {
+        margin: 0 0 8px 0;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .control-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 11px;
+        gap: 6px;
+      }
+      .control-row label {
+        flex: 1;
+        color: var(--text-dim);
+      }
+      .control-row input[type="range"] {
+        flex: 1.5;
+      }
+      .control-row input[type="number"], .control-row select {
+        width: 80px;
+      }
+
+      .ch1-text {
+        color: var(--accent-ch1);
+        font-weight: bold;
+      }
+      .ch2-text {
+        color: var(--accent-ch2);
+        font-weight: bold;
+      }
+      .trig-text {
+        color: var(--accent-trig);
+        font-weight: bold;
+      }
+
+      /* Measurement table */
+      .meas-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+        margin-top: 4px;
+      }
+      .meas-table th, .meas-table td {
+        padding: 3px 6px;
+        border: 1px solid var(--border-color);
+        text-align: left;
+      }
+      .meas-table th {
+        background-color: var(--header-bg);
+      }
+
+      /* SCPI Console */
+      #scpi-log {
+        height: 100px;
+        background: #000;
+        color: #4ade80;
+        font-family: monospace;
+        font-size: 10px;
+        padding: 6px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        margin-bottom: 6px;
+      }
+
+      #status-bar {
+        background-color: var(--header-bg);
+        border-top: 1px solid var(--border-color);
+        padding: 3px 15px;
+        font-size: 11px;
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-dim);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body data-theme="dark">
+    <!-- Menu Bar -->
     <div id="menu-bar">
-        <div class="menu-item">
-            <span>File</span>
-            <div class="menu-content">
-                <a href="#" onclick="newProject()">New</a>
-                <a href="#" onclick="saveProject()">Save</a>
-                <a href="#" onclick="loadProject()">Load</a>
-            </div>
+      <div class="menu-item">
+        <span>File</span>
+        <div class="menu-content">
+          <a href="#" onclick="newProject()">New Flow</a>
+          <a href="#" onclick="saveProject()">Save Flow</a>
+          <a href="#" onclick="loadProject()">Load Flow</a>
         </div>
-        <div class="menu-item">
-            <span>Edit</span>
-            <div class="menu-content">
-                <a href="#">Undo</a>
-                <a href="#">Redo</a>
-            </div>
+      </div>
+      <div class="menu-item">
+        <span>View</span>
+        <div class="menu-content">
+          <a href="#" onclick="switchView('scope')">Oscilloscope Simulation</a>
+          <a href="#" onclick="switchView('flow')">SCPI-flow Canvas</a>
         </div>
-        <div class="menu-item">
-            <span>Tools</span>
-            <div class="menu-content">
-                <a href="#" onclick="toggleTheme()">Toggle Theme</a>
-            </div>
+      </div>
+      <div class="menu-item">
+        <span>Tools</span>
+        <div class="menu-content">
+          <a href="#" onclick="toggleTheme()">Toggle Dark/Light Mode</a>
+          <a href="#" onclick="resetScope()">Reset Scope (*RST)</a>
         </div>
-        <div class="menu-item">
-            <span>Help</span>
-            <div class="menu-content">
-                <a href="#">Documentation</a>
-                <a href="#">About</a>
-            </div>
+      </div>
+      <div class="menu-item">
+        <span>Help</span>
+        <div class="menu-content">
+          <a href="/docs/source/index.rst" target="_blank">Documentation</a>
+          <a
+            href="#"
+            onclick="alert('Siglent SDS1000X-U Simulated Digital Oscilloscope\nSCPI-flow runtime')"
+          >About</a>
         </div>
+      </div>
     </div>
+
+    <!-- Toolbar -->
     <div id="toolbar">
-        <button onclick="newProject()">New</button>
-        <button onclick="saveProject()">Save</button>
-        <button onclick="loadProject()">Save As</button>
+      <button
+        class="tab-btn active"
+        id="tab-scope"
+        onclick="switchView('scope')"
+      >
+        Oscilloscope View
+      </button>
+      <button class="tab-btn" id="tab-flow" onclick="switchView('flow')">
+        Data Flow Canvas
+      </button>
+      <span style="flex: 1"></span>
+      <button
+        onclick="toggleRunStop()"
+        id="btn-run-stop"
+        style="background: #22c55e; color: #fff; font-weight: bold"
+      >
+        RUN
+      </button>
+      <button onclick="singleSweep()">SINGLE</button>
+      <button onclick="resetScope()">*RST</button>
     </div>
-    <div id="main-container">
-        <div id="palette">
+
+    <!-- Main View Container -->
+    <div id="main-view">
+      <!-- View 1: Oscilloscope Simulation -->
+      <div id="view-scope" class="view-panel active">
+        <div id="scope-container">
+          <!-- Left: Scope Screen Canvas -->
+          <div id="scope-screen-area">
+            <div id="scope-canvas-container">
+              <canvas id="scope-canvas" width="880" height="520"></canvas>
+            </div>
+          </div>
+
+          <!-- Right: Oscilloscope & Generator Controls -->
+          <div id="scope-controls-area">
+            <!-- Channel 1 Controls -->
+            <div class="control-group">
+              <h4 class="ch1-text">
+                <span>CH1 (Yellow)</span>
+                <label><input
+                    type="checkbox"
+                    id="ch1-enable"
+                    checked
+                    onchange="updateCh1State()"
+                  > ON</label>
+              </h4>
+              <div class="control-row">
+                <label>Waveform</label>
+                <select id="ch1-wave" onchange="updateCh1State()">
+                  <option value="sine" selected>Sine</option>
+                  <option value="square">Square</option>
+                  <option value="triangle">Triangle</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="dc">DC</option>
+                  <option value="noise">Noise</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label>Frequency (Hz)</label>
+                <input
+                  type="number"
+                  id="ch1-freq"
+                  value="1000"
+                  min="1"
+                  max="100000"
+                  step="100"
+                  onchange="updateCh1State()"
+                >
+              </div>
+              <div class="control-row">
+                <label>Amplitude (V)</label>
+                <input
+                  type="number"
+                  id="ch1-amp"
+                  value="1.0"
+                  min="0.05"
+                  max="10"
+                  step="0.1"
+                  onchange="updateCh1State()"
+                >
+              </div>
+              <div class="control-row">
+                <label>DC Offset (V)</label>
+                <input
+                  type="number"
+                  id="ch1-offset"
+                  value="0.0"
+                  min="-5"
+                  max="5"
+                  step="0.1"
+                  onchange="updateCh1State()"
+                >
+              </div>
+              <div class="control-row">
+                <label>Scale (V/div)</label>
+                <select id="ch1-vdiv" onchange="updateCh1State()">
+                  <option value="0.1">100 mV</option>
+                  <option value="0.2">200 mV</option>
+                  <option value="0.5">500 mV</option>
+                  <option value="1.0" selected>1.00 V</option>
+                  <option value="2.0">2.00 V</option>
+                  <option value="5.0">5.00 V</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label>Coupling</label>
+                <select id="ch1-coup" onchange="updateCh1State()">
+                  <option value="DC" selected>DC 1MΩ</option>
+                  <option value="AC">AC 1MΩ</option>
+                  <option value="GND">GND</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Channel 2 Controls -->
+            <div class="control-group">
+              <h4 class="ch2-text">
+                <span>CH2 (Cyan)</span>
+                <label><input
+                    type="checkbox"
+                    id="ch2-enable"
+                    checked
+                    onchange="updateCh2State()"
+                  > ON</label>
+              </h4>
+              <div class="control-row">
+                <label>Waveform</label>
+                <select id="ch2-wave" onchange="updateCh2State()">
+                  <option value="sine">Sine</option>
+                  <option value="square" selected>Square</option>
+                  <option value="triangle">Triangle</option>
+                  <option value="sawtooth">Sawtooth</option>
+                  <option value="dc">DC</option>
+                  <option value="noise">Noise</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label>Frequency (Hz)</label>
+                <input
+                  type="number"
+                  id="ch2-freq"
+                  value="2000"
+                  min="1"
+                  max="100000"
+                  step="100"
+                  onchange="updateCh2State()"
+                >
+              </div>
+              <div class="control-row">
+                <label>Amplitude (V)</label>
+                <input
+                  type="number"
+                  id="ch2-amp"
+                  value="1.0"
+                  min="0.05"
+                  max="10"
+                  step="0.1"
+                  onchange="updateCh2State()"
+                >
+              </div>
+              <div class="control-row">
+                <label>DC Offset (V)</label>
+                <input
+                  type="number"
+                  id="ch2-offset"
+                  value="0.0"
+                  min="-5"
+                  max="5"
+                  step="0.1"
+                  onchange="updateCh2State()"
+                >
+              </div>
+              <div class="control-row">
+                <label>Scale (V/div)</label>
+                <select id="ch2-vdiv" onchange="updateCh2State()">
+                  <option value="0.1">100 mV</option>
+                  <option value="0.2">200 mV</option>
+                  <option value="0.5">500 mV</option>
+                  <option value="1.0" selected>1.00 V</option>
+                  <option value="2.0">2.00 V</option>
+                  <option value="5.0">5.00 V</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label>Coupling</label>
+                <select id="ch2-coup" onchange="updateCh2State()">
+                  <option value="DC" selected>DC 1MΩ</option>
+                  <option value="AC">AC 1MΩ</option>
+                  <option value="GND">GND</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Horizontal & Trigger Controls -->
+            <div class="control-group">
+              <h4>Timebase & Trigger</h4>
+              <div class="control-row">
+                <label>Time/Div</label>
+                <select id="tb-scale" onchange="updateTimebaseState()">
+                  <option value="0.0001">100 µs</option>
+                  <option value="0.0002">200 µs</option>
+                  <option value="0.0005" selected>500 µs</option>
+                  <option value="0.001">1.00 ms</option>
+                  <option value="0.002">2.00 ms</option>
+                  <option value="0.005">5.00 ms</option>
+                  <option value="0.01">10.0 ms</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label>Trig Source</label>
+                <select id="trig-src" onchange="updateTriggerState()">
+                  <option value="CH1" selected>CH1</option>
+                  <option value="CH2">CH2</option>
+                  <option value="EXT">EXT</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label>Trig Mode</label>
+                <select id="trig-mode" onchange="updateTriggerState()">
+                  <option value="AUTO" selected>Auto</option>
+                  <option value="NORM">Normal</option>
+                  <option value="SINGLE">Single</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label>Trig Slope</label>
+                <select id="trig-slope" onchange="updateTriggerState()">
+                  <option value="POS" selected>Rising (+)</option>
+                  <option value="NEG">Falling (-)</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label>Trig Level (V)</label>
+                <input
+                  type="number"
+                  id="trig-lev"
+                  value="0.0"
+                  min="-5"
+                  max="5"
+                  step="0.1"
+                  onchange="updateTriggerState()"
+                >
+              </div>
+            </div>
+
+            <!-- Display & Cursors -->
+            <div class="control-group">
+              <h4>Display & Cursors</h4>
+              <div class="control-row">
+                <label>Grid Mode</label>
+                <select id="disp-grid" onchange="updateDisplayState()">
+                  <option value="FULL" selected>Full Grid</option>
+                  <option value="HALF">Crosshair Only</option>
+                  <option value="OFF">Off</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label>Cursors</label>
+                <select id="curs-type" onchange="updateCursorState()">
+                  <option value="OFF" selected>Off</option>
+                  <option value="MANUAL">Manual</option>
+                  <option value="TRACK">Track</option>
+                </select>
+              </div>
+              <div class="control-row">
+                <label><input
+                    type="checkbox"
+                    id="disp-ruler"
+                    checked
+                    onchange="updateDisplayState()"
+                  > Rulers</label>
+                <label><input
+                    type="checkbox"
+                    id="disp-colorscale"
+                    checked
+                    onchange="updateDisplayState()"
+                  > Color Scale</label>
+              </div>
+            </div>
+
+            <!-- Measurements Readout -->
+            <div class="control-group">
+              <h4>Automated Measurements</h4>
+              <table class="meas-table">
+                <thead>
+                  <tr>
+                    <th>Param</th>
+                    <th class="ch1-text">CH1</th>
+                    <th class="ch2-text">CH2</th>
+                  </tr>
+                </thead>
+                <tbody id="meas-tbody">
+                  <tr>
+                    <td>Vpp</td>
+                    <td id="m-ch1-vpp">-</td>
+                    <td id="m-ch2-vpp">-</td>
+                  </tr>
+                  <tr>
+                    <td>Vrms</td>
+                    <td id="m-ch1-vrms">-</td>
+                    <td id="m-ch2-vrms">-</td>
+                  </tr>
+                  <tr>
+                    <td>Vmax/min</td>
+                    <td id="m-ch1-vmaxmin">-</td>
+                    <td id="m-ch2-vmaxmin">-</td>
+                  </tr>
+                  <tr>
+                    <td>Freq</td>
+                    <td id="m-ch1-freq">-</td>
+                    <td id="m-ch2-freq">-</td>
+                  </tr>
+                  <tr>
+                    <td>Period</td>
+                    <td id="m-ch1-per">-</td>
+                    <td id="m-ch2-per">-</td>
+                  </tr>
+                  <tr>
+                    <td>Rise/Fall</td>
+                    <td id="m-ch1-rf">-</td>
+                    <td id="m-ch2-rf">-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Interactive SCPI Terminal Console -->
+            <div class="control-group">
+              <h4>SCPI Command Console</h4>
+              <div id="scpi-log">
+                Connected to SCPI Engine (Siglent SDS1000X-U)&#10;Type commands
+                below or use quick buttons.
+              </div>
+              <div style="display: flex; gap: 4px; margin-bottom: 6px">
+                <input
+                  type="text"
+                  id="scpi-input"
+                  placeholder="e.g. *IDN?, MEAS:ALL?, C1:VDIV 2"
+                  style="flex: 1"
+                  onkeydown="if(event.key==='Enter') sendScpiCmd()"
+                >
+                <button onclick="sendScpiCmd()">Send</button>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px">
+                <button onclick="quickScpi('*IDN?')">*IDN?</button>
+                <button onclick="quickScpi('*STB?')">*STB?</button>
+                <button onclick="quickScpi('SYST:ERR?')">SYST:ERR?</button>
+                <button onclick="quickScpi('C1:PAVA? ALL')">C1:PAVA?</button>
+                <button onclick="quickScpi('MEAS:ALL?')">MEAS:ALL?</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View 2: Flow Canvas -->
+      <div id="view-flow" class="view-panel">
+        <div id="flow-container">
+          <div id="palette">
             <h3>Palette</h3>
             <div id="palette-items"></div>
-        </div>
-        <div id="workspace" ondrop="drop(event)" ondragover="allowDrop(event)">
+          </div>
+          <div
+            id="workspace"
+            ondrop="drop(event)"
+            ondragover="allowDrop(event)"
+          >
             <svg id="workspace-svg">
-                <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-                    refX="9" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" class="arrowhead" />
-                    </marker>
-                </defs>
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" class="arrowhead" />
+                </marker>
+              </defs>
             </svg>
-            <!-- Objects will be added here -->
+          </div>
         </div>
+      </div>
     </div>
+
+    <!-- Status Bar -->
     <div id="status-bar">
-        Ready
+      <span id="status-left"
+      >Status: Ready | Instrument: Siglent SDS1202X-E Simulation</span>
+      <span id="status-right">Sample Rate: 1.00 MSa/s | 1000 pts</span>
     </div>
 
+    <!-- Application Script -->
     <script>
-        let currentProject = {
-            objects: [],
-            connections: []
-        };
-        let connectionStarted = null;
+      // --- Oscilloscope State & Canvas Renderer ---
+      const canvas = document.getElementById("scope-canvas");
+      const ctx = canvas.getContext("2d");
 
-        async function loadPalette() {
-            try {
-                const response = await fetch('/api/palette');
-                const palette = await response.json();
-                const container = document.getElementById('palette-items');
-                palette.sort((a, b) => a.ordinal - b.ordinal).forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'palette-item';
-                    div.draggable = true;
-                    div.innerHTML = `
+      let scopeRunning = true;
+      let animationFrameId = null;
+
+      // Local copy of instrument state
+      const scopeState = {
+        title: "Siglent SDS1000X-U Digital Oscilloscope Simulation",
+        timebase: { timeDiv: 0.0005, offset: 0, zoom: 1, divs: 14 },
+        trigger: {
+          source: "CH1",
+          mode: "AUTO",
+          slope: "POS",
+          level: 0.0,
+          status: "Auto",
+        },
+        cursors: {
+          type: "OFF",
+          source: "CH1",
+          x1: -0.0005,
+          x2: 0.0005,
+          y1: 1.0,
+          y2: -1.0,
+        },
+        display: {
+          grid: "FULL",
+          ruler: true,
+          colorScale: true,
+          colorLegend: true,
+          crosshair: true,
+        },
+        ch1: {
+          enabled: true,
+          wave: "sine",
+          freq: 1000,
+          amp: 1.0,
+          offset: 0.0,
+          voltDiv: 1.0,
+          coup: "DC",
+          color: "#f5c518",
+        },
+        ch2: {
+          enabled: true,
+          wave: "square",
+          freq: 2000,
+          amp: 1.0,
+          offset: 0.0,
+          voltDiv: 1.0,
+          coup: "DC",
+          color: "#00d2ff",
+        },
+      };
+
+      function switchView(viewName) {
+        document.querySelectorAll(".view-panel").forEach((p) =>
+          p.classList.remove("active")
+        );
+        document.querySelectorAll(".tab-btn").forEach((b) =>
+          b.classList.remove("active")
+        );
+        if (viewName === "scope") {
+          document.getElementById("view-scope").classList.add("active");
+          document.getElementById("tab-scope").classList.add("active");
+        } else {
+          document.getElementById("view-flow").classList.add("active");
+          document.getElementById("tab-flow").classList.add("active");
+        }
+      }
+
+      function toggleTheme() {
+        const current = document.body.getAttribute("data-theme");
+        document.body.setAttribute(
+          "data-theme",
+          current === "dark" ? "light" : "dark",
+        );
+      }
+
+      function toggleRunStop() {
+        scopeRunning = !scopeRunning;
+        const btn = document.getElementById("btn-run-stop");
+        if (scopeRunning) {
+          btn.textContent = "RUN";
+          btn.style.background = "#22c55e";
+          sendScpiCommand("RUN");
+        } else {
+          btn.textContent = "STOP";
+          btn.style.background = "#ef4444";
+          sendScpiCommand("STOP");
+        }
+      }
+
+      function singleSweep() {
+        scopeRunning = true;
+        sendScpiCommand("TRIG:MODE SINGLE; ARM");
+      }
+
+      function resetScope() {
+        sendScpiCommand("*RST");
+        setTimeout(fetchScopeFrame, 100);
+      }
+
+      // Send SCPI helper
+      async function sendScpiCommand(cmd) {
+        try {
+          const resp = await fetch("/api/scope/command", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ command: cmd }),
+          });
+          const data = await resp.json();
+          return data.response;
+        } catch (e) {
+          console.error("SCPI command error:", e);
+          return null;
+        }
+      }
+
+      async function sendScpiCmd() {
+        const input = document.getElementById("scpi-input");
+        const cmd = input.value.trim();
+        if (!cmd) return;
+        logScpi(`> ${cmd}`);
+        const response = await sendScpiCommand(cmd);
+        if (response !== null && response !== undefined) {
+          logScpi(`< ${response}`);
+        }
+        input.value = "";
+        fetchScopeFrame();
+      }
+
+      function quickScpi(cmd) {
+        document.getElementById("scpi-input").value = cmd;
+        sendScpiCmd();
+      }
+
+      function logScpi(text) {
+        const log = document.getElementById("scpi-log");
+        log.innerHTML += `\n${text}`;
+        log.scrollTop = log.scrollHeight;
+      }
+
+      function updateCh1State() {
+        const en = document.getElementById("ch1-enable").checked
+          ? "ON"
+          : "OFF";
+        const wave = document.getElementById("ch1-wave").value;
+        const freq = document.getElementById("ch1-freq").value;
+        const amp = document.getElementById("ch1-amp").value;
+        const ofst = document.getElementById("ch1-offset").value;
+        const vdiv = document.getElementById("ch1-vdiv").value;
+        const coup = document.getElementById("ch1-coup").value;
+
+        sendScpiCommand(
+          `C1:TRA ${en}; C1:WAVE:TYPE ${wave}; C1:WAVE:FREQ ${freq}; C1:WAVE:AMP ${amp}; C1:WAVE:OFST ${ofst}; C1:VDIV ${vdiv}; C1:COUP ${coup}`,
+        );
+        fetchScopeFrame();
+      }
+
+      function updateCh2State() {
+        const en = document.getElementById("ch2-enable").checked
+          ? "ON"
+          : "OFF";
+        const wave = document.getElementById("ch2-wave").value;
+        const freq = document.getElementById("ch2-freq").value;
+        const amp = document.getElementById("ch2-amp").value;
+        const ofst = document.getElementById("ch2-offset").value;
+        const vdiv = document.getElementById("ch2-vdiv").value;
+        const coup = document.getElementById("ch2-coup").value;
+
+        sendScpiCommand(
+          `C2:TRA ${en}; C2:WAVE:TYPE ${wave}; C2:WAVE:FREQ ${freq}; C2:WAVE:AMP ${amp}; C2:WAVE:OFST ${ofst}; C2:VDIV ${vdiv}; C2:COUP ${coup}`,
+        );
+        fetchScopeFrame();
+      }
+
+      function updateTimebaseState() {
+        const tdiv = document.getElementById("tb-scale").value;
+        sendScpiCommand(`TDIV ${tdiv}`);
+        fetchScopeFrame();
+      }
+
+      function updateTriggerState() {
+        const src = document.getElementById("trig-src").value;
+        const mode = document.getElementById("trig-mode").value;
+        const slope = document.getElementById("trig-slope").value;
+        const lev = document.getElementById("trig-lev").value;
+        sendScpiCommand(
+          `TRIG:SOUR ${src}; TRIG:MODE ${mode}; TRIG:SLOP ${slope}; TRIG:LEV ${lev}`,
+        );
+        fetchScopeFrame();
+      }
+
+      function updateDisplayState() {
+        const grid = document.getElementById("disp-grid").value;
+        const ruler = document.getElementById("disp-ruler").checked
+          ? "ON"
+          : "OFF";
+        const col = document.getElementById("disp-colorscale").checked
+          ? "ON"
+          : "OFF";
+        sendScpiCommand(
+          `DISP:GRID ${grid}; DISP:RULER ${ruler}; DISP:COLORSCALE ${col}`,
+        );
+        fetchScopeFrame();
+      }
+
+      function updateCursorState() {
+        const type = document.getElementById("curs-type").value;
+        sendScpiCommand(`CURS:TYPE ${type}`);
+        fetchScopeFrame();
+      }
+
+      // Fetch frame data and render
+      let currentFrame = null;
+      async function fetchScopeFrame() {
+        try {
+          const resp = await fetch("/api/scope/frame");
+          if (resp.ok) {
+            currentFrame = await resp.json();
+            updateMeasurementTable(currentFrame);
+          }
+        } catch (e) {
+          // Ignore network errors in polling
+        }
+      }
+
+      function updateMeasurementTable(frame) {
+        if (!frame) return;
+        const m1 = frame.ch1.data?.measurements;
+        const m2 = frame.ch2.data?.measurements;
+
+        if (m1) {
+          document.getElementById("m-ch1-vpp").textContent = `${
+            m1.vpp.toFixed(2)
+          } V`;
+          document.getElementById("m-ch1-vrms").textContent = `${
+            m1.vrms.toFixed(2)
+          } V`;
+          document.getElementById("m-ch1-vmaxmin").textContent = `${
+            m1.vmax.toFixed(2)
+          } / ${m1.vmin.toFixed(2)} V`;
+          document.getElementById("m-ch1-freq").textContent = `${
+            m1.frequency.toFixed(1)
+          } Hz`;
+          document.getElementById("m-ch1-per").textContent = `${
+            (m1.period * 1000).toFixed(2)
+          } ms`;
+          document.getElementById("m-ch1-rf").textContent = `${
+            (m1.riseTime * 1e6).toFixed(1)
+          } / ${(m1.fallTime * 1e6).toFixed(1)} µs`;
+        }
+        if (m2) {
+          document.getElementById("m-ch2-vpp").textContent = `${
+            m2.vpp.toFixed(2)
+          } V`;
+          document.getElementById("m-ch2-vrms").textContent = `${
+            m2.vrms.toFixed(2)
+          } V`;
+          document.getElementById("m-ch2-vmaxmin").textContent = `${
+            m2.vmax.toFixed(2)
+          } / ${m2.vmin.toFixed(2)} V`;
+          document.getElementById("m-ch2-freq").textContent = `${
+            m2.frequency.toFixed(1)
+          } Hz`;
+          document.getElementById("m-ch2-per").textContent = `${
+            (m2.period * 1000).toFixed(2)
+          } ms`;
+          document.getElementById("m-ch2-rf").textContent = `${
+            (m2.riseTime * 1e6).toFixed(1)
+          } / ${(m2.fallTime * 1e6).toFixed(1)} µs`;
+        }
+      }
+
+      // Main Oscilloscope Screen Render Loop
+      function drawScope() {
+        const W = canvas.width;
+        const H = canvas.height;
+
+        // Background
+        ctx.fillStyle = "#0c0d10";
+        ctx.fillRect(0, 0, W, H);
+
+        // Scope margins for rulers, legends, titles
+        const margin = { top: 38, bottom: 35, left: 45, right: 40 };
+        const plotW = W - margin.left - margin.right;
+        const plotH = H - margin.top - margin.bottom;
+
+        // Screen frame
+        ctx.strokeStyle = "#272a38";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(margin.left, margin.top, plotW, plotH);
+
+        const vDivs = 8;
+        const hDivs = 14;
+
+        // 1. Grid rendering
+        const gridMode = currentFrame?.display?.grid || "FULL";
+        if (gridMode !== "OFF") {
+          ctx.lineWidth = 1;
+
+          // Major horizontal grid lines
+          for (let i = 0; i <= vDivs; i++) {
+            const y = margin.top + (i / vDivs) * plotH;
+            ctx.strokeStyle = (i === vDivs / 2)
+              ? "#3b4252"
+              : (gridMode === "FULL" ? "#1e222d" : "transparent");
+            ctx.beginPath();
+            ctx.moveTo(margin.left, y);
+            ctx.lineTo(margin.left + plotW, y);
+            ctx.stroke();
+
+            // Minor tick marks across center horizontal axis
+            if (i === vDivs / 2) {
+              for (let t = 0; t <= hDivs * 5; t++) {
+                const tx = margin.left + (t / (hDivs * 5)) * plotW;
+                ctx.strokeStyle = "#4c566a";
+                ctx.beginPath();
+                ctx.moveTo(tx, y - (t % 5 === 0 ? 5 : 2));
+                ctx.lineTo(tx, y + (t % 5 === 0 ? 5 : 2));
+                ctx.stroke();
+              }
+            }
+          }
+
+          // Major vertical grid lines
+          for (let j = 0; j <= hDivs; j++) {
+            const x = margin.left + (j / hDivs) * plotW;
+            ctx.strokeStyle = (j === hDivs / 2)
+              ? "#3b4252"
+              : (gridMode === "FULL" ? "#1e222d" : "transparent");
+            ctx.beginPath();
+            ctx.moveTo(x, margin.top);
+            ctx.lineTo(x, margin.top + plotH);
+            ctx.stroke();
+
+            // Minor tick marks across center vertical axis
+            if (j === hDivs / 2) {
+              for (let t = 0; t <= vDivs * 5; t++) {
+                const ty = margin.top + (t / (vDivs * 5)) * plotH;
+                ctx.strokeStyle = "#4c566a";
+                ctx.beginPath();
+                ctx.moveTo(x - (t % 5 === 0 ? 5 : 2), ty);
+                ctx.lineTo(x + (t % 5 === 0 ? 5 : 2), ty);
+                ctx.stroke();
+              }
+            }
+          }
+        }
+
+        // 2. Rulers & Axis Graduations
+        if (currentFrame?.display?.ruler) {
+          ctx.fillStyle = "#8d99ae";
+          ctx.font = "10px monospace";
+          ctx.textAlign = "right";
+
+          // Vertical voltage ticks (CH1 reference)
+          const vDiv1 = currentFrame?.ch1?.voltDiv || 1.0;
+          for (let i = 0; i <= vDivs; i++) {
+            const vVal = ((vDivs / 2 - i) * vDiv1).toFixed(1);
+            const y = margin.top + (i / vDivs) * plotH;
+            ctx.fillText(`${vVal}V`, margin.left - 5, y + 3);
+          }
+
+          // Horizontal time ticks
+          ctx.textAlign = "center";
+          const tDiv = currentFrame?.timebase?.timeDiv || 0.0005;
+          for (let j = 0; j <= hDivs; j += 2) {
+            const tVal = (((j - hDivs / 2) * tDiv) * 1000).toFixed(1);
+            const x = margin.left + (j / hDivs) * plotW;
+            ctx.fillText(`${tVal}ms`, x, margin.top + plotH + 15);
+          }
+        }
+
+        // 3. Render Waveforms
+        if (currentFrame) {
+          // CH1 (Yellow)
+          if (currentFrame.ch1.enabled && currentFrame.ch1.data) {
+            const vArr = currentFrame.ch1.data.voltage;
+            const vDiv = currentFrame.ch1.voltDiv;
+            const vOfst = currentFrame.ch1.offset;
+            const totalV = vDiv * vDivs;
+
+            ctx.strokeStyle = "#f5c518";
+            ctx.lineWidth = 2;
+            ctx.shadowColor = "#f5c518";
+            ctx.shadowBlur = 4;
+            ctx.beginPath();
+
+            for (let i = 0; i < vArr.length; i++) {
+              const x = margin.left + (i / (vArr.length - 1)) * plotW;
+              const v = vArr[i];
+              const norm = (v - vOfst) / totalV;
+              const y = margin.top + (plotH / 2) - norm * plotH;
+              if (i === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0; // Reset blur
+
+            // CH1 Ground Marker '1⏚'
+            const gndY1 = margin.top + (plotH / 2) +
+              (vOfst / totalV) * plotH;
+            ctx.fillStyle = "#f5c518";
+            ctx.font = "bold 11px sans-serif";
+            ctx.textAlign = "right";
+            ctx.fillText(
+              "1⏚",
+              margin.left - 2,
+              Math.max(
+                margin.top + 10,
+                Math.min(margin.top + plotH - 5, gndY1 + 4),
+              ),
+            );
+          }
+
+          // CH2 (Cyan)
+          if (currentFrame.ch2.enabled && currentFrame.ch2.data) {
+            const vArr = currentFrame.ch2.data.voltage;
+            const vDiv = currentFrame.ch2.voltDiv;
+            const vOfst = currentFrame.ch2.offset;
+            const totalV = vDiv * vDivs;
+
+            ctx.strokeStyle = "#00d2ff";
+            ctx.lineWidth = 2;
+            ctx.shadowColor = "#00d2ff";
+            ctx.shadowBlur = 4;
+            ctx.beginPath();
+
+            for (let i = 0; i < vArr.length; i++) {
+              const x = margin.left + (i / (vArr.length - 1)) * plotW;
+              const v = vArr[i];
+              const norm = (v - vOfst) / totalV;
+              const y = margin.top + (plotH / 2) - norm * plotH;
+              if (i === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // CH2 Ground Marker '2⏚'
+            const gndY2 = margin.top + (plotH / 2) +
+              (vOfst / totalV) * plotH;
+            ctx.fillStyle = "#00d2ff";
+            ctx.font = "bold 11px sans-serif";
+            ctx.textAlign = "right";
+            ctx.fillText(
+              "2⏚",
+              margin.left - 2,
+              Math.max(
+                margin.top + 10,
+                Math.min(margin.top + plotH - 5, gndY2 + 14),
+              ),
+            );
+          }
+        }
+
+        // 4. Trigger Level Marker 'T'
+        if (currentFrame) {
+          const trigLev = currentFrame.trigger.level;
+          const trigSrc = currentFrame.trigger.source;
+          const refVDiv = trigSrc === "CH2"
+            ? currentFrame.ch2.voltDiv
+            : currentFrame.ch1.voltDiv;
+          const trigY = margin.top + (plotH / 2) -
+            (trigLev / (refVDiv * vDivs)) * plotH;
+
+          ctx.fillStyle = "#ff5964";
+          ctx.textAlign = "left";
+          ctx.fillText(
+            "▶T",
+            margin.left + plotW + 2,
+            Math.max(
+              margin.top + 10,
+              Math.min(margin.top + plotH - 5, trigY + 4),
+            ),
+          );
+        }
+
+        // 5. Cursors (X1, X2, Y1, Y2)
+        if (
+          currentFrame?.cursors?.type &&
+          currentFrame.cursors.type !== "OFF"
+        ) {
+          ctx.setLineDash([4, 4]);
+          ctx.lineWidth = 1;
+
+          // X Cursors (Vertical Lines)
+          const tTotal = currentFrame.timebase.timeDiv * hDivs;
+          const x1Px = margin.left + plotW / 2 +
+            (currentFrame.cursors.x1 / tTotal) * plotW;
+          const x2Px = margin.left + plotW / 2 +
+            (currentFrame.cursors.x2 / tTotal) * plotW;
+
+          ctx.strokeStyle = "#a855f7";
+          ctx.beginPath();
+          ctx.moveTo(x1Px, margin.top);
+          ctx.lineTo(x1Px, margin.top + plotH);
+          ctx.moveTo(x2Px, margin.top);
+          ctx.lineTo(x2Px, margin.top + plotH);
+          ctx.stroke();
+
+          // Readout
+          ctx.fillStyle = "#a855f7";
+          ctx.font = "11px monospace";
+          ctx.textAlign = "left";
+          ctx.fillText(
+            `ΔX:${
+              (currentFrame.cursors.deltaX * 1000).toFixed(2)
+            }ms (1/ΔX:${currentFrame.cursors.frequency.toFixed(1)}Hz)`,
+            margin.left + 10,
+            margin.top + plotH - 10,
+          );
+          ctx.setLineDash([]);
+        }
+
+        // 6. Header Status Legend & Title
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText(
+          currentFrame?.display?.title ||
+            "Siglent SDS1000X-U Simulation",
+          margin.left,
+          20,
+        );
+
+        // Channel badges
+        ctx.font = "11px sans-serif";
+        const ch1Text = `CH1: ${currentFrame?.ch1?.voltDiv || 1.0}V/ ${
+          currentFrame?.ch1?.coupling || "DC"
+        }`;
+        const ch2Text = `CH2: ${currentFrame?.ch2?.voltDiv || 1.0}V/ ${
+          currentFrame?.ch2?.coupling || "DC"
+        }`;
+        const tbText = `TB: ${
+          ((currentFrame?.timebase?.timeDiv || 0.0005) * 1000).toFixed(
+            2,
+          )
+        }ms/`;
+
+        ctx.fillStyle = "#f5c518";
+        ctx.fillText(ch1Text, margin.left + 350, 20);
+        ctx.fillStyle = "#00d2ff";
+        ctx.fillText(ch2Text, margin.left + 470, 20);
+        ctx.fillStyle = "#4ade80";
+        ctx.fillText(tbText, margin.left + 590, 20);
+        ctx.fillStyle = "#ff5964";
+        ctx.fillText(
+          `Trig:${currentFrame?.trigger?.source || "CH1"} (${
+            currentFrame?.trigger?.status || "Auto"
+          })`,
+          margin.left + 700,
+          20,
+        );
+
+        // 7. Color Scale Indicator on side
+        if (currentFrame?.display?.colorScale) {
+          const grad = ctx.createLinearGradient(
+            0,
+            margin.top,
+            0,
+            margin.top + plotH,
+          );
+          grad.addColorStop(0, "#ff0055");
+          grad.addColorStop(0.3, "#f5c518");
+          grad.addColorStop(0.7, "#00d2ff");
+          grad.addColorStop(1, "#1e222d");
+          ctx.fillStyle = grad;
+          ctx.fillRect(W - 22, margin.top, 8, plotH);
+          ctx.strokeStyle = "#3f4254";
+          ctx.strokeRect(W - 22, margin.top, 8, plotH);
+        }
+      }
+
+      // Animation Loop
+      function loop() {
+        if (scopeRunning) {
+          fetchScopeFrame();
+        }
+        drawScope();
+        animationFrameId = requestAnimationFrame(loop);
+      }
+
+      // --- Flow Canvas & Palette Logic ---
+      let currentProject = { objects: [], connections: [] };
+      let connectionStarted = null;
+
+      async function loadPalette() {
+        try {
+          const response = await fetch("/api/palette");
+          const palette = await response.json();
+          const container = document.getElementById("palette-items");
+          container.innerHTML = "";
+          palette.sort((a, b) => a.ordinal - b.ordinal).forEach(
+            (item) => {
+              const div = document.createElement("div");
+              div.className = "palette-item";
+              div.draggable = true;
+              div.innerHTML = `
                         <img src="${item.icon}" alt="${item.name}">
-                        <div>${item.name}</div>
+                        <div style="font-size:11px;margin-top:4px;">${item.name}</div>
                     `;
-                    div.ondragstart = (e) => {
-                        e.dataTransfer.setData("text/plain", JSON.stringify(item));
-                    };
-                    container.appendChild(div);
-                });
-            } catch (e) {
-                console.error('Failed to load palette', e);
-            }
+              div.ondragstart = (e) => {
+                e.dataTransfer.setData(
+                  "text/plain",
+                  JSON.stringify(item),
+                );
+              };
+              container.appendChild(div);
+            },
+          );
+        } catch (e) {
+          console.error("Failed to load palette", e);
         }
+      }
 
-        function allowDrop(ev) {
-            ev.preventDefault();
+      function allowDrop(ev) {
+        ev.preventDefault();
+      }
+
+      async function drop(ev) {
+        ev.preventDefault();
+        const dataStr = ev.dataTransfer.getData("text/plain");
+        if (!dataStr) return;
+        const item = JSON.parse(dataStr);
+
+        const rect = document.getElementById("workspace")
+          .getBoundingClientRect();
+        const x = ev.clientX - rect.left;
+        const y = ev.clientY - rect.top;
+
+        try {
+          const resp = await fetch(`/api/obj/${item.guid}`);
+          const objDef = await resp.json();
+          addObjectToWorkspace(item, x, y, objDef);
+        } catch (e) {
+          addObjectToWorkspace(item, x, y, {
+            source_connectors: [],
+            sink_connectors: [],
+          });
         }
+      }
 
-        async function drop(ev) {
-            ev.preventDefault();
-            const dataStr = ev.dataTransfer.getData("text/plain");
-            if (!dataStr) return;
-            const item = JSON.parse(dataStr);
-            
-            const rect = document.getElementById('workspace').getBoundingClientRect();
-            const x = ev.clientX - rect.left;
-            const y = ev.clientY - rect.top;
+      function addObjectToWorkspace(item, x, y, objDef) {
+        const id = "obj-" + Date.now();
+        const obj = {
+          id,
+          guid: item.guid,
+          name: item.name,
+          icon: item.icon,
+          x,
+          y,
+          sources: objDef.source_connectors || [],
+          sinks: objDef.sink_connectors || [],
+        };
+        currentProject.objects.push(obj);
+        renderObject(obj);
+      }
 
-            // Fetch full object definition to get connectors
-            try {
-                const resp = await fetch(`/api/obj/${item.guid}`);
-                const objDef = await resp.json();
-                addObjectToWorkspace(item, x, y, objDef);
-            } catch (e) {
-                console.error("Failed to load object definition", e);
-                addObjectToWorkspace(item, x, y, { source_connectors: [], sink_connectors: [] });
-            }
-        }
-
-        function addObjectToWorkspace(item, x, y, objDef) {
-            const id = 'obj-' + Date.now();
-            const obj = {
-                id,
-                guid: item.guid,
-                name: item.name,
-                icon: item.icon,
-                x,
-                y,
-                sources: objDef.source_connectors || [],
-                sinks: objDef.sink_connectors || []
-            };
-            currentProject.objects.push(obj);
-            renderObject(obj);
-        }
-
-        function renderObject(obj) {
-            const workspace = document.getElementById('workspace');
-            const div = document.createElement('div');
-            div.id = obj.id;
-            div.className = 'workspace-object';
-            div.style.left = obj.x + 'px';
-            div.style.top = obj.y + 'px';
-            div.innerHTML = `
+      function renderObject(obj) {
+        const workspace = document.getElementById("workspace");
+        const div = document.createElement("div");
+        div.id = obj.id;
+        div.className = "workspace-object";
+        div.style.left = obj.x + "px";
+        div.style.top = obj.y + "px";
+        div.innerHTML = `
                 <img src="${obj.icon}">
                 <div class="name">${obj.name}</div>
             `;
-            
-            // Render connectors
-            obj.sources.forEach((src, idx) => {
-                const conn = document.createElement('div');
-                conn.className = 'connector source-connector';
-                conn.title = src.name;
-                conn.style.top = `${20 + idx * 15}px`;
-                conn.onmousedown = (e) => startConnection(e, obj, src, 'source');
-                div.appendChild(conn);
-            });
 
-            obj.sinks.forEach((sink, idx) => {
-                const conn = document.createElement('div');
-                conn.className = 'connector sink-connector';
-                conn.title = sink.name;
-                conn.style.top = `${20 + idx * 15}px`;
-                conn.onmouseup = (e) => endConnection(e, obj, sink, 'sink');
-                div.appendChild(conn);
-            });
+        obj.sources.forEach((src, idx) => {
+          const conn = document.createElement("div");
+          conn.className = "connector source-connector";
+          conn.title = src.name;
+          conn.style.top = `${20 + idx * 15}px`;
+          conn.onmousedown = (e) =>
+            startConnection(e, obj, src, "source");
+          div.appendChild(conn);
+        });
 
-            // Basic dragging within workspace
-            let isDragging = false;
-            let offset = { x: 0, y: 0 };
+        obj.sinks.forEach((sink, idx) => {
+          const conn = document.createElement("div");
+          conn.className = "connector sink-connector";
+          conn.title = sink.name;
+          conn.style.top = `${20 + idx * 15}px`;
+          conn.onmouseup = (e) => endConnection(e, obj, sink, "sink");
+          div.appendChild(conn);
+        });
 
-            div.onmousedown = (e) => {
-                if (e.target.classList.contains('connector')) return;
-                isDragging = true;
-                offset = {
-                    x: e.clientX - div.offsetLeft,
-                    y: e.clientY - div.offsetTop
-                };
-            };
+        // Double click opens oscilloscope simulation view
+        div.ondblclick = () => {
+          if (obj.name.toLowerCase().includes("scope")) {
+            switchView("scope");
+          }
+        };
 
-            document.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    const newX = e.clientX - offset.x;
-                    const newY = e.clientY - offset.y;
-                    div.style.left = newX + 'px';
-                    div.style.top = newY + 'px';
-                    obj.x = newX;
-                    obj.y = newY;
-                    drawConnections();
-                }
-            });
+        let isDragging = false;
+        let offset = { x: 0, y: 0 };
 
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
+        div.onmousedown = (e) => {
+          if (e.target.classList.contains("connector")) return;
+          isDragging = true;
+          offset = {
+            x: e.clientX - div.offsetLeft,
+            y: e.clientY - div.offsetTop,
+          };
+        };
 
-            workspace.appendChild(div);
+        document.addEventListener("mousemove", (e) => {
+          if (isDragging) {
+            const newX = e.clientX - offset.x;
+            const newY = e.clientY - offset.y;
+            div.style.left = newX + "px";
+            div.style.top = newY + "px";
+            obj.x = newX;
+            obj.y = newY;
+            drawConnections();
+          }
+        });
+
+        document.addEventListener("mouseup", () => {
+          isDragging = false;
+        });
+        workspace.appendChild(div);
+      }
+
+      function startConnection(e, obj, connector, type) {
+        e.stopPropagation();
+        connectionStarted = { obj, connector, type };
+      }
+
+      function endConnection(e, obj, connector, type) {
+        e.stopPropagation();
+        if (connectionStarted && connectionStarted.type !== type) {
+          const source = connectionStarted.type === "source"
+            ? connectionStarted
+            : { obj, connector };
+          const sink = connectionStarted.type === "sink"
+            ? connectionStarted
+            : { obj, connector };
+
+          currentProject.connections.push({
+            fromId: source.obj.id,
+            fromPort: source.connector.name,
+            toId: sink.obj.id,
+            toPort: sink.connector.name,
+          });
+          drawConnections();
         }
+        connectionStarted = null;
+      }
 
-        function startConnection(e, obj, connector, type) {
-            e.stopPropagation();
-            connectionStarted = { obj, connector, type };
-            console.log("Started connection from", obj.name, connector.name);
+      function drawConnections() {
+        const svg = document.getElementById("workspace-svg");
+        const defs = svg.querySelector("defs");
+        svg.innerHTML = "";
+        svg.appendChild(defs);
+
+        currentProject.connections.forEach((conn) => {
+          const fromObj = currentProject.objects.find((o) =>
+            o.id === conn.fromId
+          );
+          const toObj = currentProject.objects.find((o) =>
+            o.id === conn.toId
+          );
+          if (!fromObj || !toObj) return;
+
+          const fromIdx = fromObj.sources.findIndex((s) =>
+            s.name === conn.fromPort
+          );
+          const toIdx = toObj.sinks.findIndex((s) =>
+            s.name === conn.toPort
+          );
+
+          const x1 = fromObj.x + 90;
+          const y1 = fromObj.y + 25 + (fromIdx * 15);
+          const x2 = toObj.x;
+          const y2 = toObj.y + 25 + (toIdx * 15);
+
+          const dx = Math.abs(x2 - x1) / 2;
+          const path = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path",
+          );
+          path.setAttribute(
+            "d",
+            `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${
+              x2 - dx
+            } ${y2}, ${x2} ${y2}`,
+          );
+          path.setAttribute("class", "connection-line");
+          path.setAttribute("marker-end", "url(#arrowhead)");
+          svg.appendChild(path);
+        });
+      }
+
+      function newProject() {
+        currentProject = { objects: [], connections: [] };
+        const workspace = document.getElementById("workspace");
+        workspace.querySelectorAll(".workspace-object").forEach((o) =>
+          o.remove()
+        );
+        drawConnections();
+      }
+
+      async function saveProject() {
+        const name = prompt("Enter project name:", "my_experiment");
+        if (!name) return;
+        try {
+          const resp = await fetch(`/api/projects/${name}`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(currentProject),
+          });
+          if (resp.ok) alert("Project saved successfully!");
+          else alert("Failed to save project.");
+        } catch (e) {
+          alert("Error saving project: " + e.message);
         }
+      }
 
-        function endConnection(e, obj, connector, type) {
-            e.stopPropagation();
-            if (connectionStarted && connectionStarted.type !== type) {
-                // We have a connection!
-                const source = connectionStarted.type === 'source' ? connectionStarted : { obj, connector };
-                const sink = connectionStarted.type === 'sink' ? connectionStarted : { obj, connector };
-                
-                currentProject.connections.push({
-                    fromId: source.obj.id,
-                    fromPort: source.connector.name,
-                    toId: sink.obj.id,
-                    toPort: sink.connector.name
-                });
-                drawConnections();
-            }
-            connectionStarted = null;
+      async function loadProject() {
+        const name = prompt(
+          "Enter project name to load:",
+          "my_experiment",
+        );
+        if (!name) return;
+        try {
+          const resp = await fetch(`/api/projects/${name}`);
+          if (!resp.ok) {
+            alert("Project not found!");
+            return;
+          }
+          const data = await resp.json();
+          newProject();
+          currentProject = data;
+          currentProject.objects.forEach((obj) => renderObject(obj));
+          drawConnections();
+        } catch (e) {
+          alert("Error loading project: " + e.message);
         }
+      }
 
-        function drawConnections() {
-            const svg = document.getElementById('workspace-svg');
-            // Keep defs
-            const defs = svg.querySelector('defs');
-            svg.innerHTML = '';
-            svg.appendChild(defs);
-
-            currentProject.connections.forEach(conn => {
-                const fromObj = currentProject.objects.find(o => o.id === conn.fromId);
-                const toObj = currentProject.objects.find(o => o.id === conn.toId);
-                if (!fromObj || !toObj) return;
-
-                const fromIdx = fromObj.sources.findIndex(s => s.name === conn.fromPort);
-                const toIdx = toObj.sinks.findIndex(s => s.name === conn.toPort);
-
-                const x1 = fromObj.x + 80; // approximate width
-                const y1 = fromObj.y + 25 + (fromIdx * 15);
-                const x2 = toObj.x;
-                const y2 = toObj.y + 25 + (toIdx * 15);
-
-                const dx = Math.abs(x2 - x1) / 2;
-                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                path.setAttribute("d", `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`);
-                path.setAttribute("class", "connection-line");
-                path.setAttribute("marker-end", "url(#arrowhead)");
-                svg.appendChild(path);
-            });
-        }
-
-        function newProject() {
-            currentProject = { objects: [], connections: [] };
-            const workspace = document.getElementById('workspace');
-            const objects = workspace.querySelectorAll('.workspace-object');
-            objects.forEach(o => o.remove());
-            const svg = document.getElementById('workspace-svg');
-            const defs = svg.querySelector('defs');
-            svg.innerHTML = '';
-            svg.appendChild(defs);
-        }
-
-        async function saveProject() {
-            const name = prompt("Enter project name:", "default");
-            if (!name) return;
-            try {
-                const resp = await fetch(`/api/projects/${name}`, {
-                    method: 'POST',
-                    body: JSON.stringify(currentProject),
-                    headers: { 'content-type': 'application/json' }
-                });
-                if (resp.ok) {
-                    alert("Project saved successfully");
-                }
-            } catch (e) {
-                console.error('Save failed', e);
-            }
-        }
-
-        async function loadProject() {
-            const name = prompt("Enter project name to load:", "default");
-            if (!name) return;
-            try {
-                const resp = await fetch(`/api/projects/${name}`);
-                if (resp.ok) {
-                    currentProject = await resp.json();
-                    const workspace = document.getElementById('workspace');
-                    // Remove existing objects
-                    const objects = workspace.querySelectorAll('.workspace-object');
-                    objects.forEach(o => o.remove());
-                    
-                    const svg = document.getElementById('workspace-svg');
-                    const defs = svg.querySelector('defs');
-                    svg.innerHTML = '';
-                    svg.appendChild(defs);
-
-                    currentProject.objects.forEach(renderObject);
-                    drawConnections();
-                } else {
-                    alert("Project not found");
-                }
-            } catch (e) {
-                console.error('Load failed', e);
-            }
-        }
-
-        function toggleTheme() {
-            const body = document.body;
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.removeAttribute('data-theme');
-            } else {
-                body.setAttribute('data-theme', 'dark');
-            }
-        }
-
-        window.onload = loadPalette;
+      // Init
+      window.onload = async () => {
+        await loadPalette();
+        await fetchScopeFrame();
+        loop();
+      };
     </script>
-</body>
+  </body>
 </html>

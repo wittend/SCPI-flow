@@ -1,10 +1,18 @@
-import { serveDir } from "jsr:@std/http/file-server";
+import { serveDir } from "@std/http/file-server";
 import { ScpiBridge } from "./scpi_bridge.ts";
+import { OscilloscopeCli } from "./src/cli.ts";
 
-const scpi = new ScpiBridge();
+// Ensure projects directory exists
 try {
-  await scpi.start();
-  console.log("SCPI Bridge started");
+  await Deno.mkdir("./projects", { recursive: true });
+} catch {
+  // Directory may already exist
+}
+
+export const scpi = new ScpiBridge();
+try {
+  await scpi.start(false);
+  console.log("SCPI Bridge started (Simulated & MCP mode)");
 } catch (e) {
   console.error("Failed to start SCPI Bridge", e);
 }
@@ -17,12 +25,17 @@ export async function handler(req: Request): Promise<Response> {
     if (url.pathname === "/api/palette") {
       try {
         const content = await Deno.readTextFile("./palette_objects.json");
-        return new Response(content, { headers: { "content-type": "application/json" } });
-      } catch (e) {
-        return new Response(JSON.stringify({ error: "Failed to load palette" }), { 
-          status: 500, 
-          headers: { "content-type": "application/json" } 
+        return new Response(content, {
+          headers: { "content-type": "application/json" },
         });
+      } catch {
+        return new Response(
+          JSON.stringify({ error: "Failed to load palette" }),
+          {
+            status: 500,
+            headers: { "content-type": "application/json" },
+          },
+        );
       }
     }
 
@@ -32,29 +45,33 @@ export async function handler(req: Request): Promise<Response> {
       const guid = objMatch[1];
       try {
         const content = await Deno.readTextFile(`./obj/${guid}_obj.json`);
-        return new Response(content, { headers: { "content-type": "application/json" } });
-      } catch (e) {
-        return new Response(JSON.stringify({ error: "Object not found" }), { 
-          status: 404, 
-          headers: { "content-type": "application/json" } 
+        return new Response(content, {
+          headers: { "content-type": "application/json" },
+        });
+      } catch {
+        return new Response(JSON.stringify({ error: "Object not found" }), {
+          status: 404,
+          headers: { "content-type": "application/json" },
         });
       }
     }
 
-    // GET /api/projects/:name
+    // Projects API: /api/projects/:name
     const prjMatch = url.pathname.match(/^\/api\/projects\/([a-zA-Z0-9_-]+)$/);
     if (prjMatch) {
       const name = prjMatch[1];
       const filePath = `./projects/${name}_prj.json`;
-      
+
       if (req.method === "GET") {
         try {
           const content = await Deno.readTextFile(filePath);
-          return new Response(content, { headers: { "content-type": "application/json" } });
-        } catch (e) {
-          return new Response(JSON.stringify({ error: "Project not found" }), { 
-            status: 404, 
-            headers: { "content-type": "application/json" } 
+          return new Response(content, {
+            headers: { "content-type": "application/json" },
+          });
+        } catch {
+          return new Response(JSON.stringify({ error: "Project not found" }), {
+            status: 404,
+            headers: { "content-type": "application/json" },
           });
         }
       }
@@ -62,15 +79,20 @@ export async function handler(req: Request): Promise<Response> {
       if (req.method === "POST") {
         try {
           const body = await req.text();
-          // Basic validation (optional, but good practice)
-          JSON.parse(body);
+          JSON.parse(body); // Validate JSON
+          await Deno.mkdir("./projects", { recursive: true });
           await Deno.writeTextFile(filePath, body);
-          return new Response(JSON.stringify({ success: true }), { headers: { "content-type": "application/json" } });
-        } catch (e) {
-          return new Response(JSON.stringify({ error: "Failed to save project" }), { 
-            status: 500, 
-            headers: { "content-type": "application/json" } 
+          return new Response(JSON.stringify({ success: true }), {
+            headers: { "content-type": "application/json" },
           });
+        } catch {
+          return new Response(
+            JSON.stringify({ error: "Failed to save project" }),
+            {
+              status: 500,
+              headers: { "content-type": "application/json" },
+            },
+          );
         }
       }
     }
@@ -78,26 +100,82 @@ export async function handler(req: Request): Promise<Response> {
     // SCPI API
     if (url.pathname === "/api/scpi/resources") {
       const res = await scpi.listResources();
-      return new Response(JSON.stringify(res), { headers: { "content-type": "application/json" } });
+      return new Response(JSON.stringify(res), {
+        headers: { "content-type": "application/json" },
+      });
     }
 
     if (url.pathname === "/api/scpi/query" && req.method === "POST") {
       try {
         const { resource, query } = await req.json();
         const res = await scpi.query(resource, query);
-        return new Response(JSON.stringify(res), { headers: { "content-type": "application/json" } });
-      } catch (e) {
-        return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400 });
+        return new Response(JSON.stringify(res), {
+          headers: { "content-type": "application/json" },
+        });
+      } catch {
+        return new Response(JSON.stringify({ error: "Invalid request" }), {
+          status: 400,
+        });
       }
     }
 
-    return new Response(JSON.stringify({ error: "Not Found" }), { 
-      status: 404, 
-      headers: { "content-type": "application/json" } 
+    if (url.pathname === "/api/scpi/write" && req.method === "POST") {
+      try {
+        const { resource, write } = await req.json();
+        const res = await scpi.write(resource, write);
+        return new Response(JSON.stringify(res), {
+          headers: { "content-type": "application/json" },
+        });
+      } catch {
+        return new Response(JSON.stringify({ error: "Invalid request" }), {
+          status: 400,
+        });
+      }
+    }
+
+    // Oscilloscope Simulation Direct API
+    if (url.pathname === "/api/scope/frame" && req.method === "GET") {
+      const frame = scpi.engine.scope.acquire();
+      return new Response(
+        JSON.stringify(frame, (_key, value) => {
+          if (value instanceof Float64Array) {
+            return Array.from(value);
+          }
+          return value;
+        }),
+        { headers: { "content-type": "application/json" } },
+      );
+    }
+
+    if (url.pathname === "/api/scope/measurements" && req.method === "GET") {
+      const m1 = scpi.engine.scope.getMeasurements(1);
+      const m2 = scpi.engine.scope.getMeasurements(2);
+      return new Response(JSON.stringify({ ch1: m1, ch2: m2 }), {
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    if (url.pathname === "/api/scope/command" && req.method === "POST") {
+      try {
+        const { command } = await req.json();
+        const response = scpi.engine.execute(command);
+        return new Response(JSON.stringify({ success: true, response }), {
+          headers: { "content-type": "application/json" },
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: (e as Error).message }), {
+          status: 400,
+        });
+      }
+    }
+
+    return new Response(JSON.stringify({ error: "Not Found" }), {
+      status: 404,
+      headers: { "content-type": "application/json" },
     });
   }
 
-  // Serve static files from the root and assets directory
+  // Serve static files from root
   return serveDir(req, {
     fsRoot: ".",
     showIndex: true,
@@ -105,5 +183,10 @@ export async function handler(req: Request): Promise<Response> {
 }
 
 if (import.meta.main) {
-  Deno.serve(handler);
+  if (Deno.args.includes("--cli")) {
+    const cli = new OscilloscopeCli(scpi.engine.scope);
+    await cli.runInteractive();
+  } else {
+    Deno.serve({ port: 8000 }, handler);
+  }
 }

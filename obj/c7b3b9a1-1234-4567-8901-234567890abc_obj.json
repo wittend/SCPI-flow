@@ -1,15 +1,23 @@
 {
   "source_connectors": [
     {
-      "name": "CH1",
-      "type": "analog"
+      "name": "Meas Out",
+      "type": "data"
     }
   ],
   "sink_connectors": [
+    {
+      "name": "CH1",
+      "type": "analog"
+    },
+    {
+      "name": "CH2",
+      "type": "analog"
+    },
     {
       "name": "Trigger",
       "type": "digital"
     }
   ],
-  "code": "console.log('Oscilloscope processing data');"
+  "code": "console.log('Oscilloscope processing dual-channel data');"
 }
