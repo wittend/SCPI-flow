@@ -173,6 +173,11 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         user-select: none;
         z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
       }
       .connector {
         width: 12px;
@@ -353,6 +358,201 @@
         margin-bottom: 6px;
       }
 
+      /* DMM & Signal Generator Views styling */
+      #dmm-container, #gen-container {
+        display: flex;
+        flex: 1;
+        flex-direction: row;
+        overflow: hidden;
+        background: #0d0e12;
+      }
+      #dmm-screen-area, #gen-screen-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        align-items: center;
+        justify-content: flex-start;
+        overflow-y: auto;
+        gap: 15px;
+      }
+      #dmm-controls-area, #gen-controls-area {
+        width: 420px;
+        background-color: var(--surface-bg);
+        border-left: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        padding: 10px;
+        gap: 10px;
+      }
+      #dmm-chassis {
+        background: linear-gradient(180deg, #283042 0%, #181e2b 100%);
+        border: 3px solid #64748b;
+        border-radius: 10px;
+        padding: 16px;
+        width: 100%;
+        max-width: 820px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        box-sizing: border-box;
+      }
+      #dmm-lcd {
+        background: #020617;
+        border: 2px solid #334155;
+        border-radius: 6px;
+        padding: 14px 18px;
+        color: #38bdf8;
+        font-family: monospace;
+        position: relative;
+        margin-bottom: 15px;
+      }
+      .dmm-annunciators {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #475569;
+      }
+      .dmm-annunciator.active {
+        color: #38bdf8;
+        text-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+      }
+      .dmm-primary-readout {
+        font-size: 38px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+      }
+      .dmm-secondary-readout {
+        font-size: 15px;
+        color: #facc15;
+        margin-top: 6px;
+        min-height: 20px;
+      }
+      .dmm-bar-container {
+        height: 8px;
+        background: #0f172a;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+        border: 1px solid #1e293b;
+      }
+      .dmm-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #0284c7, #38bdf8);
+        width: 0%;
+        transition: width 0.1s ease;
+      }
+      .dmm-btn-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .dmm-btn {
+        padding: 8px 4px;
+        border-radius: 4px;
+        border: 1px solid #475569;
+        background: #334155;
+        color: #fff;
+        font-size: 11px;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+      }
+      .dmm-btn:hover {
+        background: #475569;
+      }
+      .dmm-btn.active {
+        background: #0284c7;
+        border-color: #38bdf8;
+        box-shadow: 0 0 8px rgba(2, 132, 199, 0.6);
+      }
+      .dmm-jacks-diagram {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin: 10px 0;
+      }
+      .dmm-jack-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        font-weight: bold;
+      }
+      .dmm-jack-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #64748b;
+        background: #020617;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .dmm-jack-circle.red {
+        border-color: #ef4444;
+        color: #ef4444;
+      }
+      .dmm-jack-circle.black {
+        border-color: #94a3b8;
+        color: #94a3b8;
+      }
+      .dmm-jack-circle.active {
+        box-shadow: 0 0 10px #ef4444;
+        background: rgba(239, 68, 68, 0.2);
+      }
+      #gen-chassis {
+        background: linear-gradient(180deg, #2b2d42 0%, #1a1a24 100%);
+        border: 3px solid #8d99ae;
+        border-radius: 10px;
+        padding: 16px;
+        width: 100%;
+        max-width: 860px;
+        box-sizing: border-box;
+      }
+      #gen-canvas {
+        background: #000;
+        border: 2px solid #4a4e69;
+        border-radius: 6px;
+        display: block;
+        width: 100%;
+        max-width: 800px;
+        height: auto;
+        aspect-ratio: 16 / 9;
+      }
+      .gen-btn-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .gen-wave-btn {
+        padding: 8px 6px;
+        border-radius: 4px;
+        border: 1px solid #4a4e69;
+        background: #2b2d42;
+        color: #fff;
+        font-size: 11px;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: center;
+      }
+      .gen-wave-btn.active {
+        background: #4cc9f0;
+        color: #020617;
+        border-color: #4cc9f0;
+        box-shadow: 0 0 8px rgba(76, 201, 240, 0.6);
+      }
+
       #status-bar {
         background-color: var(--header-bg);
         border-top: 1px solid var(--border-color);
@@ -378,8 +578,12 @@
       <div class="menu-item">
         <span>View</span>
         <div class="menu-content">
-          <a href="#" onclick="switchView('scope')">Oscilloscope Simulation</a>
           <a href="#" onclick="switchView('flow')">SCPI-flow Canvas</a>
+          <a href="#" onclick="switchView('scope')">Oscilloscope Simulation</a>
+          <a href="#" onclick="switchView('dmm')"
+          >Digital Multimeter Simulation</a>
+          <a href="#" onclick="switchView('gen')"
+          >Signal Generator Simulation</a>
         </div>
       </div>
       <div class="menu-item">
@@ -405,13 +609,31 @@
     <div id="toolbar">
       <button
         class="tab-btn active"
+        id="tab-flow"
+        onclick="switchView('flow')"
+      >
+        Data Flow Canvas
+      </button>
+      <button
+        class="tab-btn"
         id="tab-scope"
         onclick="switchView('scope')"
       >
         Oscilloscope View
       </button>
-      <button class="tab-btn" id="tab-flow" onclick="switchView('flow')">
-        Data Flow Canvas
+      <button
+        class="tab-btn"
+        id="tab-dmm"
+        onclick="switchView('dmm')"
+      >
+        Digital Multimeter View
+      </button>
+      <button
+        class="tab-btn"
+        id="tab-gen"
+        onclick="switchView('gen')"
+      >
+        Signal Generator View
       </button>
       <span style="flex: 1"></span>
       <button
@@ -427,8 +649,38 @@
 
     <!-- Main View Container -->
     <div id="main-view">
-      <!-- View 1: Oscilloscope Simulation -->
-      <div id="view-scope" class="view-panel active">
+      <!-- View 1: Flow Canvas -->
+      <div id="view-flow" class="view-panel active">
+        <div id="flow-container">
+          <div id="palette">
+            <h3>Palette</h3>
+            <div id="palette-items"></div>
+          </div>
+          <div
+            id="workspace"
+            ondrop="drop(event)"
+            ondragover="allowDrop(event)"
+          >
+            <svg id="workspace-svg">
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" class="arrowhead" />
+                </marker>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- View 2: Oscilloscope Simulation -->
+      <div id="view-scope" class="view-panel">
         <div id="scope-container">
           <!-- Left: Scope Screen Canvas -->
           <div id="scope-screen-area">
@@ -759,32 +1011,717 @@
         </div>
       </div>
 
-      <!-- View 2: Flow Canvas -->
-      <div id="view-flow" class="view-panel">
-        <div id="flow-container">
-          <div id="palette">
-            <h3>Palette</h3>
-            <div id="palette-items"></div>
-          </div>
-          <div
-            id="workspace"
-            ondrop="drop(event)"
-            ondragover="allowDrop(event)"
-          >
-            <svg id="workspace-svg">
-              <defs>
-                <marker
-                  id="arrowhead"
-                  markerWidth="10"
-                  markerHeight="7"
-                  refX="9"
-                  refY="3.5"
-                  orient="auto"
+      <!-- View 3: Digital Multimeter Simulation -->
+      <div id="view-dmm" class="view-panel">
+        <div id="dmm-container">
+          <!-- Left: DMM Front Panel & LCD Screen -->
+          <div id="dmm-screen-area">
+            <div id="dmm-chassis">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px"
+              >
+                <div
+                  style="font-weight: bold; color: #38bdf8; font-size: 14px; letter-spacing: 1px"
                 >
-                  <polygon points="0 0, 10 3.5, 0 7" class="arrowhead" />
-                </marker>
-              </defs>
-            </svg>
+                  SIGLENT SDM3045X
+                </div>
+                <div style="font-size: 11px; color: #94a3b8">
+                  Dual Display Digital Multimeter &bull; 60,000 Counts
+                </div>
+              </div>
+
+              <!-- TFT-LCD Simulation Screen -->
+              <div id="dmm-lcd">
+                <div class="dmm-annunciators">
+                  <span id="dmm-ann-auto" class="dmm-annunciator active"
+                  >AUTO</span>
+                  <span id="dmm-ann-range" class="dmm-annunciator">6V</span>
+                  <span id="dmm-ann-speed" class="dmm-annunciator active"
+                  >SLOW</span>
+                  <span id="dmm-ann-dual" class="dmm-annunciator">DUAL</span>
+                  <span id="dmm-ann-math" class="dmm-annunciator">MATH</span>
+                  <span id="dmm-ann-stat" class="dmm-annunciator">STAT</span>
+                  <span
+                    id="dmm-ann-beep"
+                    class="dmm-annunciator"
+                    style="color: #22c55e"
+                  >BEEP</span>
+                </div>
+
+                <div class="dmm-primary-readout">
+                  <span id="dmm-val-primary">+0.0000</span>
+                  <span
+                    id="dmm-unit-primary"
+                    style="font-size: 20px; color: #38bdf8"
+                  >VDC</span>
+                </div>
+
+                <div class="dmm-secondary-readout" id="dmm-secondary-display">
+                  FREQ: 0.0000 Hz
+                </div>
+
+                <!-- Range Bar Meter -->
+                <div class="dmm-bar-container">
+                  <div id="dmm-bar-fill" class="dmm-bar-fill"></div>
+                </div>
+              </div>
+
+              <!-- Trend Chart Preview Canvas -->
+              <div
+                style="background: #020617; border: 1px solid #334155; border-radius: 6px; padding: 6px; margin-bottom: 12px"
+              >
+                <div
+                  style="display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; margin-bottom: 4px"
+                >
+                  <span>Live Trend History</span>
+                  <span id="dmm-trend-stats">Min: - | Max: - | Avg: -</span>
+                </div>
+                <canvas
+                  id="dmm-trend-canvas"
+                  width="760"
+                  height="90"
+                  style="width: 100%; height: 90px; display: block"
+                ></canvas>
+              </div>
+
+              <!-- Measurement Function Keypad -->
+              <div
+                style="font-size: 11px; color: #cbd5e1; font-weight: bold; margin-bottom: 4px"
+              >
+                Function Selection:
+              </div>
+              <div class="dmm-btn-grid">
+                <button
+                  class="dmm-btn active"
+                  id="btn-func-vdc"
+                  onclick="setDmmFunc('VOLT:DC')"
+                >
+                  DCV
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-vac"
+                  onclick="setDmmFunc('VOLT:AC')"
+                >
+                  ACV
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-res"
+                  onclick="setDmmFunc('RES')"
+                >
+                  2W Ω
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-fres"
+                  onclick="setDmmFunc('FRES')"
+                >
+                  4W Ω
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-idc"
+                  onclick="setDmmFunc('CURR:DC')"
+                >
+                  DCI
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-iac"
+                  onclick="setDmmFunc('CURR:AC')"
+                >
+                  ACI
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-freq"
+                  onclick="setDmmFunc('FREQ')"
+                >
+                  FREQ
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-per"
+                  onclick="setDmmFunc('PER')"
+                >
+                  PERIOD
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-cont"
+                  onclick="setDmmFunc('CONT')"
+                >
+                  CONT
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-diod"
+                  onclick="setDmmFunc('DIOD')"
+                >
+                  DIODE
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-cap"
+                  onclick="setDmmFunc('CAP')"
+                >
+                  CAP
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-func-temp"
+                  onclick="setDmmFunc('TEMP')"
+                >
+                  TEMP
+                </button>
+              </div>
+
+              <!-- Range / Utility Keypad -->
+              <div
+                style="font-size: 11px; color: #cbd5e1; font-weight: bold; margin-bottom: 4px"
+              >
+                Range & Operation:
+              </div>
+              <div class="dmm-btn-grid">
+                <button
+                  class="dmm-btn active"
+                  id="btn-dmm-auto"
+                  onclick="toggleDmmAutoRange()"
+                >
+                  Auto Range
+                </button>
+                <button class="dmm-btn" onclick="stepDmmRange(1)">
+                  Range ▲
+                </button>
+                <button class="dmm-btn" onclick="stepDmmRange(-1)">
+                  Range ▼
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-dmm-speed"
+                  onclick="cycleDmmSpeed()"
+                >
+                  Speed: SLOW
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-dmm-dual"
+                  onclick="toggleDmmDual()"
+                >
+                  Dual: OFF
+                </button>
+                <button
+                  class="dmm-btn"
+                  id="btn-dmm-math"
+                  onclick="cycleDmmMath()"
+                >
+                  Math: OFF
+                </button>
+              </div>
+
+              <!-- 5 Front-Panel Banana Jacks Diagram Centered -->
+              <div
+                style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 8px; margin-top: 10px"
+              >
+                <div
+                  style="text-align: center; font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 6px"
+                >
+                  Front-Panel Input Terminals (5 Banana Jacks)
+                </div>
+                <div class="dmm-jacks-diagram">
+                  <div class="dmm-jack-item">
+                    <div class="dmm-jack-circle red" id="jack-sense-hi">●</div>
+                    <span style="color: #ef4444">Sense HI</span>
+                  </div>
+                  <div class="dmm-jack-item">
+                    <div class="dmm-jack-circle red active" id="jack-input-hi">
+                      ●
+                    </div>
+                    <span style="color: #ef4444">Input HI</span>
+                  </div>
+                  <div class="dmm-jack-item">
+                    <div class="dmm-jack-circle black" id="jack-sense-lo">
+                      ●
+                    </div>
+                    <span style="color: #94a3b8">Sense LO</span>
+                  </div>
+                  <div class="dmm-jack-item">
+                    <div
+                      class="dmm-jack-circle black active"
+                      id="jack-input-lo"
+                    >
+                      ●
+                    </div>
+                    <span style="color: #94a3b8">Input LO</span>
+                  </div>
+                  <div class="dmm-jack-item">
+                    <div class="dmm-jack-circle red" id="jack-curr-10a">●</div>
+                    <span style="color: #ef4444">10A Current</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Interactive Signal Source & SCPI Console -->
+          <div id="dmm-controls-area">
+            <div class="control-group">
+              <h4>Interactive Circuit Input Injector</h4>
+
+              <div class="control-row">
+                <label>DC Voltage (V):</label>
+                <input
+                  type="range"
+                  id="dmm-in-dcv-slider"
+                  min="-100"
+                  max="100"
+                  step="0.1"
+                  value="5.0"
+                  oninput="onDmmInputChanged('dcVoltage', this.value)"
+                >
+                <input
+                  type="number"
+                  id="dmm-in-dcv-num"
+                  value="5.0"
+                  step="0.1"
+                  onchange="onDmmInputChanged('dcVoltage', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>AC Voltage RMS (V):</label>
+                <input
+                  type="range"
+                  id="dmm-in-acv-slider"
+                  min="0"
+                  max="250"
+                  step="0.5"
+                  value="0.0"
+                  oninput="onDmmInputChanged('acVoltage', this.value)"
+                >
+                <input
+                  type="number"
+                  id="dmm-in-acv-num"
+                  value="0.0"
+                  step="0.5"
+                  onchange="onDmmInputChanged('acVoltage', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Frequency (Hz):</label>
+                <input
+                  type="range"
+                  id="dmm-in-freq-slider"
+                  min="1"
+                  max="100000"
+                  step="10"
+                  value="1000"
+                  oninput="onDmmInputChanged('frequency', this.value)"
+                >
+                <input
+                  type="number"
+                  id="dmm-in-freq-num"
+                  value="1000"
+                  step="10"
+                  onchange="onDmmInputChanged('frequency', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>DC Current (A):</label>
+                <input
+                  type="range"
+                  id="dmm-in-dci-slider"
+                  min="-10"
+                  max="10"
+                  step="0.01"
+                  value="0.0"
+                  oninput="onDmmInputChanged('dcCurrent', this.value)"
+                >
+                <input
+                  type="number"
+                  id="dmm-in-dci-num"
+                  value="0.0"
+                  step="0.01"
+                  onchange="onDmmInputChanged('dcCurrent', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Resistance (Ω):</label>
+                <input
+                  type="range"
+                  id="dmm-in-res-slider"
+                  min="0"
+                  max="1000000"
+                  step="100"
+                  value="1000"
+                  oninput="onDmmInputChanged('resistance', this.value)"
+                >
+                <input
+                  type="number"
+                  id="dmm-in-res-num"
+                  value="1000"
+                  step="10"
+                  onchange="onDmmInputChanged('resistance', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Capacitance (F):</label>
+                <input
+                  type="number"
+                  id="dmm-in-cap-num"
+                  value="0.0000001"
+                  step="1e-8"
+                  onchange="onDmmInputChanged('capacitance', this.value)"
+                  style="flex: 1"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Temperature (°C):</label>
+                <input
+                  type="number"
+                  id="dmm-in-temp-num"
+                  value="25.0"
+                  step="0.5"
+                  onchange="onDmmInputChanged('temperature', this.value)"
+                  style="flex: 1"
+                >
+              </div>
+
+              <div style="margin-top: 8px">
+                <label
+                  style="font-size: 11px; color: var(--text-dim); display: block; margin-bottom: 4px"
+                >Quick Circuit Presets:</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 4px">
+                  <button onclick="applyDmmPreset('5v_logic')">5V Logic</button>
+                  <button onclick="applyDmmPreset('3v3_logic')">
+                    3.3V Logic
+                  </button>
+                  <button onclick="applyDmmPreset('12v_rail')">12V Rail</button>
+                  <button onclick="applyDmmPreset('120v_ac')">
+                    120V AC 60Hz
+                  </button>
+                  <button onclick="applyDmmPreset('1k_res')">
+                    1 kΩ Resistor
+                  </button>
+                  <button onclick="applyDmmPreset('100n_cap')">
+                    100 nF Cap
+                  </button>
+                  <button onclick="applyDmmPreset('cont_short')">
+                    Continuity 0Ω
+                  </button>
+                  <button onclick="applyDmmPreset('diode')">
+                    1N4148 Diode
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- DMM Statistics Monitor -->
+            <div class="control-group">
+              <h4>Live Math & Statistics</h4>
+              <table class="meas-table">
+                <thead>
+                  <tr>
+                    <th>Average</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Std Dev</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td id="dmm-stat-avg">-</td>
+                    <td id="dmm-stat-min">-</td>
+                    <td id="dmm-stat-max">-</td>
+                    <td id="dmm-stat-std">-</td>
+                    <td id="dmm-stat-cnt">-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- DMM SCPI Command Console -->
+            <div class="control-group">
+              <h4>DMM SCPI Command Console</h4>
+              <div
+                id="dmm-scpi-log"
+                style="height: 90px; background: #000; color: #38bdf8; font-family: monospace; font-size: 10px; padding: 6px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 6px"
+              >
+                Connected to Siglent SDM3045X DMM SCPI Engine.&#10;Type commands
+                or use quick queries.
+              </div>
+              <div style="display: flex; gap: 4px; margin-bottom: 6px">
+                <input
+                  type="text"
+                  id="dmm-scpi-input"
+                  placeholder="e.g. *IDN?, MEAS?, CONF:VOLT:DC 10"
+                  style="flex: 1"
+                  onkeydown="if(event.key==='Enter') sendDmmScpiCmd()"
+                >
+                <button onclick="sendDmmScpiCmd()">Send</button>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px">
+                <button onclick="quickDmmScpi('*IDN?')">*IDN?</button>
+                <button onclick="quickDmmScpi('MEAS?')">MEAS?</button>
+                <button onclick="quickDmmScpi('CONF:VOLT:DC')">
+                  CONF:VOLT:DC
+                </button>
+                <button onclick="quickDmmScpi('CONF:RES')">CONF:RES</button>
+                <button onclick="quickDmmScpi('CALC:STAT:AVER?')">
+                  CALC:AVER?
+                </button>
+                <button onclick="quickDmmScpi('SYST:ERR?')">SYST:ERR?</button>
+                <button onclick="resetDmm()">*RST</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View 4: Signal Generator Simulation -->
+      <div id="view-gen" class="view-panel">
+        <div id="gen-container">
+          <!-- Left: Synthesized Waveform Canvas -->
+          <div id="gen-screen-area">
+            <div id="gen-chassis">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px"
+              >
+                <div
+                  style="font-weight: bold; color: #4cc9f0; font-size: 14px; letter-spacing: 1px"
+                >
+                  SIGLENT SDG ARBITRARY FUNCTION GENERATOR
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <button
+                    id="btn-gen-out"
+                    onclick="toggleGenOutput()"
+                    style="background: #22c55e; color: #000; font-weight: bold; padding: 4px 12px; border-radius: 4px; border: none; cursor: pointer"
+                  >
+                    OUTPUT: ON
+                  </button>
+                </div>
+              </div>
+
+              <!-- Live Generator Waveform Display Canvas -->
+              <canvas id="gen-canvas" width="800" height="420"></canvas>
+
+              <!-- Waveform Type Selection -->
+              <div style="margin-top: 14px">
+                <div
+                  style="font-size: 11px; color: #cbd5e1; font-weight: bold; margin-bottom: 6px"
+                >
+                  Waveform Type:
+                </div>
+                <div class="gen-btn-grid">
+                  <button
+                    class="gen-wave-btn active"
+                    id="btn-gen-sine"
+                    onclick="setGenWave('sine')"
+                  >
+                    Sine
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-square"
+                    onclick="setGenWave('square')"
+                  >
+                    Square
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-triangle"
+                    onclick="setGenWave('triangle')"
+                  >
+                    Triangle
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-sawtooth"
+                    onclick="setGenWave('sawtooth')"
+                  >
+                    Ramp / Saw
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-noise"
+                    onclick="setGenWave('noise')"
+                  >
+                    Noise
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-dc"
+                    onclick="setGenWave('dc')"
+                  >
+                    DC
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Generator Controls & Quick Presets -->
+          <div id="gen-controls-area">
+            <div class="control-group">
+              <h4>Waveform Parameters</h4>
+
+              <div class="control-row">
+                <label>Frequency (Hz):</label>
+                <input
+                  type="range"
+                  id="gen-freq-slider"
+                  min="1"
+                  max="20000"
+                  step="10"
+                  value="1000"
+                  oninput="onGenParamChanged('frequency', this.value)"
+                >
+                <input
+                  type="number"
+                  id="gen-freq-num"
+                  value="1000"
+                  step="10"
+                  onchange="onGenParamChanged('frequency', this.value)"
+                >
+              </div>
+              <div style="display: flex; gap: 4px; margin-bottom: 8px">
+                <button onclick="setGenFreq(100)">100 Hz</button>
+                <button onclick="setGenFreq(1000)">1 kHz</button>
+                <button onclick="setGenFreq(10000)">10 kHz</button>
+                <button onclick="setGenFreq(100000)">100 kHz</button>
+                <button onclick="setGenFreq(1000000)">1 MHz</button>
+              </div>
+
+              <div class="control-row">
+                <label>Amplitude (Vpp):</label>
+                <input
+                  type="range"
+                  id="gen-amp-slider"
+                  min="0.05"
+                  max="10.0"
+                  step="0.05"
+                  value="2.0"
+                  oninput="onGenParamChanged('amplitude', this.value)"
+                >
+                <input
+                  type="number"
+                  id="gen-amp-num"
+                  value="2.0"
+                  step="0.1"
+                  onchange="onGenParamChanged('amplitude', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Offset (V):</label>
+                <input
+                  type="range"
+                  id="gen-offset-slider"
+                  min="-5.0"
+                  max="5.0"
+                  step="0.05"
+                  value="0.0"
+                  oninput="onGenParamChanged('offset', this.value)"
+                >
+                <input
+                  type="number"
+                  id="gen-offset-num"
+                  value="0.0"
+                  step="0.1"
+                  onchange="onGenParamChanged('offset', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Phase (°):</label>
+                <input
+                  type="range"
+                  id="gen-phase-slider"
+                  min="0"
+                  max="360"
+                  step="5"
+                  value="0"
+                  oninput="onGenParamChanged('phase', this.value)"
+                >
+                <input
+                  type="number"
+                  id="gen-phase-num"
+                  value="0"
+                  step="5"
+                  onchange="onGenParamChanged('phase', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Duty Cycle (%):</label>
+                <input
+                  type="range"
+                  id="gen-duty-slider"
+                  min="1"
+                  max="99"
+                  step="1"
+                  value="50"
+                  oninput="onGenParamChanged('dutyCycle', this.value / 100)"
+                >
+                <input
+                  type="number"
+                  id="gen-duty-num"
+                  value="50"
+                  step="1"
+                  onchange="onGenParamChanged('dutyCycle', this.value / 100)"
+                >
+              </div>
+            </div>
+
+            <div class="control-group">
+              <h4>Quick Presets</h4>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px">
+                <button onclick="applyGenPreset('audio')">
+                  Audio 1 kHz Sine
+                </button>
+                <button onclick="applyGenPreset('clock')">100 kHz Clock</button>
+                <button onclick="applyGenPreset('rf')">1 MHz RF Carrier</button>
+                <button onclick="applyGenPreset('sensor')">
+                  50 Hz Sensor Ramp
+                </button>
+                <button onclick="applyGenPreset('noise')">White Noise</button>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <h4>Generator SCPI Console</h4>
+              <div
+                id="gen-scpi-log"
+                style="height: 90px; background: #000; color: #4cc9f0; font-family: monospace; font-size: 10px; padding: 6px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 6px"
+              >
+                Connected to Siglent SDG Function Generator.
+              </div>
+              <div style="display: flex; gap: 4px; margin-bottom: 6px">
+                <input
+                  type="text"
+                  id="gen-scpi-input"
+                  placeholder="e.g. *IDN?, C1:BSWV?, C1:OUTP ON"
+                  style="flex: 1"
+                  onkeydown="if(event.key==='Enter') sendGenScpiCmd()"
+                >
+                <button onclick="sendGenScpiCmd()">Send</button>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px">
+                <button onclick="quickGenScpi('*IDN?')">*IDN?</button>
+                <button onclick="quickGenScpi('C1:BSWV?')">C1:BSWV?</button>
+                <button onclick="quickGenScpi('C1:OUTP ON')">OUTP ON</button>
+                <button onclick="quickGenScpi('C1:OUTP OFF')">OUTP OFF</button>
+                <button onclick="quickGenScpi('SYST:ERR?')">SYST:ERR?</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -854,7 +1791,10 @@
         },
       };
 
+      let currentView = "flow";
+
       function switchView(viewName) {
+        currentView = viewName;
         document.querySelectorAll(".view-panel").forEach((p) =>
           p.classList.remove("active")
         );
@@ -864,9 +1804,19 @@
         if (viewName === "scope") {
           document.getElementById("view-scope").classList.add("active");
           document.getElementById("tab-scope").classList.add("active");
+          fetchScopeFrame();
+        } else if (viewName === "dmm") {
+          document.getElementById("view-dmm").classList.add("active");
+          document.getElementById("tab-dmm").classList.add("active");
+          fetchDmmReading();
+        } else if (viewName === "gen") {
+          document.getElementById("view-gen").classList.add("active");
+          document.getElementById("tab-gen").classList.add("active");
+          fetchGenState();
         } else {
           document.getElementById("view-flow").classList.add("active");
           document.getElementById("tab-flow").classList.add("active");
+          drawConnections();
         }
       }
 
@@ -900,6 +1850,7 @@
       function resetScope() {
         sendScpiCommand("*RST");
         setTimeout(fetchScopeFrame, 100);
+        switchView("flow");
       }
 
       // Send SCPI helper
@@ -1377,16 +2328,860 @@
 
       // Animation Loop
       function loop() {
-        if (scopeRunning) {
+        if (currentView === "scope" && scopeRunning) {
           fetchScopeFrame();
+        } else if (currentView === "dmm") {
+          fetchDmmReading();
+        } else if (currentView === "gen") {
+          drawGenWaveform();
         }
         drawScope();
         animationFrameId = requestAnimationFrame(loop);
       }
 
+      // --- Digital Multimeter UI & Simulation Logic ---
+      const dmmState = {
+        function: "VOLT:DC",
+        autoRange: true,
+        rangeIndex: 1,
+        speed: "SLOW",
+        dualEnabled: false,
+        secondaryFunction: "VOLT:AC",
+        mathFunction: "NONE",
+        reading: null,
+      };
+
+      async function fetchDmmReading() {
+        try {
+          const resp = await fetch("/api/dmm/reading");
+          if (!resp.ok) return;
+          const data = await resp.json();
+          if (!data.success) return;
+
+          dmmState.function = data.function;
+          dmmState.autoRange = data.autoRange;
+          dmmState.speed = data.speed;
+          dmmState.dualEnabled = data.dualEnabled;
+          dmmState.secondaryFunction = data.secondaryFunction;
+          dmmState.mathFunction = data.mathFunction;
+
+          // Annunciators
+          const annAuto = document.getElementById("dmm-ann-auto");
+          if (annAuto) {
+            annAuto.className = "dmm-annunciator" +
+              (data.autoRange ? " active" : "");
+          }
+          const annRange = document.getElementById("dmm-ann-range");
+          if (annRange) {
+            annRange.innerText = data.rangeString || "";
+            annRange.className = "dmm-annunciator" +
+              (!data.autoRange ? " active" : "");
+          }
+          const annSpeed = document.getElementById("dmm-ann-speed");
+          if (annSpeed) {
+            annSpeed.innerText = data.speed;
+            annSpeed.className = "dmm-annunciator active";
+          }
+          const annDual = document.getElementById("dmm-ann-dual");
+          if (annDual) {
+            annDual.className = "dmm-annunciator" +
+              (data.dualEnabled ? " active" : "");
+          }
+          const annMath = document.getElementById("dmm-ann-math");
+          if (annMath) {
+            annMath.className = "dmm-annunciator" +
+              (data.mathFunction !== "NONE" ? " active" : "");
+            annMath.innerText = data.mathFunction !== "NONE"
+              ? data.mathFunction
+              : "MATH";
+          }
+          const annStat = document.getElementById("dmm-ann-stat");
+          if (annStat) {
+            annStat.className = "dmm-annunciator" +
+              (data.mathFunction === "STATS" ? " active" : "");
+          }
+          const annBeep = document.getElementById("dmm-ann-beep");
+          if (annBeep) {
+            annBeep.style.display = data.beeping ? "inline" : "none";
+          }
+
+          // Primary readout
+          const valPrim = document.getElementById("dmm-val-primary");
+          const unitPrim = document.getElementById("dmm-unit-primary");
+          if (valPrim) valPrim.innerText = data.reading.formatted;
+          if (unitPrim) unitPrim.innerText = data.reading.unit;
+
+          // Secondary readout
+          const secElem = document.getElementById(
+            "dmm-secondary-display",
+          );
+          if (secElem) {
+            if (data.dualEnabled && data.reading.secondaryFormatted) {
+              secElem.innerText =
+                `DUAL: ${data.reading.secondaryFormatted} ${
+                  data.reading.secondaryUnit || ""
+                }`;
+            } else if (data.mathFunction === "STATS" && data.stats) {
+              secElem.innerText = `AVG: ${
+                data.stats.average.toFixed(4)
+              } | STD: ${data.stats.stdDev.toFixed(4)}`;
+            } else if (data.mathFunction === "NULL") {
+              secElem.innerText =
+                `NULL REL: ${data.reading.formatted} ${data.reading.unit}`;
+            } else if (data.input) {
+              secElem.innerText = `SRC FREQ: ${
+                (data.input.frequency || 0).toFixed(1)
+              } Hz | NOISE: ${
+                (data.input.noiseLevel || 0).toFixed(4)
+              }V`;
+            }
+          }
+
+          // Bar meter
+          const barElem = document.getElementById("dmm-bar-fill");
+          if (barElem) {
+            if (data.reading && !data.reading.isOverload) {
+              const rawVal = Math.abs(data.reading.value);
+              const maxVal = parseFloat(data.rangeString) || 10;
+              const pct = Math.min(
+                100,
+                Math.max(0, (rawVal / maxVal) * 100),
+              );
+              barElem.style.width = pct + "%";
+            } else {
+              barElem.style.width = "100%";
+            }
+          }
+
+          // Function button active states
+          const fnMap = {
+            "VOLT:DC": "btn-func-vdc",
+            "VOLT:AC": "btn-func-vac",
+            "RES": "btn-func-res",
+            "FRES": "btn-func-fres",
+            "CURR:DC": "btn-func-idc",
+            "CURR:AC": "btn-func-iac",
+            "FREQ": "btn-func-freq",
+            "PER": "btn-func-per",
+            "CONT": "btn-func-cont",
+            "DIOD": "btn-func-diod",
+            "CAP": "btn-func-cap",
+            "TEMP": "btn-func-temp",
+          };
+          Object.values(fnMap).forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove("active");
+          });
+          const activeBtnId = fnMap[data.function];
+          if (activeBtnId) {
+            const el = document.getElementById(activeBtnId);
+            if (el) el.classList.add("active");
+          }
+
+          // Update active banana terminals highlight
+          const jInHi = document.getElementById("jack-input-hi");
+          const jInLo = document.getElementById("jack-input-lo");
+          const jSenseHi = document.getElementById("jack-sense-hi");
+          const jSenseLo = document.getElementById("jack-sense-lo");
+          const jCurr10 = document.getElementById("jack-curr-10a");
+
+          if (jInHi) {
+            jInHi.className = "dmm-jack-circle red" +
+              (!data.function.includes("CURR") ? " active" : "");
+          }
+          if (jInLo) {
+            jInLo.className = "dmm-jack-circle black" +
+              (!data.function.includes("CURR") ? " active" : "");
+          }
+          if (jSenseHi) {
+            jSenseHi.className = "dmm-jack-circle red" +
+              (data.function === "FRES" ? " active" : "");
+          }
+          if (jSenseLo) {
+            jSenseLo.className = "dmm-jack-circle black" +
+              (data.function === "FRES" ? " active" : "");
+          }
+          if (jCurr10) {
+            jCurr10.className = "dmm-jack-circle red" +
+              (data.function.includes("CURR") ? " active" : "");
+          }
+
+          // Update stats table
+          if (data.stats) {
+            const statAvg = document.getElementById("dmm-stat-avg");
+            const statMin = document.getElementById("dmm-stat-min");
+            const statMax = document.getElementById("dmm-stat-max");
+            const statStd = document.getElementById("dmm-stat-std");
+            const statCnt = document.getElementById("dmm-stat-cnt");
+            const trendStat = document.getElementById(
+              "dmm-trend-stats",
+            );
+
+            if (statAvg) {
+              statAvg.innerText = isFinite(data.stats.average)
+                ? data.stats.average.toFixed(4)
+                : "-";
+            }
+            if (statMin) {
+              statMin.innerText = isFinite(data.stats.min)
+                ? data.stats.min.toFixed(4)
+                : "-";
+            }
+            if (statMax) {
+              statMax.innerText = isFinite(data.stats.max)
+                ? data.stats.max.toFixed(4)
+                : "-";
+            }
+            if (statStd) {
+              statStd.innerText = isFinite(data.stats.stdDev)
+                ? data.stats.stdDev.toFixed(4)
+                : "-";
+            }
+            if (statCnt) statCnt.innerText = data.stats.count || "0";
+            if (trendStat) {
+              trendStat.innerText = `Min: ${
+                isFinite(data.stats.min)
+                  ? data.stats.min.toFixed(3)
+                  : "-"
+              } | Max: ${
+                isFinite(data.stats.max)
+                  ? data.stats.max.toFixed(3)
+                  : "-"
+              } | Avg: ${
+                isFinite(data.stats.average)
+                  ? data.stats.average.toFixed(3)
+                  : "-"
+              }`;
+            }
+          }
+
+          // Draw trend history
+          if (data.trend && data.trend.length > 1) {
+            drawDmmTrend(data.trend);
+          }
+        } catch {
+          // ignore network hiccups
+        }
+      }
+
+      function drawDmmTrend(trend) {
+        const trendCanvas = document.getElementById("dmm-trend-canvas");
+        if (!trendCanvas) return;
+        const tctx = trendCanvas.getContext("2d");
+        const w = trendCanvas.width;
+        const h = trendCanvas.height;
+        tctx.fillStyle = "#020617";
+        tctx.fillRect(0, 0, w, h);
+
+        // Grid
+        tctx.strokeStyle = "#1e293b";
+        tctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 50) {
+          tctx.beginPath();
+          tctx.moveTo(x, 0);
+          tctx.lineTo(x, h);
+          tctx.stroke();
+        }
+        for (let y = 0; y < h; y += 22) {
+          tctx.beginPath();
+          tctx.moveTo(0, y);
+          tctx.lineTo(w, y);
+          tctx.stroke();
+        }
+
+        const vals = trend.map((t) => t.value);
+        let min = Math.min(...vals);
+        let max = Math.max(...vals);
+        if (min === max) {
+          min -= 1;
+          max += 1;
+        }
+        const span = Math.max(1e-9, max - min);
+
+        tctx.strokeStyle = "#38bdf8";
+        tctx.lineWidth = 2;
+        tctx.beginPath();
+        trend.forEach((pt, idx) => {
+          const x = (idx / (trend.length - 1)) * (w - 20) + 10;
+          const y = h - 10 - ((pt.value - min) / span) * (h - 20);
+          if (idx === 0) tctx.moveTo(x, y);
+          else tctx.lineTo(x, y);
+        });
+        tctx.stroke();
+      }
+
+      async function setDmmFunc(fn) {
+        await fetch("/api/dmm/config", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ function: fn }),
+        });
+        fetchDmmReading();
+      }
+
+      async function toggleDmmAutoRange() {
+        await fetch("/api/dmm/config", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ autoRange: !dmmState.autoRange }),
+        });
+        fetchDmmReading();
+      }
+
+      async function stepDmmRange(dir) {
+        await fetch("/api/dmm/config", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            autoRange: false,
+            rangeIndex: Math.max(0, (dmmState.rangeIndex || 0) + dir),
+          }),
+        });
+        fetchDmmReading();
+      }
+
+      async function cycleDmmSpeed() {
+        const speeds = ["SLOW", "MED", "FAST"];
+        const next =
+          speeds[(speeds.indexOf(dmmState.speed) + 1) % speeds.length];
+        await fetch("/api/dmm/config", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ speed: next }),
+        });
+        const btn = document.getElementById("btn-dmm-speed");
+        if (btn) btn.innerText = `Speed: ${next}`;
+        fetchDmmReading();
+      }
+
+      async function toggleDmmDual() {
+        await fetch("/api/dmm/config", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ dualEnabled: !dmmState.dualEnabled }),
+        });
+        const btn = document.getElementById("btn-dmm-dual");
+        if (btn) {
+          btn.innerText = `Dual: ${
+            !dmmState.dualEnabled ? "ON" : "OFF"
+          }`;
+        }
+        fetchDmmReading();
+      }
+
+      async function cycleDmmMath() {
+        const funcs = ["NONE", "STATS", "NULL", "LIMIT", "DB", "DBM"];
+        const next = funcs[
+          (funcs.indexOf(dmmState.mathFunction) + 1) % funcs.length
+        ];
+        await fetch("/api/dmm/config", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ mathFunction: next }),
+        });
+        const btn = document.getElementById("btn-dmm-math");
+        if (btn) {
+          btn.innerText = `Math: ${next === "NONE" ? "OFF" : next}`;
+        }
+        fetchDmmReading();
+      }
+
+      async function resetDmm() {
+        await fetch("/api/dmm/reset", { method: "POST" });
+        fetchDmmReading();
+      }
+
+      async function onDmmInputChanged(key, val) {
+        const numVal = parseFloat(val);
+        const slider = document.getElementById(`dmm-in-${key}-slider`);
+        const num = document.getElementById(`dmm-in-${key}-num`);
+        if (slider) slider.value = numVal;
+        if (num) num.value = numVal;
+
+        await fetch("/api/dmm/input", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ [key]: numVal }),
+        });
+        fetchDmmReading();
+      }
+
+      async function applyDmmPreset(preset) {
+        let inputObj = {};
+        if (preset === "5v_logic") {
+          inputObj = {
+            dcVoltage: 5.0,
+            acVoltage: 0.0,
+            frequency: 1000,
+            noiseLevel: 0.001,
+          };
+          setDmmFunc("VOLT:DC");
+        } else if (preset === "3v3_logic") {
+          inputObj = {
+            dcVoltage: 3.3,
+            acVoltage: 0.0,
+            frequency: 1000,
+            noiseLevel: 0.001,
+          };
+          setDmmFunc("VOLT:DC");
+        } else if (preset === "12v_rail") {
+          inputObj = {
+            dcVoltage: 12.0,
+            acVoltage: 0.05,
+            frequency: 100,
+            noiseLevel: 0.002,
+          };
+          setDmmFunc("VOLT:DC");
+        } else if (preset === "120v_ac") {
+          inputObj = {
+            dcVoltage: 0.0,
+            acVoltage: 120.0,
+            frequency: 60.0,
+            noiseLevel: 0.05,
+          };
+          setDmmFunc("VOLT:AC");
+        } else if (preset === "1k_res") {
+          inputObj = { resistance: 1000.0, leadResistance: 0.05 };
+          setDmmFunc("RES");
+        } else if (preset === "100n_cap") {
+          inputObj = { capacitance: 1e-7 };
+          setDmmFunc("CAP");
+        } else if (preset === "cont_short") {
+          inputObj = { resistance: 5.0 };
+          setDmmFunc("CONT");
+        } else if (preset === "diode") {
+          inputObj = { diodeForwardVoltage: 0.65 };
+          setDmmFunc("DIOD");
+        }
+
+        if (inputObj.dcVoltage !== undefined) {
+          const s = document.getElementById("dmm-in-dcv-slider");
+          const n = document.getElementById("dmm-in-dcv-num");
+          if (s) s.value = inputObj.dcVoltage;
+          if (n) n.value = inputObj.dcVoltage;
+        }
+        if (inputObj.acVoltage !== undefined) {
+          const s = document.getElementById("dmm-in-acv-slider");
+          const n = document.getElementById("dmm-in-acv-num");
+          if (s) s.value = inputObj.acVoltage;
+          if (n) n.value = inputObj.acVoltage;
+        }
+        if (inputObj.frequency !== undefined) {
+          const s = document.getElementById("dmm-in-freq-slider");
+          const n = document.getElementById("dmm-in-freq-num");
+          if (s) s.value = inputObj.frequency;
+          if (n) n.value = inputObj.frequency;
+        }
+        if (inputObj.resistance !== undefined) {
+          const s = document.getElementById("dmm-in-res-slider");
+          const n = document.getElementById("dmm-in-res-num");
+          if (s) s.value = inputObj.resistance;
+          if (n) n.value = inputObj.resistance;
+        }
+
+        await fetch("/api/dmm/input", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(inputObj),
+        });
+        fetchDmmReading();
+      }
+
+      async function sendDmmScpiCmd() {
+        const input = document.getElementById("dmm-scpi-input");
+        const cmd = input.value.trim();
+        if (!cmd) return;
+        input.value = "";
+        quickDmmScpi(cmd);
+      }
+
+      async function quickDmmScpi(cmd) {
+        const log = document.getElementById("dmm-scpi-log");
+        log.innerHTML += `<div>&gt; ${cmd}</div>`;
+        try {
+          if (cmd.startsWith("CONF:VOLT:DC")) setDmmFunc("VOLT:DC");
+          else if (cmd.startsWith("CONF:RES")) setDmmFunc("RES");
+          else if (cmd === "*RST") resetDmm();
+          else {
+            const resp = await fetch("/api/dmm/reading");
+            const data = await resp.json();
+            if (cmd === "*IDN?") {
+              log.innerHTML +=
+                `<div style="color:#22c55e;">Siglent Technologies,SDM3045X,SDM3045X-SIM,1.01.01.23</div>`;
+            } else if (cmd === "MEAS?") {
+              log.innerHTML +=
+                `<div style="color:#22c55e;">${data.reading?.value}</div>`;
+            } else if (cmd === "CALC:STAT:AVER?") {
+              log.innerHTML +=
+                `<div style="color:#22c55e;">${data.stats?.average}</div>`;
+            } else if (cmd === "SYST:ERR?") {
+              log.innerHTML +=
+                `<div style="color:#22c55e;">0,"No error"</div>`;
+            } else {
+              log.innerHTML += `<div style="color:#22c55e;">OK</div>`;
+            }
+          }
+        } catch (e) {
+          log.innerHTML +=
+            `<div style="color:#ef4444;">Error: ${e.message}</div>`;
+        }
+        log.scrollTop = log.scrollHeight;
+      }
+
+      // --- Signal Generator UI & Waveform Canvas Logic ---
+      const genState = {
+        type: "sine",
+        frequency: 1000,
+        amplitude: 2.0,
+        offset: 0.0,
+        phase: 0,
+        dutyCycle: 0.5,
+        outputEnabled: true,
+      };
+
+      async function fetchGenState() {
+        try {
+          const resp = await fetch("/api/gen/state");
+          if (!resp.ok) return;
+          const data = await resp.json();
+          Object.assign(genState, data);
+
+          // Update controls
+          const freqSlider = document.getElementById("gen-freq-slider");
+          const freqNum = document.getElementById("gen-freq-num");
+          if (freqSlider) freqSlider.value = data.frequency;
+          if (freqNum) freqNum.value = data.frequency;
+
+          const ampSlider = document.getElementById("gen-amp-slider");
+          const ampNum = document.getElementById("gen-amp-num");
+          if (ampSlider) ampSlider.value = data.amplitude;
+          if (ampNum) ampNum.value = data.amplitude;
+
+          const offSlider = document.getElementById(
+            "gen-offset-slider",
+          );
+          const offNum = document.getElementById("gen-offset-num");
+          if (offSlider) offSlider.value = data.offset;
+          if (offNum) offNum.value = data.offset;
+
+          const phaseSlider = document.getElementById(
+            "gen-phase-slider",
+          );
+          const phaseNum = document.getElementById("gen-phase-num");
+          if (phaseSlider) phaseSlider.value = data.phase;
+          if (phaseNum) phaseNum.value = data.phase;
+
+          const dutySlider = document.getElementById("gen-duty-slider");
+          const dutyNum = document.getElementById("gen-duty-num");
+          if (dutySlider) {
+            dutySlider.value = Math.round(data.dutyCycle * 100);
+          }
+          if (dutyNum) dutyNum.value = Math.round(data.dutyCycle * 100);
+
+          // Update active wave button
+          const waveMap = {
+            sine: "btn-gen-sine",
+            square: "btn-gen-square",
+            triangle: "btn-gen-triangle",
+            sawtooth: "btn-gen-sawtooth",
+            noise: "btn-gen-noise",
+            dc: "btn-gen-dc",
+          };
+          Object.values(waveMap).forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove("active");
+          });
+          const activeId = waveMap[data.type];
+          if (activeId) {
+            const el = document.getElementById(activeId);
+            if (el) el.classList.add("active");
+          }
+
+          drawGenWaveform();
+        } catch {
+          // ignore
+        }
+      }
+
+      async function setGenWave(type) {
+        genState.type = type;
+        await fetch("/api/gen/state", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type }),
+        });
+        fetchGenState();
+      }
+
+      async function onGenParamChanged(key, val) {
+        const numVal = parseFloat(val);
+        genState[key] = numVal;
+        const slider = document.getElementById(`gen-${key}-slider`);
+        const num = document.getElementById(`gen-${key}-num`);
+        if (slider) slider.value = numVal;
+        if (num) num.value = numVal;
+
+        await fetch("/api/gen/state", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ [key]: numVal }),
+        });
+        drawGenWaveform();
+      }
+
+      function setGenFreq(freq) {
+        onGenParamChanged("frequency", freq);
+      }
+
+      function toggleGenOutput() {
+        genState.outputEnabled = !genState.outputEnabled;
+        const btn = document.getElementById("btn-gen-out");
+        if (genState.outputEnabled) {
+          btn.innerText = "OUTPUT: ON";
+          btn.style.background = "#22c55e";
+          btn.style.color = "#000";
+        } else {
+          btn.innerText = "OUTPUT: OFF";
+          btn.style.background = "#ef4444";
+          btn.style.color = "#fff";
+        }
+        drawGenWaveform();
+      }
+
+      async function applyGenPreset(preset) {
+        if (preset === "audio") {
+          await fetch("/api/gen/state", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              type: "sine",
+              frequency: 1000,
+              amplitude: 2.0,
+              offset: 0.0,
+            }),
+          });
+        } else if (preset === "clock") {
+          await fetch("/api/gen/state", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              type: "square",
+              frequency: 100000,
+              amplitude: 3.3,
+              offset: 1.65,
+              dutyCycle: 0.5,
+            }),
+          });
+        } else if (preset === "rf") {
+          await fetch("/api/gen/state", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              type: "sine",
+              frequency: 1000000,
+              amplitude: 1.0,
+              offset: 0.0,
+            }),
+          });
+        } else if (preset === "sensor") {
+          await fetch("/api/gen/state", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              type: "sawtooth",
+              frequency: 50,
+              amplitude: 5.0,
+              offset: 2.5,
+            }),
+          });
+        } else if (preset === "noise") {
+          await fetch("/api/gen/state", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              type: "noise",
+              frequency: 1000,
+              amplitude: 1.0,
+              offset: 0.0,
+            }),
+          });
+        }
+        fetchGenState();
+      }
+
+      function drawGenWaveform() {
+        const gCanvas = document.getElementById("gen-canvas");
+        if (!gCanvas) return;
+        const gctx = gCanvas.getContext("2d");
+        const w = gCanvas.width;
+        const h = gCanvas.height;
+
+        gctx.fillStyle = "#020617";
+        gctx.fillRect(0, 0, w, h);
+
+        // Draw Graticule
+        gctx.strokeStyle = "#1e293b";
+        gctx.lineWidth = 1;
+        const gridCols = 10;
+        const gridRows = 8;
+        for (let i = 0; i <= gridCols; i++) {
+          const x = (i / gridCols) * w;
+          gctx.beginPath();
+          gctx.moveTo(x, 0);
+          gctx.lineTo(x, h);
+          gctx.stroke();
+        }
+        for (let j = 0; j <= gridRows; j++) {
+          const y = (j / gridRows) * h;
+          gctx.beginPath();
+          gctx.moveTo(0, y);
+          gctx.lineTo(w, y);
+          gctx.stroke();
+        }
+
+        // Center crosshairs
+        gctx.strokeStyle = "#334155";
+        gctx.lineWidth = 1.5;
+        gctx.beginPath();
+        gctx.moveTo(w / 2, 0);
+        gctx.lineTo(w / 2, h);
+        gctx.moveTo(0, h / 2);
+        gctx.lineTo(w, h / 2);
+        gctx.stroke();
+
+        // Waveform plot
+        if (!genState.outputEnabled) {
+          gctx.fillStyle = "#ef4444";
+          gctx.font = "bold 16px sans-serif";
+          gctx.fillText("OUTPUT DISABLED", w / 2 - 70, h / 2);
+          return;
+        }
+
+        const pts = 400;
+        const cycles = 3;
+        const freq = genState.frequency || 1000;
+        const amp = genState.amplitude || 2.0;
+        const offset = genState.offset || 0.0;
+        const phaseRad = ((genState.phase || 0) * Math.PI) / 180;
+        const duty = genState.dutyCycle || 0.5;
+        const type = genState.type || "sine";
+
+        const voltScale = Math.max(0.5, amp * 1.5);
+
+        gctx.strokeStyle = "#4cc9f0";
+        gctx.lineWidth = 2.5;
+        gctx.beginPath();
+
+        for (let i = 0; i < pts; i++) {
+          const t = (i / pts) * cycles; // normalized cycles
+          let v = 0;
+          const phaseT = t + phaseRad / (2 * Math.PI);
+          const frac = phaseT - Math.floor(phaseT);
+
+          if (type === "sine") {
+            v = (amp / 2) * Math.sin(2 * Math.PI * phaseT) + offset;
+          } else if (type === "square") {
+            v = (frac < duty ? amp / 2 : -amp / 2) + offset;
+          } else if (type === "triangle") {
+            v = (frac < 0.5
+              ? 2 * amp * frac - amp / 2
+              : 2 * amp * (1 - frac) - amp / 2) + offset;
+          } else if (type === "sawtooth") {
+            v = amp * frac - amp / 2 + offset;
+          } else if (type === "noise") {
+            v = (Math.random() - 0.5) * amp + offset;
+          } else if (type === "dc") {
+            v = offset;
+          }
+
+          const x = (i / pts) * w;
+          const y = h / 2 - (v / voltScale) * (h / 2 - 20);
+          if (i === 0) gctx.moveTo(x, y);
+          else gctx.lineTo(x, y);
+        }
+        gctx.stroke();
+
+        // Waveform Parameters HUD
+        gctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+        gctx.fillRect(10, 10, 240, 60);
+        gctx.strokeStyle = "#4cc9f0";
+        gctx.strokeRect(10, 10, 240, 60);
+
+        gctx.fillStyle = "#38bdf8";
+        gctx.font = "bold 12px monospace";
+        gctx.fillText(`TYPE: ${type.toUpperCase()}`, 20, 28);
+        gctx.fillText(
+          `FREQ: ${
+            freq >= 1e6
+              ? (freq / 1e6).toFixed(2) + " MHz"
+              : freq >= 1e3
+              ? (freq / 1e3).toFixed(2) + " kHz"
+              : freq.toFixed(1) + " Hz"
+          }`,
+          20,
+          44,
+        );
+        gctx.fillText(
+          `AMP: ${amp.toFixed(2)} Vpp | OFFS: ${offset.toFixed(2)} V`,
+          20,
+          60,
+        );
+      }
+
+      async function sendGenScpiCmd() {
+        const input = document.getElementById("gen-scpi-input");
+        const cmd = input.value.trim();
+        if (!cmd) return;
+        input.value = "";
+        quickGenScpi(cmd);
+      }
+
+      async function quickGenScpi(cmd) {
+        const log = document.getElementById("gen-scpi-log");
+        log.innerHTML += `<div>&gt; ${cmd}</div>`;
+        if (cmd === "*IDN?") {
+          log.innerHTML +=
+            `<div style="color:#4cc9f0;">Siglent Technologies,SDG2042X,SDG2042X-SIM,2.01.01.35</div>`;
+        } else if (cmd === "C1:OUTP ON") {
+          genState.outputEnabled = true;
+          toggleGenOutput();
+          log.innerHTML += `<div style="color:#22c55e;">OK</div>`;
+        } else if (cmd === "C1:OUTP OFF") {
+          genState.outputEnabled = false;
+          toggleGenOutput();
+          log.innerHTML += `<div style="color:#22c55e;">OK</div>`;
+        } else if (cmd === "C1:BSWV?") {
+          log.innerHTML +=
+            `<div style="color:#4cc9f0;">WVTP,${genState.type.toUpperCase()},FRQ,${genState.frequency}HZ,AMP,${genState.amplitude}V,OFST,${genState.offset}V</div>`;
+        } else if (cmd === "SYST:ERR?") {
+          log.innerHTML +=
+            `<div style="color:#4cc9f0;">0,"No error"</div>`;
+        } else {
+          log.innerHTML += `<div style="color:#4cc9f0;">OK</div>`;
+        }
+        log.scrollTop = log.scrollHeight;
+      }
+
       // --- Flow Canvas & Palette Logic ---
       let currentProject = { objects: [], connections: [] };
       let connectionStarted = null;
+
+      function getConnectorOffset(obj, index, isSource) {
+        const conns = isSource
+          ? (obj.sources || [])
+          : (obj.sinks || []);
+        const maxConns = Math.max(
+          obj.sources?.length || 0,
+          obj.sinks?.length || 0,
+        );
+        const nodeHeight = Math.max(80, maxConns * 18 + 16);
+        const count = conns.length;
+        if (count <= 1) return nodeHeight / 2;
+        const spacing = Math.min(18, (nodeHeight - 24) / (count - 1));
+        const totalSpan = (count - 1) * spacing;
+        const startTop = (nodeHeight - totalSpan) / 2;
+        return startTop + index * spacing;
+      }
 
       async function loadPalette() {
         try {
@@ -1467,6 +3262,14 @@
         div.className = "workspace-object";
         div.style.left = obj.x + "px";
         div.style.top = obj.y + "px";
+
+        const maxConns = Math.max(
+          obj.sources?.length || 0,
+          obj.sinks?.length || 0,
+        );
+        const nodeHeight = Math.max(80, maxConns * 18 + 16);
+        div.style.minHeight = `${nodeHeight}px`;
+
         div.innerHTML = `
                 <img src="${obj.icon}">
                 <div class="name">${obj.name}</div>
@@ -1476,7 +3279,8 @@
           const conn = document.createElement("div");
           conn.className = "connector source-connector";
           conn.title = src.name;
-          conn.style.top = `${20 + idx * 15}px`;
+          const yCenter = getConnectorOffset(obj, idx, true);
+          conn.style.top = `${yCenter - 6}px`;
           conn.onmousedown = (e) =>
             startConnection(e, obj, src, "source");
           div.appendChild(conn);
@@ -1486,15 +3290,27 @@
           const conn = document.createElement("div");
           conn.className = "connector sink-connector";
           conn.title = sink.name;
-          conn.style.top = `${20 + idx * 15}px`;
+          const yCenter = getConnectorOffset(obj, idx, false);
+          conn.style.top = `${yCenter - 6}px`;
           conn.onmouseup = (e) => endConnection(e, obj, sink, "sink");
           div.appendChild(conn);
         });
 
-        // Double click opens oscilloscope simulation view
+        // Double click opens corresponding instrument simulation view
         div.ondblclick = () => {
-          if (obj.name.toLowerCase().includes("scope")) {
+          const name = (obj.name || "").toLowerCase();
+          if (name.includes("scope") || name.includes("oscilloscope")) {
             switchView("scope");
+          } else if (
+            name.includes("meter") || name.includes("multimeter") ||
+            name.includes("dmm")
+          ) {
+            switchView("dmm");
+          } else if (
+            name.includes("gen") || name.includes("generator") ||
+            name.includes("signal")
+          ) {
+            switchView("gen");
           }
         };
 
@@ -1577,9 +3393,15 @@
           );
 
           const x1 = fromObj.x + 90;
-          const y1 = fromObj.y + 25 + (fromIdx * 15);
+          const y1 = fromObj.y +
+            getConnectorOffset(
+              fromObj,
+              fromIdx >= 0 ? fromIdx : 0,
+              true,
+            );
           const x2 = toObj.x;
-          const y2 = toObj.y + 25 + (toIdx * 15);
+          const y2 = toObj.y +
+            getConnectorOffset(toObj, toIdx >= 0 ? toIdx : 0, false);
 
           const dx = Math.abs(x2 - x1) / 2;
           const path = document.createElementNS(
@@ -1605,6 +3427,7 @@
           o.remove()
         );
         drawConnections();
+        switchView("flow");
       }
 
       async function saveProject() {
@@ -1640,6 +3463,7 @@
           currentProject = data;
           currentProject.objects.forEach((obj) => renderObject(obj));
           drawConnections();
+          switchView("flow");
         } catch (e) {
           alert("Error loading project: " + e.message);
         }
@@ -1649,6 +3473,7 @@
       window.onload = async () => {
         await loadPalette();
         await fetchScopeFrame();
+        switchView("flow");
         loop();
       };
     </script>

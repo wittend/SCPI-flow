@@ -1,6 +1,13 @@
 import { serveDir } from "@std/http/file-server";
 import { ScpiBridge } from "./scpi_bridge.ts";
 import { OscilloscopeCli } from "./src/cli.ts";
+import {
+  MathFunction,
+  MeasurementFunction,
+  MultimeterSimulation,
+  SpeedRate,
+} from "./src/multimeter.ts";
+import { SignalGenerator, WaveformType } from "./src/signal_generator.ts";
 
 // Ensure projects directory exists
 try {
@@ -10,6 +17,9 @@ try {
 }
 
 export const scpi = new ScpiBridge();
+export const multimeter = new MultimeterSimulation();
+export const signalGenerator = new SignalGenerator();
+
 try {
   await scpi.start(false);
   console.log("SCPI Bridge started (Simulated & MCP mode)");
@@ -167,6 +177,155 @@ export async function handler(req: Request): Promise<Response> {
           status: 400,
         });
       }
+    }
+
+    // Digital Multimeter Simulation Direct API
+    if (url.pathname === "/api/dmm/reading" && req.method === "GET") {
+      const reading = multimeter.takeReading();
+      return new Response(
+        JSON.stringify({
+          success: true,
+          reading,
+          function: multimeter.function,
+          rangeString: `${multimeter.range}`,
+          autoRange: multimeter.autoRange,
+          speed: multimeter.speed,
+          dualEnabled: multimeter.dualEnabled,
+          secondaryFunction: multimeter.secondaryFunction,
+          mathFunction: multimeter.mathFunction,
+          stats: multimeter.stats,
+          limits: multimeter.limits,
+          trend: multimeter.trendHistory.slice(-50),
+          input: multimeter.input,
+          beeping: multimeter.beeping,
+        }),
+        { headers: { "content-type": "application/json" } },
+      );
+    }
+
+    if (url.pathname === "/api/dmm/config" && req.method === "POST") {
+      try {
+        const body = await req.json();
+        if (body.function) {
+          multimeter.function = body.function as MeasurementFunction;
+        }
+        if (body.autoRange !== undefined) multimeter.autoRange = body.autoRange;
+        if (body.rangeIndex !== undefined) {
+          multimeter.currentRangeIndex = body.rangeIndex;
+        }
+        if (body.range !== undefined) {
+          multimeter.setRange(body.range);
+        }
+        if (body.speed) multimeter.speed = body.speed as SpeedRate;
+        if (body.dualEnabled !== undefined) {
+          multimeter.dualEnabled = body.dualEnabled;
+        }
+        if (body.secondaryFunction) {
+          multimeter.secondaryFunction = body
+            .secondaryFunction as MeasurementFunction;
+        }
+        if (body.mathFunction) {
+          multimeter.mathFunction = body.mathFunction as MathFunction;
+        }
+        if (body.nullValue !== undefined) multimeter.nullValue = body.nullValue;
+        if (body.limits) Object.assign(multimeter.limits, body.limits);
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { "content-type": "application/json" },
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: (e as Error).message }), {
+          status: 400,
+          headers: { "content-type": "application/json" },
+        });
+      }
+    }
+
+    if (url.pathname === "/api/dmm/input" && req.method === "POST") {
+      try {
+        const body = await req.json();
+        Object.assign(multimeter.input, body);
+        return new Response(
+          JSON.stringify({ success: true, input: multimeter.input }),
+          {
+            headers: { "content-type": "application/json" },
+          },
+        );
+      } catch (e) {
+        return new Response(JSON.stringify({ error: (e as Error).message }), {
+          status: 400,
+          headers: { "content-type": "application/json" },
+        });
+      }
+    }
+
+    if (url.pathname === "/api/dmm/reset" && req.method === "POST") {
+      multimeter.reset();
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    // Signal Generator Direct API
+    if (url.pathname === "/api/gen/state") {
+      if (req.method === "GET") {
+        return new Response(
+          JSON.stringify({
+            type: signalGenerator.type,
+            frequency: signalGenerator.frequency,
+            amplitude: signalGenerator.amplitude,
+            offset: signalGenerator.offset,
+            phase: signalGenerator.phase,
+            dutyCycle: signalGenerator.dutyCycle,
+            scale: signalGenerator.scale,
+          }),
+          { headers: { "content-type": "application/json" } },
+        );
+      }
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          if (body.type) signalGenerator.setType(body.type as WaveformType);
+          if (body.frequency !== undefined) {
+            signalGenerator.setFrequency(body.frequency);
+          }
+          if (body.amplitude !== undefined) {
+            signalGenerator.setAmplitude(body.amplitude);
+          }
+          if (body.offset !== undefined) {
+            signalGenerator.setOffset(body.offset);
+          }
+          if (body.phase !== undefined) {
+            signalGenerator.setPhase(body.phase);
+          }
+          if (body.dutyCycle !== undefined) {
+            signalGenerator.setDutyCycle(body.dutyCycle);
+          }
+          return new Response(JSON.stringify({ success: true }), {
+            headers: { "content-type": "application/json" },
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ error: (e as Error).message }), {
+            status: 400,
+            headers: { "content-type": "application/json" },
+          });
+        }
+      }
+    }
+
+    if (url.pathname === "/api/gen/preview" && req.method === "GET") {
+      const duration = 2 / Math.max(1, signalGenerator.frequency); // 2 full cycles
+      const buf = signalGenerator.generateBuffer(0, duration, 400);
+      return new Response(
+        JSON.stringify({
+          time: Array.from(buf.time),
+          voltage: Array.from(buf.voltage),
+          type: signalGenerator.type,
+          frequency: signalGenerator.frequency,
+          amplitude: signalGenerator.amplitude,
+          offset: signalGenerator.offset,
+        }),
+        { headers: { "content-type": "application/json" } },
+      );
     }
 
     return new Response(JSON.stringify({ error: "Not Found" }), {

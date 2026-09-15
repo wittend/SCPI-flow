@@ -1,0 +1,35 @@
+{
+  "source_connectors": [
+    {
+      "name": "Reading Out",
+      "type": "data"
+    },
+    {
+      "name": "Secondary Out",
+      "type": "data"
+    }
+  ],
+  "sink_connectors": [
+    {
+      "name": "Input HI",
+      "type": "analog"
+    },
+    {
+      "name": "Input LO",
+      "type": "analog"
+    },
+    {
+      "name": "Sense HI",
+      "type": "analog"
+    },
+    {
+      "name": "Sense LO",
+      "type": "analog"
+    },
+    {
+      "name": "Current 10A",
+      "type": "analog"
+    }
+  ],
+  "code": "console.log('Digital Multimeter processing precision readings');"
+}

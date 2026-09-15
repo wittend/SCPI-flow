@@ -6,6 +6,50 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-09-14
+
+### Added
+
+- Added dedicated workspace view tabs for all simulated instruments: **Digital
+  Multimeter View** (`tab-dmm` / `view-dmm`) and **Signal Generator View**
+  (`tab-gen` / `view-gen`) alongside Oscilloscope View and Data Flow Canvas.
+- Implemented interactive front-panel simulation for the Siglent SDM3045X
+  Digital Multimeter with TFT-LCD readout, secondary math/frequency display,
+  range bar meter, live trend history graph, function selectors, 5-terminal jack
+  status diagram, circuit input injector, and SCPI command console.
+- Implemented interactive front-panel simulation for the Siglent SDG Signal
+  Generator with synthesized waveform display canvas, wave type selectors,
+  parameter controls, quick presets, and SCPI command console.
+- Added backend REST endpoints in `main.ts` for Digital Multimeter
+  (`/api/dmm/reading`, `/api/dmm/config`, `/api/dmm/input`, `/api/dmm/reset`)
+  and Signal Generator (`/api/gen/state`, `/api/gen/preview`).
+- Added double-click navigation on canvas nodes to open corresponding instrument
+  view tabs directly.
+
+### Changed
+
+- Redesigned the Digital Multimeter palette icon (`assets/icons/multimeter.svg`)
+  to a high-resolution 100x100 vector graphic with the 5 front-panel input
+  banana terminals (Sense HI, Sense LO, Input HI, Input LO, 10A Current)
+  vertically centered on the icon.
+- Enhanced canvas node connector layout algorithm in `index.html`
+  (`getConnectorOffset`) to automatically and symmetrically center all input and
+  output connectors vertically on workspace nodes (including the 5 multimeter
+  inputs).
+
+## [0.7.0] - 2026-09-14
+
+### Changed
+
+- Updated workspace layout and navigation so the Data Flow Canvas is the
+  leftmost tab and default active view upon initial page load and reset.
+- Updated `newProject()`, `loadProject()`, and `resetScope()` to switch directly
+  to the Data Flow Canvas workspace.
+- Replaced basic placeholder Oscilloscope palette icon
+  (`assets/icons/oscilloscope.svg`) with a detailed, high-resolution vector icon
+  matching the multimeter and signal generator styling (chassis, dual-channel
+  waveforms, knobs, and BNC connectors).
+
 ## [0.6.0] - 2026-09-12
 
 ### Added

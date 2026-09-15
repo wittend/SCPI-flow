@@ -119,10 +119,104 @@ Deno.test("API /api/scope/command executes direct SCPI commands", async () => {
   assertEquals(cmdData.response.includes("Siglent"), true);
 });
 
-Deno.test("Static file serving works for index.html", async () => {
+Deno.test("Static file serving works for index.html and presents dataflow tab leftmost and active with all instrument tabs", async () => {
   const req = new Request("http://localhost:8000/index.html");
   const resp = await handler(req);
   assertEquals(resp.status, 200);
   assertEquals(resp.headers.get("content-type")?.includes("text/html"), true);
-  await resp.text(); // Consume body to close file handle properly
+  const html = await resp.text();
+
+  // Verify tab order: tab-flow should appear before tab-scope, tab-dmm, tab-gen
+  const tabFlowIndex = html.indexOf('id="tab-flow"');
+  const tabScopeIndex = html.indexOf('id="tab-scope"');
+  const tabDmmIndex = html.indexOf('id="tab-dmm"');
+  const tabGenIndex = html.indexOf('id="tab-gen"');
+
+  assertEquals(tabFlowIndex !== -1, true);
+  assertEquals(tabScopeIndex !== -1, true);
+  assertEquals(tabDmmIndex !== -1, true);
+  assertEquals(tabGenIndex !== -1, true);
+
+  assertEquals(tabFlowIndex < tabScopeIndex, true);
+  assertEquals(tabScopeIndex < tabDmmIndex, true);
+  assertEquals(tabDmmIndex < tabGenIndex, true);
+
+  // Verify view panels exist
+  assertEquals(html.includes('id="view-flow" class="view-panel active"'), true);
+  assertEquals(html.includes('id="view-scope" class="view-panel"'), true);
+  assertEquals(html.includes('id="view-dmm" class="view-panel"'), true);
+  assertEquals(html.includes('id="view-gen" class="view-panel"'), true);
+
+  // Verify default active state is Data Flow Canvas
+  assertEquals(
+    html.includes('class="tab-btn active"\n        id="tab-flow"'),
+    true,
+  );
+});
+
+Deno.test("API /api/dmm/reading and /api/dmm/config return and configure multimeter state", async () => {
+  const readReq = new Request("http://localhost:8000/api/dmm/reading");
+  const readResp = await handler(readReq);
+  assertEquals(readResp.status, 200);
+  const readData = await readResp.json();
+  assertEquals(readData.success, true);
+  assertEquals(readData.reading !== undefined, true);
+  assertEquals(readData.function !== undefined, true);
+
+  const confReq = new Request("http://localhost:8000/api/dmm/config", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ function: "RES", speed: "FAST" }),
+  });
+  const confResp = await handler(confReq);
+  assertEquals(confResp.status, 200);
+  const confData = await confResp.json();
+  assertEquals(confData.success, true);
+
+  const inReq = new Request("http://localhost:8000/api/dmm/input", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ resistance: 4700 }),
+  });
+  const inResp = await handler(inReq);
+  assertEquals(inResp.status, 200);
+  const inData = await inResp.json();
+  assertEquals(inData.success, true);
+  assertEquals(inData.input.resistance, 4700);
+
+  const resetReq = new Request("http://localhost:8000/api/dmm/reset", {
+    method: "POST",
+  });
+  const resetResp = await handler(resetReq);
+  assertEquals(resetResp.status, 200);
+  const resetData = await resetResp.json();
+  assertEquals(resetData.success, true);
+});
+
+Deno.test("API /api/gen/state and /api/gen/preview control signal generator", async () => {
+  const stateReq = new Request("http://localhost:8000/api/gen/state");
+  const stateResp = await handler(stateReq);
+  assertEquals(stateResp.status, 200);
+  const stateData = await stateResp.json();
+  assertEquals(stateData.frequency !== undefined, true);
+  assertEquals(stateData.amplitude !== undefined, true);
+
+  const setReq = new Request("http://localhost:8000/api/gen/state", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ type: "triangle", frequency: 2500, amplitude: 3.0 }),
+  });
+  const setResp = await handler(setReq);
+  assertEquals(setResp.status, 200);
+  const setData = await setResp.json();
+  assertEquals(setData.success, true);
+
+  const prevReq = new Request("http://localhost:8000/api/gen/preview");
+  const prevResp = await handler(prevReq);
+  assertEquals(prevResp.status, 200);
+  const prevData = await prevResp.json();
+  assertEquals(prevData.type, "triangle");
+  assertEquals(prevData.frequency, 2500);
+  assertEquals(Array.isArray(prevData.voltage), true);
+  assertEquals(prevData.voltage.length > 0, true);
 });
