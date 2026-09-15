@@ -1,122 +1,139 @@
-# SCPI-flow & Oscilloscope Simulation
+# SCPI-flow
 
-A Deno-based graphical environment and standalone visual simulation of a
-two-input digital oscilloscope (Siglent SDS1000X-U style) for controlling and
-monitoring experimental instruments using SCPI.
+An instrument-independent Deno workspace for discovering and managing local
+instrument plug-ins. SCPI-flow owns the dataflow canvas, project files, catalog,
+process lifecycle, and standard MCP interface—not instrument simulation code.
 
-[![Read the Docs](https://img.shields.io/badge/docs-read--the--docs-blue)](https://scpi-flow.readthedocs.io/)
+## Repository layout
 
-**Date of Last Modification:** 2026-09-12
+Keep these independent repositories beside one another:
 
-## Overview
+```text
+deno-dev/
+├── SCPI-flow/                 # Shell, manifest schema, UI and MCP adapter
+├── SCPI-oScope-sim/           # Oscilloscope engine, front panel and assets
+├── SCPI-mmeter/               # Multimeter engine, front panel and assets
+└── SCPI-signal-generator/     # Signal generator engine, front panel and assets
+```
 
-SCPI-flow provides an extensible graphical workspace, similar to GNU Radio
-Companion, along with a high-fidelity visual simulation of a two-input digital
-storage oscilloscope. It supports both standalone local (offline) and
-network-hosted operation, with full support for CLI and Web GUI interfaces.
+Each instrument publishes `instrument.json` and runs in its own Deno process.
+`instruments.json` contains configurable manifest paths, not compiled-in
+instrument classes. Add any number of compatible instrument types without
+editing the shell. Missing sibling repositories appear as unavailable; they do
+not stop the shell. An empty catalog is supported.
 
-## Key Features
+## Run
 
-- **Visual Two-Channel Oscilloscope Simulation:**
-  - Siglent SDS1000X-U inspired digital storage oscilloscope interface.
-  - Dual channel signals (CH1 in Yellow, CH2 in Cyan).
-  - High-precision vertical and horizontal grid (8x14 divisions) with minor
-    subdivision reticles.
-  - Vertical and horizontal scale indicators (Volts/div, Time/div).
-  - Ground reference level markers (`1⏚`, `2⏚`), trigger marker (`▶T`), and
-    horizontal delay indicator.
-  - Vertical and horizontal zoom and pan controls.
-  - Interactive vertical and horizontal cursors (X1, X2, Y1, Y2) with ΔX, 1/ΔX
-    (frequency), and ΔY readouts.
-  - Center crosshair and calibrated axis graduations/rulers.
-  - Top status bar legend (channel coupling, scale, trigger source/mode/level,
-    sample rate).
-  - Amplitude intensity color scale and color legend.
-
-- **Simulated Signal Generator:**
-  - Independent signal synthesizers for inputs.
-  - Waveform types: **Sine**, **Square** (with adjustable duty cycle),
-    **Triangle**, **Sawtooth**, **DC**, and **Noise**.
-  - Dynamic parameter manipulation: Frequency, Amplitude, Phase, DC Offset,
-    Scale multiplier.
-
-- **Automated Measurements:**
-  - Voltage metrics: Vpp (Peak-to-Peak), Vmax, Vmin, Vrms (True RMS), Vavg
-    (Mean), Vamp (Top - Base).
-  - Timing metrics: Frequency, Period, 10-90% Rise Time, 90-10% Fall Time, Duty
-    Cycle.
-
-- **SCPI Command Interface:**
-  - Full IEEE 488.2 common commands (`*IDN?`, `*RST`, `*CLS`, `*STB?`, `*ESR?`,
-    `*ESE`, `*SRE`, `*OPC?`, `*WAI`).
-  - SCPI status byte and event register reporting.
-  - Standard FIFO error queue reporting (`SYST:ERR?`, `SYST:ERR:COUN?`).
-  - Siglent SDS-compatible channel, timebase, trigger, cursor, and display
-    subsystem commands.
-  - Automated measurement queries (`C1:PAVA? <param>`, `MEAS:VPP?`,
-    `MEAS:ALL?`).
-  - Raw waveform data block transfers (`C1:WF? DAT2`, `WAV:DATA?`).
-
-- **CLI & GUI Applications:**
-  - **Web GUI:** Interactive single-page application with Canvas oscilloscope
-    display and data flow workspace.
-  - **Interactive CLI:** Terminal-based REPL with ANSI-color ASCII waveform
-    rendering, measurement tables, and SCPI console.
-  - **Script/Batch CLI:** Command-line execution of SCPI queries and exports.
-
-- **Data Flow Workspace:**
-  - Drag-and-drop instrument palette (`Oscilloscope`, `Signal Generator`).
-  - Bezier connector lines with arrowheads indicating data flow.
-  - Save and load project diagrams (`projects/*_prj.json`).
-
-## Documentation
-
-Full documentation is available on
-[Read the Docs](https://scpi-flow.readthedocs.io/) and in the `docs/` and
-`.docs/` folders.
-
-## Getting Started
-
-### Prerequisites
-
-- [Deno](https://deno.com/) (Stable 2.4+)
-
-### Running the Web GUI Application
+Requires Deno stable 2.4 or newer. No external runtime dependencies or hosted
+assets are required by the shell.
 
 ```bash
 deno task start
-# or: deno run --allow-all main.ts
+# Development reload:
+deno task dev
+# Optional custom catalog and port:
+deno run --allow-all main.ts --catalog ./instruments.json --port 8000
 ```
 
-Open `http://localhost:8000` in your web browser.
+Open **http://127.0.0.1:8000**. No instruments are started automatically.
 
-### Running the Interactive CLI Application
+- The **Data Flow Canvas** is always the leftmost and initial tab.
+- Use **Load** to start an instrument and open its own front-panel tab.
+- Drag an instrument from the catalog, or choose **Add to canvas**, to load it
+  and place a node. Double-click a node to open its instrument.
+- Click an output connector, then a compatible input, to draw a connection.
+  Double-click a wire to remove it; Escape cancels an unfinished connection.
+- **Unload** terminates the instrument process and removes its tab, retaining
+  its canvas nodes. Loading again starts a fresh instance.
+- **Details** shows the manifest and its configuration schema. A loaded
+  instrument can receive a JSON configuration through this dialog or commands
+  through its tab.
+- Register another trusted local `instrument.json` using the catalog form.
+  Removal unregisters and unloads it without deleting repository files or
+  diagram nodes.
+- Save/load diagrams by name. Legacy GUID-based diagrams are migrated using the
+  catalog's `legacyGuid` metadata. Unknown instruments remain visible
+  placeholders.
+- **Reset instruments** returns to the canvas without clearing the diagram.
+
+There is one process/state per registered instrument ID. Multiple diagram nodes
+with that ID refer to the same instrument. Connections remain diagram metadata,
+not a signal-routing execution engine. Saving a project saves the layout and
+connections, not a running instrument's internal state. Loading a diagram does
+not execute plug-ins until explicitly requested.
+
+## Standard MCP
+
+Start the shell first. Configure an MCP client to launch this stdio adapter:
+
+```json
+{
+  "mcpServers": {
+    "scpi-flow": {
+      "command": "deno",
+      "args": [
+        "run",
+        "--no-config",
+        "--no-lock",
+        "--allow-net=127.0.0.1:8000",
+        "/absolute/path/to/SCPI-flow/src/mcp_cli.ts",
+        "--url",
+        "http://127.0.0.1:8000"
+      ]
+    }
+  }
+}
+```
+
+The adapter implements standard MCP initialization, tool discovery and
+invocation over stdio. Tools are `list`, `register`, `load`, `unload`, `state`,
+`configure`, `command`, and `reset`. MCP and UI operations reach the **same
+shell-managed processes**. The shell's HTTP API is not an MCP HTTP transport
+endpoint.
+
+## Plug-in contract
+
+See `.docs/source/plugins.rst` and `instrument.schema.json` for the versioned
+manifest, supported configuration-schema subset, process protocol, API, and
+migration notes. All instrument-specific assets and behavior belong to their own
+repositories. Front panels use relative URLs so the shell can proxy them under
+`/plugins/<id>/`.
+
+## Security and offline use
+
+Install **trusted local plug-ins only**. Registration does not execute code;
+Load starts a process with repository-read and loopback-network permissions,
+without write, environment, subprocess, or unrestricted network grants. Process
+separation limits accidental failures; it is not an untrusted-code sandbox.
+Front panels run at the shell origin and must also be trusted. Review instrument
+code before loading.
+
+The development shell uses broad permissions because it manages local
+repositories and subprocesses. It binds to loopback and rejects cross-origin
+browser requests and non-local hosts. Do not expose this unauthenticated
+management server directly to a network. Remote deployment requires a separate
+authenticated boundary.
+
+Plug-ins must vendor their dependencies and assets; the loader uses
+`--cached-only` and never installs or downloads code. The supplied instrument
+adapters are locally self-contained. Shell tests use vendored Deno
+standard-library assertions.
+
+## Validation
 
 ```bash
-deno task cli
-# or: deno run --allow-all src/cli.ts
+deno task test
+deno fmt --check
+deno lint
+# With the three sibling instruments installed:
+deno task test:instruments
 ```
 
-CLI Options:
-
-```bash
-# Execute SCPI command string directly
-deno run --allow-all src/cli.ts --exec "*IDN?; C1:VDIV 2.0; MEAS:VPP? C1"
-
-# Render ASCII oscilloscope screen in terminal
-deno run --allow-all src/cli.ts --plot
-
-# Print automated measurements table
-deno run --allow-all src/cli.ts --meas
-```
-
-## Running Unit Tests
-
-```bash
-deno test --allow-all
-```
+Core shell tests run without any instrument repositories. Optional integration
+checks launch all catalog instruments, inspect their front panels, send
+commands, and unload them. Instrument engine tests live with their owning
+repositories.
 
 ## License
 
-This project is licensed under the GPL-3.0-or-later License - see the
-[LICENSE](LICENSE) file for details.
+GPL-3.0-or-later. See `LICENSE`.

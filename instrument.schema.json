@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:scpi-flow:instrument:1",
+  "title": "SCPI-flow instrument manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "name",
+    "description",
+    "entrypoint",
+    "frontend",
+    "icon",
+    "capabilities",
+    "sources",
+    "sinks",
+    "configuration"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$" },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.-]+)?$"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "entrypoint": { "$ref": "#/$defs/path" },
+    "frontend": { "$ref": "#/$defs/path" },
+    "icon": { "$ref": "#/$defs/path" },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "sources": { "type": "array", "items": { "$ref": "#/$defs/connector" } },
+    "sinks": { "type": "array", "items": { "$ref": "#/$defs/connector" } },
+    "configuration": {
+      "allOf": [
+        { "$ref": "#/$defs/configuration" },
+        { "properties": { "type": { "const": "object" } } }
+      ]
+    }
+  },
+  "$defs": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*[\\\\:%?#\\u0000-\\u001f])(?!.*//).+[^/]$"
+    },
+    "connector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-zA-Z0-9_-]+$" },
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "minLength": 1 }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": ["object", "string", "number", "integer", "boolean", "array"]
+        },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "default": {},
+        "enum": { "type": "array", "minItems": 1 },
+        "minimum": { "type": "number" },
+        "maximum": { "type": "number" },
+        "properties": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/configuration" }
+        },
+        "required": { "type": "array", "items": { "type": "string" } },
+        "additionalProperties": { "type": "boolean" },
+        "items": { "$ref": "#/$defs/configuration" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "array" } } },
+          "then": { "required": ["items"] }
+        }
+      ]
+    }
+  }
+}

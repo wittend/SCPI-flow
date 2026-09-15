@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "instruments": [
+    {
+      "id": "oscilloscope",
+      "path": "../SCPI-oScope-sim/instrument.json",
+      "legacyGuid": "c7b3b9a1-1234-4567-8901-234567890abc"
+    },
+    {
+      "id": "multimeter",
+      "path": "../SCPI-mmeter/instrument.json",
+      "legacyGuid": "e9d5f1c3-3456-7890-1234-456789012cde"
+    },
+    {
+      "id": "signal-generator",
+      "path": "../SCPI-signal-generator/instrument.json",
+      "legacyGuid": "d8c4e0b2-2345-6789-0123-345678901bcd"
+    }
+  ]
+}

@@ -1,15 +1,11 @@
-SCPI-flow & Oscilloscope Simulation Documentation
-====================================================
+SCPI-flow Documentation
+=======================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   introduction
-   usage
-   oscilloscope
-   scpi_reference
-   architecture
+   plugins
 
 Indices and tables
 ==================

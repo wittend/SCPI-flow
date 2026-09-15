@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Reorganized SCPI-flow into an instrument-independent shell. Oscilloscope,
+  multimeter and signal-generator implementations, front panels, icons and tests
+  are owned by separate sibling repositories.
+- Replaced eager simulator construction and the fixed palette with a
+  configurable catalog, versioned JSON manifests, validation, and on-demand
+  child processes.
+- Added dynamic instrument tabs and UI registration, load, unload,
+  configuration, command and reset controls; retained the leftmost/default Data
+  Flow Canvas.
+- Added a standard MCP stdio adapter sharing the shell's loaded instrument
+  state.
+- Preserved legacy diagram loading through catalog-based GUID migration. Removed
+  instrument-specific root HTTP routes in favor of generic and proxied APIs.
+- Restricted shell HTTP binding to loopback and public-file serving to an
+  allowlist.
+- Documented plug-in development, offline operation, migration and trust
+  boundaries.
+
 ## [0.8.0] - 2026-09-14
 
 ### Added

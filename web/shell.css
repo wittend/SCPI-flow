@@ -1,0 +1,284 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --text: #e2e8f0;
+  --border: #475569;
+  --accent: #38bdf8;
+}
+body.light {
+  color-scheme: light;
+  --bg: #f1f5f9;
+  --surface: #fff;
+  --text: #0f172a;
+  --border: #cbd5e1;
+  --accent: #0369a1;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px system-ui, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+header strong {
+  font-size: 20px;
+  color: var(--accent);
+  margin-right: auto;
+}
+button, input, textarea, select {
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 10px;
+}
+button {
+  cursor: pointer;
+}
+button:hover, button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+input {
+  min-width: 0;
+}
+main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+aside {
+  width: 285px;
+  min-width: 230px;
+  background: var(--surface);
+  padding: 14px;
+  overflow: auto;
+  border-right: 1px solid var(--border);
+}
+h2 {
+  font-size: 15px;
+  margin: 4px 0 12px;
+}
+.muted {
+  opacity: 0.75;
+  font-size: 12px;
+}
+#register-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+#manifest-path {
+  width: 100%;
+}
+.instrument {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.instrument-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.instrument img {
+  width: 65px;
+  height: 65px;
+}
+.instrument p {
+  margin: 7px 0;
+  overflow-wrap: anywhere;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.actions button {
+  padding: 5px 7px;
+  font-size: 12px;
+}
+#workspace-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+#tabs {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  background: var(--surface);
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  white-space: nowrap;
+}
+#panels {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.view-panel {
+  display: none;
+  height: 100%;
+}
+.view-panel.active {
+  display: flex;
+  flex-direction: column;
+}
+#flow-scroll {
+  overflow: auto;
+  flex: 1;
+}
+#workspace {
+  width: 2200px;
+  height: 1600px;
+  position: relative;
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+#flow-help {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+}
+#connections {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+#connections path {
+  pointer-events: stroke;
+  cursor: pointer;
+}
+.workspace-object {
+  position: absolute;
+  width: 180px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
+  user-select: none;
+  touch-action: none;
+  cursor: move;
+}
+.workspace-object img {
+  width: 66px;
+  height: 66px;
+  pointer-events: none;
+}
+.workspace-object .name {
+  max-width: 160px;
+  text-align: center;
+  font-size: 12px;
+}
+.workspace-object.unavailable {
+  border-style: dashed;
+  opacity: 0.6;
+}
+.remove-node {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  border: 0;
+  padding: 0 4px;
+  background: transparent;
+}
+.connector {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  padding: 0;
+  border: 2px solid var(--bg);
+  background: var(--accent);
+  transform: translateY(-50%);
+}
+.connector.sink {
+  left: -7px;
+  background: #facc15;
+}
+.connector.source {
+  right: -7px;
+}
+iframe {
+  width: 100%;
+  flex: 1;
+  border: 0;
+  background: var(--bg);
+}
+.instrument-toolbar {
+  display: flex;
+  gap: 7px;
+  padding: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+footer {
+  border-top: 1px solid var(--border);
+  padding: 7px 14px;
+  min-height: 32px;
+  overflow-wrap: anywhere;
+}
+footer.error {
+  color: #f87171;
+}
+dialog {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: min(650px, 90vw);
+}
+dialog::backdrop {
+  background: #0008;
+}
+dialog textarea {
+  width: 100%;
+  height: 240px;
+  font-family: monospace;
+  margin: 10px 0;
+}
+dialog pre {
+  max-height: 200px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+@media (max-width: 800px) {
+  aside {
+    width: 225px;
+    min-width: 190px;
+  }
+  header {
+    padding: 8px;
+  }
+}
