@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "id": "oscilloscope",
+  "version": "1.0.0",
+  "name": "Oscilloscope",
+  "description": "Two-channel SDS1000X-style oscilloscope simulation with local test signals, measurements and an implemented SCPI subset.",
+  "entrypoint": "plugin.ts",
+  "frontend": "index.html",
+  "icon": "assets/icons/oscilloscope.svg",
+  "capabilities": [
+    "simulation",
+    "scpi-subset",
+    "waveform-acquisition",
+    "measurements",
+    "trigger",
+    "cursors"
+  ],
+  "sources": [
+    { "id": "measurement", "name": "Meas Out", "type": "data" },
+    { "id": "ch1", "name": "CH1 waveform", "type": "waveform" },
+    { "id": "ch2", "name": "CH2 waveform", "type": "waveform" }
+  ],
+  "sinks": [
+    { "id": "ch1", "name": "CH1", "type": "analog" },
+    { "id": "ch2", "name": "CH2", "type": "analog" },
+    { "id": "trigger", "name": "Trigger", "type": "digital" }
+  ],
+  "configuration": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "timeDiv": {
+        "type": "number",
+        "minimum": 1e-9,
+        "maximum": 1000,
+        "default": 0.0005,
+        "description": "Seconds per division"
+      },
+      "timeOffset": { "type": "number", "minimum": -1000, "maximum": 1000 },
+      "timeZoom": { "type": "number", "minimum": 0.001, "maximum": 1000 },
+      "points": { "type": "integer", "minimum": 2, "maximum": 10000, "default": 1000 },
+      "sampleRate": { "type": "number", "minimum": 1, "maximum": 1e9 },
+      "triggerSource": { "type": "string", "enum": ["CH1", "CH2", "EXT"] },
+      "triggerMode": { "type": "string", "enum": ["AUTO", "NORM", "SINGLE"] },
+      "triggerSlope": { "type": "string", "enum": ["POS", "NEG"] },
+      "triggerLevel": { "type": "number", "minimum": -1000, "maximum": 1000 },
+      "grid": { "type": "string", "enum": ["FULL", "HALF", "OFF"] },
+      "cursorType": { "type": "string", "enum": ["OFF", "MANUAL", "TRACK", "AUTO"] },
+      "isRunning": { "type": "boolean", "default": true },
+      "ch1": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "coupling": { "type": "string", "enum": ["DC", "AC", "GND"] },
+          "voltDiv": { "type": "number", "minimum": 1e-6, "maximum": 1000 },
+          "offset": { "type": "number", "minimum": -1000, "maximum": 1000 },
+          "probe": { "type": "number", "minimum": 0.001, "maximum": 1000 },
+          "inverted": { "type": "boolean" },
+          "generator": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["sine", "square", "triangle", "sawtooth", "dc", "noise"]
+              },
+              "frequency": { "type": "number", "minimum": 0, "maximum": 1e9 },
+              "amplitude": { "type": "number", "minimum": 0, "maximum": 1000 },
+              "offset": { "type": "number", "minimum": -1000, "maximum": 1000 },
+              "phase": { "type": "number", "minimum": -360, "maximum": 360 },
+              "dutyCycle": { "type": "number", "minimum": 0, "maximum": 1 },
+              "scale": { "type": "number", "minimum": 0, "maximum": 1000 }
+            }
+          }
+        }
+      },
+      "ch2": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "coupling": { "type": "string", "enum": ["DC", "AC", "GND"] },
+          "voltDiv": { "type": "number", "minimum": 1e-6, "maximum": 1000 },
+          "offset": { "type": "number", "minimum": -1000, "maximum": 1000 },
+          "probe": { "type": "number", "minimum": 0.001, "maximum": 1000 },
+          "inverted": { "type": "boolean" },
+          "generator": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["sine", "square", "triangle", "sawtooth", "dc", "noise"]
+              },
+              "frequency": { "type": "number", "minimum": 0, "maximum": 1e9 },
+              "amplitude": { "type": "number", "minimum": 0, "maximum": 1000 },
+              "offset": { "type": "number", "minimum": -1000, "maximum": 1000 },
+              "phase": { "type": "number", "minimum": -360, "maximum": 360 },
+              "dutyCycle": { "type": "number", "minimum": 0, "maximum": 1 },
+              "scale": { "type": "number", "minimum": 0, "maximum": 1000 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

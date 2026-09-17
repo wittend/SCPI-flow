@@ -40,7 +40,10 @@ header strong {
   color: var(--accent);
   margin-right: auto;
 }
-button, input, textarea, select {
+button,
+input,
+textarea,
+select {
   font: inherit;
   color: inherit;
   background: var(--bg);
@@ -51,7 +54,8 @@ button, input, textarea, select {
 button {
   cursor: pointer;
 }
-button:hover, button.active {
+button:hover,
+button.active {
   border-color: var(--accent);
   color: var(--accent);
 }

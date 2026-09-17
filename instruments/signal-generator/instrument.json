@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "signal-generator",
+  "version": "1.0.0",
+  "name": "Signal Generator",
+  "description": "Single-channel waveform simulator with six waveform types, preview, presets and a small explicit command subset.",
+  "entrypoint": "plugin.ts",
+  "frontend": "index.html",
+  "icon": "assets/icons/generator.svg",
+  "capabilities": ["simulation", "waveform-generation", "waveform-preview", "scpi-subset"],
+  "sources": [
+    { "id": "out-1", "name": "Out 1", "type": "analog" },
+    { "id": "out-2", "name": "Out 2", "type": "analog" }
+  ],
+  "sinks": [{ "id": "mod-in", "name": "Mod In", "type": "analog" }],
+  "configuration": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "type": {
+        "type": "string",
+        "enum": ["sine", "square", "triangle", "sawtooth", "dc", "noise"],
+        "default": "sine"
+      },
+      "frequency": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1e9,
+        "default": 1000,
+        "description": "Frequency in Hz"
+      },
+      "amplitude": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1000,
+        "default": 1,
+        "description": "Peak amplitude in volts (not Vpp)"
+      },
+      "offset": { "type": "number", "minimum": -1000, "maximum": 1000, "default": 0 },
+      "phase": {
+        "type": "number",
+        "minimum": -360,
+        "maximum": 360,
+        "default": 0,
+        "description": "Degrees"
+      },
+      "dutyCycle": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.5 },
+      "scale": { "type": "number", "minimum": 0, "maximum": 1000, "default": 1 },
+      "outputEnabled": { "type": "boolean", "default": true }
+    }
+  }
+}

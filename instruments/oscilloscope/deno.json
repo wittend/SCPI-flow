@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "start": "deno run --cached-only --no-prompt --allow-read=. --allow-net=127.0.0.1 plugin.ts --port 8000",
+    "test": "deno test --allow-all",
+    "cli": "deno run --allow-read src/cli.ts"
+  },
+  "imports": { "@std/assert": "jsr:@std/assert@1.0.14" },
+  "fmt": { "lineWidth": 100, "indentWidth": 2 }
+}

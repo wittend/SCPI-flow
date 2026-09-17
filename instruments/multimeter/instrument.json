@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "id": "multimeter",
+  "version": "1.0.0",
+  "name": "Digital Multimeter",
+  "description": "Preserved SDM3045X standalone simulator with dual readings, ranges, statistics, limits and its existing SCPI subset.",
+  "entrypoint": "plugin.ts",
+  "frontend": "plugin-ui/index.html",
+  "icon": "assets/icons/multimeter.svg",
+  "capabilities": [
+    "simulation",
+    "scpi-subset",
+    "measurement",
+    "dual-display",
+    "statistics",
+    "limits"
+  ],
+  "sources": [
+    { "id": "reading", "name": "Reading Out", "type": "data" },
+    { "id": "secondary", "name": "Secondary Out", "type": "data" }
+  ],
+  "sinks": [
+    { "id": "input-hi", "name": "Input HI", "type": "analog" },
+    { "id": "input-lo", "name": "Input LO", "type": "analog" },
+    { "id": "sense-hi", "name": "Sense HI", "type": "analog" },
+    { "id": "sense-lo", "name": "Sense LO", "type": "analog" },
+    { "id": "current-10a", "name": "Current 10A", "type": "analog" }
+  ],
+  "configuration": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "function": {
+        "type": "string",
+        "enum": [
+          "VOLT:DC",
+          "VOLT:AC",
+          "CURR:DC",
+          "CURR:AC",
+          "RES",
+          "FRES",
+          "CAP",
+          "CONT",
+          "DIOD",
+          "FREQ",
+          "PER",
+          "TEMP"
+        ],
+        "default": "VOLT:DC"
+      },
+      "secondaryFunction": {
+        "type": "string",
+        "enum": [
+          "VOLT:DC",
+          "VOLT:AC",
+          "CURR:DC",
+          "CURR:AC",
+          "RES",
+          "FRES",
+          "CAP",
+          "CONT",
+          "DIOD",
+          "FREQ",
+          "PER",
+          "TEMP"
+        ]
+      },
+      "autoRange": { "type": "boolean", "default": true },
+      "range": { "type": "number", "minimum": 1e-12, "maximum": 1e12 },
+      "speed": { "type": "string", "enum": ["SLOW", "MED", "FAST"] },
+      "dualEnabled": { "type": "boolean" },
+      "displayMode": { "type": "string", "enum": ["NUMBER", "BAR", "TREND", "HISTOGRAM"] },
+      "mathFunction": { "type": "string", "enum": ["NONE", "NULL", "STATS", "LIMIT", "DB", "DBM"] },
+      "nullEnabled": { "type": "boolean" },
+      "nullValue": { "type": "number" },
+      "statisticsEnabled": { "type": "boolean" },
+      "isRunning": { "type": "boolean" },
+      "isPowered": { "type": "boolean" },
+      "triggerSource": { "type": "string", "enum": ["IMM", "EXT", "BUS"] },
+      "limits": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "low": { "type": "number" },
+          "high": { "type": "number" }
+        }
+      },
+      "input": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "dcVoltage": { "type": "number" },
+          "acVoltage": { "type": "number", "minimum": 0 },
+          "frequency": { "type": "number", "minimum": 0, "maximum": 1e9 },
+          "waveType": { "type": "string", "enum": ["SINE", "SQUARE", "TRIANGLE", "NOISE"] },
+          "dcCurrent": { "type": "number" },
+          "acCurrent": { "type": "number", "minimum": 0 },
+          "resistance": { "type": "number", "minimum": 0 },
+          "leadResistance": { "type": "number", "minimum": 0 },
+          "capacitance": { "type": "number", "minimum": 0 },
+          "diodeForwardVoltage": { "type": "number" },
+          "diodeReverseResistance": { "type": "number", "minimum": 0 },
+          "temperature": { "type": "number" },
+          "noiseLevel": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }
+}

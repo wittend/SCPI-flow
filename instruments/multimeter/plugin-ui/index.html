@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siglent SDM3045X Digital Multimeter Simulator</title>
+    <style>
+    :root {
+      --bg-color: #1a1e24;
+      --card-bg: #242933;
+      --panel-bg: #111418;
+      --border-color: #3b4252;
+      --text-main: #eceff4;
+      --text-muted: #94a3b8;
+      --accent: #00d2ff;
+      --accent-active: #0099cc;
+      --led-green: #00ff66;
+      --led-yellow: #ffcc00;
+      --led-red: #ff3366;
+      --led-cyan: #38bdf8;
+      --screen-bg: #050b14;
+      --screen-grid: rgba(30, 60, 90, 0.3);
+      --bench-bezel: #2b303c;
+      --button-bg: #374151;
+      --button-active: #4b5563;
+      --terminal-red: #ef4444;
+      --terminal-black: #1f2937;
+    }
+
+    [data-theme="light"] {
+      --bg-color: #e5e7eb;
+      --card-bg: #f3f4f6;
+      --panel-bg: #ffffff;
+      --border-color: #cbd5e1;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --screen-bg: #050b14;
+      --bench-bezel: #d1d5db;
+      --button-bg: #e2e8f0;
+      --button-active: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+        sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theme-toggle {
+      background: var(--button-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .main-container {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    /* Multimeter Front Panel Chassis */
+    .multimeter-chassis {
+      background: linear-gradient(145deg, #2e3440, #1e222a);
+      border: 4px solid var(--bench-bezel);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 24px;
+    }
+
+    /* Screen Unit */
+    .screen-container {
+      background-color: #0c0f14;
+      border: 3px solid #1a202c;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
+      position: relative;
+    }
+
+    .screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1f293d;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .screen-fn-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .screen-annunciators {
+      display: flex;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .annun {
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: #1e293b;
+      color: var(--text-muted);
+    }
+
+    .annun.active {
+      background: var(--accent-active);
+      color: #ffffff;
+    }
+
+    .annun.green.active {
+      background: #166534;
+      color: #86efac;
+    }
+
+    .annun.red.active {
+      background: #991b1b;
+      color: #fca5a5;
+    }
+
+    /* Primary Digits Readout */
+    .digits-display {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      margin-bottom: 12px;
+      min-height: 120px;
+    }
+
+    .primary-value {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 3rem;
+      font-weight: 900;
+      color: #38bdf8;
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+      letter-spacing: 2px;
+    }
+
+    .secondary-value {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #facc15;
+      text-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
+      margin-top: 6px;
+    }
+
+    /* Canvas View Area (Bar, Trend, Histogram) */
+    .view-canvas-container {
+      flex: 1;
+      min-height: 140px;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Screen Softkeys F1 - F5 */
+    .softkeys-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .softkey {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      padding: 6px 2px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: center;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .softkey:hover {
+      background: #334155;
+      color: #ffffff;
+    }
+
+    .softkey.active {
+      background: var(--accent-active);
+      color: #ffffff;
+    }
+
+    /* Front Panel Controls Column */
+    .controls-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .brand-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #334155;
+    }
+
+    .brand-logo {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #38bdf8;
+      letter-spacing: 1px;
+    }
+
+    .brand-model {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .fp-btn {
+      background: var(--button-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 4px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      user-select: none;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.1s ease;
+    }
+
+    .fp-btn:hover {
+      background: var(--button-active);
+      transform: translateY(-1px);
+    }
+
+    .fp-btn:active,
+    .fp-btn.active {
+      background: var(--accent-active);
+      color: #ffffff;
+      transform: translateY(1px);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .fp-btn.power {
+      background: #dc2626;
+      color: #ffffff;
+    }
+
+    .fp-btn.shift {
+      background: #d97706;
+      color: #ffffff;
+    }
+
+    /* Banana Jacks Terminals */
+    .terminals-panel {
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .terminal-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .jack {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 4px solid #4b5563;
+      box-shadow: inset 0 0 6px #000000;
+    }
+
+    .jack.red {
+      background-color: #ef4444;
+    }
+    .jack.black {
+      background-color: #111827;
+      border-color: #6b7280;
+    }
+    .jack.white {
+      background-color: #e5e7eb;
+      border-color: #9ca3af;
+    }
+
+    .terminal-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #9ca3af;
+    }
+
+    /* Simulation Control & Signal Generator Panel */
+    .config-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .panel-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-group input,
+    .form-group select {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 5px 10px;
+      border-radius: 4px;
+      width: 140px;
+      text-align: right;
+    }
+
+    /* SCPI Terminal */
+    .scpi-terminal {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .scpi-log {
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      height: 140px;
+      padding: 8px;
+      overflow-y: auto;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.8rem;
+      color: #38bdf8;
+    }
+
+    .scpi-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .scpi-input-row input {
+      flex: 1;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    .scpi-input-row button {
+      background: var(--accent-active);
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-title">
+        <span>⚡ Siglent SDM3045X Digital Multimeter Simulator</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle">🌓 Toggle Theme</button>
+    </header>
+
+    <div class="main-container">
+      <!-- Physical Multimeter Chassis -->
+      <div class="multimeter-chassis">
+        <!-- 4.3" Color TFT-LCD Screen -->
+        <div class="screen-container">
+          <div class="screen-header">
+            <div class="screen-fn-title" id="screenFnTitle">DC Voltage</div>
+            <div class="screen-annunciators">
+              <span class="annun active" id="annunAuto">AUTO</span>
+              <span class="annun" id="annunDual">DUAL</span>
+              <span class="annun" id="annunMath">MATH: OFF</span>
+              <span class="annun green active" id="annunRun">RUN</span>
+              <span class="annun red" id="annunBeep">BEEP</span>
+            </div>
+          </div>
+
+          <!-- Numeric Digits Readout -->
+          <div class="digits-display">
+            <div class="primary-value" id="primaryValue">+0.0000 VDC</div>
+            <div class="secondary-value" id="secondaryValue" style="display: none"></div>
+          </div>
+
+          <!-- Dynamic Visualization (Bar, Trend, Histogram) -->
+          <div class="view-canvas-container">
+            <canvas id="viewCanvas"></canvas>
+          </div>
+
+          <!-- Softkeys F1 - F5 -->
+          <div class="softkeys-row">
+            <div class="softkey active" id="skRange">Range: AUTO</div>
+            <div class="softkey" id="skSpeed">Speed: SLOW</div>
+            <div class="softkey" id="skView">View: NUM</div>
+            <div class="softkey" id="skRel">Rel: OFF</div>
+            <div class="softkey" id="skDual">Dual: OFF</div>
+          </div>
+        </div>
+
+        <!-- Front Panel Matrix & Terminals -->
+        <div class="controls-container">
+          <div class="brand-section">
+            <div>
+              <div class="brand-logo">SIGLENT</div>
+              <div class="brand-model">SDM3045X 4½ Digit DMM</div>
+            </div>
+            <button class="fp-btn power" id="btnPower">PWR</button>
+          </div>
+
+          <!-- Functions Row -->
+          <div class="button-grid">
+            <button class="fp-btn active" data-btn="DCV">DCV</button>
+            <button class="fp-btn" data-btn="ACV">ACV</button>
+            <button class="fp-btn" data-btn="DCI">DCI</button>
+            <button class="fp-btn" data-btn="ACI">ACI</button>
+            <button class="fp-btn" data-btn="2W">2W Ω</button>
+            <button class="fp-btn" data-btn="4W">4W Ω</button>
+            <button class="fp-btn" data-btn="FREQ">Freq</button>
+            <button class="fp-btn" data-btn="PER">Period</button>
+            <button class="fp-btn" data-btn="CONT">Cont</button>
+            <button class="fp-btn" data-btn="DIOD">Diode</button>
+            <button class="fp-btn" data-btn="CAP">Cap</button>
+            <button class="fp-btn" data-btn="TEMP">Temp</button>
+          </div>
+
+          <!-- Math, Display & Control Row -->
+          <div class="button-grid">
+            <button class="fp-btn" data-btn="DUAL">Dual</button>
+            <button class="fp-btn" data-btn="MATH_STATS">Stats</button>
+            <button class="fp-btn" data-btn="MATH_LIMIT">Limits</button>
+            <button class="fp-btn" data-btn="MATH_NULL">Null/Rel</button>
+            <button class="fp-btn" data-btn="MATH_DB">dB/dBm</button>
+            <button class="fp-btn" data-btn="DISP_BAR">Bar</button>
+            <button class="fp-btn" data-btn="DISP_TREND">Trend</button>
+            <button class="fp-btn" data-btn="DISP_HIST">Hist</button>
+            <button class="fp-btn" data-btn="RANGE_UP">▲ Up</button>
+            <button class="fp-btn" data-btn="RANGE_DOWN">▼ Down</button>
+            <button class="fp-btn" data-btn="AUTO_RANGE">Auto</button>
+            <button class="fp-btn" data-btn="SPEED">Speed</button>
+            <button class="fp-btn" data-btn="TRIG_SINGLE">Single</button>
+            <button class="fp-btn" data-btn="RUN_STOP">Run/Stop</button>
+            <button class="fp-btn" data-btn="RESET">Reset</button>
+            <button class="fp-btn shift" data-btn="SHIFT">Shift</button>
+          </div>
+
+          <!-- Banana Terminals Panel -->
+          <div class="terminals-panel">
+            <div class="terminal-group">
+              <div class="jack red"></div>
+              <div class="terminal-label">HI (1000V)</div>
+            </div>
+            <div class="terminal-group">
+              <div class="jack black"></div>
+              <div class="terminal-label">LO (COM)</div>
+            </div>
+            <div class="terminal-group">
+              <div class="jack white"></div>
+              <div class="terminal-label">4W SENSE</div>
+            </div>
+            <div class="terminal-group">
+              <div class="jack red"></div>
+              <div class="terminal-label">10A / 600mA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulator Input Controls & SCPI Console -->
+      <div class="config-grid">
+        <!-- Simulated Signal Generator / Circuit Source Panel -->
+        <div class="panel-box">
+          <div class="panel-title">🎛️ Simulated Circuit / Input Source</div>
+          <div class="form-group">
+            <label>DC Voltage (V):</label>
+            <input type="number" step="0.001" id="inDcVolt" value="3.3000">
+          </div>
+          <div class="form-group">
+            <label>AC Voltage (V RMS):</label>
+            <input type="number" step="0.001" id="inAcVolt" value="0.0100">
+          </div>
+          <div class="form-group">
+            <label>Frequency (Hz):</label>
+            <input type="number" step="1" id="inFreq" value="1000">
+          </div>
+          <div class="form-group">
+            <label>Waveform Type:</label>
+            <select id="inWaveType">
+              <option value="SINE">Sine</option>
+              <option value="SQUARE">Square</option>
+              <option value="TRIANGLE">Triangle</option>
+              <option value="NOISE">Noise</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>DC Current (A):</label>
+            <input type="number" step="0.001" id="inDcCurr" value="0.0500">
+          </div>
+          <div class="form-group">
+            <label>Resistance (Ω):</label>
+            <input type="number" step="1" id="inRes" value="1000">
+          </div>
+          <div class="form-group">
+            <label>Lead Resistance 2W (Ω):</label>
+            <input type="number" step="0.01" id="inLeadRes" value="0.15">
+          </div>
+          <div class="form-group">
+            <label>Capacitance (F):</label>
+            <input type="number" step="1e-6" id="inCap" value="0.000010">
+          </div>
+          <div class="form-group">
+            <label>Temperature (°C):</label>
+            <input type="number" step="0.1" id="inTemp" value="25.0">
+          </div>
+          <div class="form-group">
+            <label>Noise Level (0 - 1.0):</label>
+            <input type="number" step="0.001" min="0" max="1" id="inNoise" value="0.001">
+          </div>
+        </div>
+
+        <!-- SCPI Interactive Console -->
+        <div class="panel-box">
+          <div class="panel-title">💻 SCPI Command Console</div>
+          <div class="scpi-terminal">
+            <div class="scpi-log" id="scpiLog">
+              <div>SCPI Bridge Connected to SDM3045X Simulation.</div>
+              <div>Try typing: *IDN?, MEAS:VOLT:DC?, CONF:RES, or CALC:AVER:ALL?</div>
+            </div>
+            <div class="scpi-input-row">
+              <input type="text" id="scpiInput" placeholder="Enter SCPI command (e.g. *IDN?)" />
+              <button id="btnScpiSend">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    // Theme toggle
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", next);
+    });
+
+    // Elements
+    const screenFnTitle = document.getElementById("screenFnTitle");
+    const primaryValue = document.getElementById("primaryValue");
+    const secondaryValue = document.getElementById("secondaryValue");
+    const annunAuto = document.getElementById("annunAuto");
+    const annunDual = document.getElementById("annunDual");
+    const annunMath = document.getElementById("annunMath");
+    const annunRun = document.getElementById("annunRun");
+    const annunBeep = document.getElementById("annunBeep");
+    const skRange = document.getElementById("skRange");
+    const skSpeed = document.getElementById("skSpeed");
+    const skView = document.getElementById("skView");
+    const skRel = document.getElementById("skRel");
+    const skDual = document.getElementById("skDual");
+    const canvas = document.getElementById("viewCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let liveData = null;
+
+    // Canvas resize
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    // Polling Multimeter Data
+    async function pollMultimeter() {
+      try {
+        const res = await fetch("../api/dmm/reading");
+        if (res.ok) {
+          liveData = await res.json();
+          updateUI(liveData);
+          renderCanvas(liveData);
+        }
+      } catch (e) {
+        console.error("Polling error", e);
+      }
+    }
+    setInterval(pollMultimeter, 200);
+
+    function updateUI(d) {
+      if (!d.isPowered) {
+        primaryValue.textContent = "POWER OFF";
+        secondaryValue.style.display = "none";
+        return;
+      }
+
+      screenFnTitle.textContent = d.function.replace(":", " ");
+      primaryValue.textContent = d.reading.formatted;
+
+      if (d.dualEnabled && d.reading.secondaryFormatted) {
+        secondaryValue.style.display = "block";
+        secondaryValue.textContent = `2nd [${d.secondaryFunction}]: ${d.reading.secondaryFormatted}`;
+      } else {
+        secondaryValue.style.display = "none";
+      }
+
+      // Annunciators
+      annunAuto.classList.toggle("active", d.autoRange);
+      annunDual.classList.toggle("active", d.dualEnabled);
+      annunRun.classList.toggle("active", d.isRunning);
+      annunBeep.classList.toggle("active", d.beeping);
+
+      if (d.nullEnabled) {
+        annunMath.textContent = "MATH: NULL";
+        annunMath.classList.add("active");
+      } else if (d.statisticsEnabled) {
+        annunMath.textContent = "MATH: STATS";
+        annunMath.classList.add("active");
+      } else if (d.limits.enabled) {
+        annunMath.textContent = `MATH: ${d.limits.status}`;
+        annunMath.classList.add("active");
+      } else if (d.mathFunction !== "NONE") {
+        annunMath.textContent = `MATH: ${d.mathFunction}`;
+        annunMath.classList.add("active");
+      } else {
+        annunMath.textContent = "MATH: OFF";
+        annunMath.classList.remove("active");
+      }
+
+      // Softkeys
+      skRange.textContent = d.autoRange ? "Range: AUTO" : `Range: ${d.range}`;
+      skSpeed.textContent = `Speed: ${d.speed}`;
+      skView.textContent = `View: ${d.displayMode}`;
+      skRel.textContent = d.nullEnabled ? "Rel: ON" : "Rel: OFF";
+      skDual.textContent = d.dualEnabled ? "Dual: ON" : "Dual: OFF";
+
+      // Highlight active function button
+      document.querySelectorAll(".fp-btn").forEach((b) => {
+        const btnType = b.getAttribute("data-btn");
+        if (btnType === "DCV" && d.function === "VOLT:DC") b.classList.add("active");
+        else if (btnType === "ACV" && d.function === "VOLT:AC") b.classList.add("active");
+        else if (btnType === "DCI" && d.function === "CURR:DC") b.classList.add("active");
+        else if (btnType === "ACI" && d.function === "CURR:AC") b.classList.add("active");
+        else if (btnType === "2W" && d.function === "RES") b.classList.add("active");
+        else if (btnType === "4W" && d.function === "FRES") b.classList.add("active");
+        else if (btnType === "FREQ" && d.function === "FREQ") b.classList.add("active");
+        else if (btnType === "PER" && d.function === "PER") b.classList.add("active");
+        else if (btnType === "CONT" && d.function === "CONT") b.classList.add("active");
+        else if (btnType === "DIOD" && d.function === "DIOD") b.classList.add("active");
+        else if (btnType === "CAP" && d.function === "CAP") b.classList.add("active");
+        else if (btnType === "TEMP" && d.function === "TEMP") b.classList.add("active");
+        else if (btnType !== "POWER" && btnType !== "SHIFT") b.classList.remove("active");
+      });
+    }
+
+    function renderCanvas(d) {
+      if (!ctx || !d || !d.isPowered) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const w = canvas.width;
+      const h = canvas.height;
+
+      if (d.displayMode === "BAR") {
+        // Draw Bar Meter
+        const padX = 20;
+        const padY = h / 2 - 12;
+        const barW = w - padX * 2;
+        const barH = 24;
+
+        ctx.strokeStyle = "#334155";
+        ctx.strokeRect(padX, padY, barW, barH);
+
+        const pct = Math.max(0, Math.min(1, Math.abs(d.reading.value) / (d.range || 1)));
+        ctx.fillStyle = "#38bdf8";
+        ctx.fillRect(padX + 2, padY + 2, (barW - 4) * pct, barH - 4);
+
+        // Labels
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "11px monospace";
+        ctx.fillText("0", padX, padY + barH + 16);
+        ctx.fillText(`${d.range} ${d.reading.unit}`, padX + barW - 60, padY + barH + 16);
+      } else if (d.displayMode === "HISTOGRAM" && d.histogram) {
+        // Draw Histogram
+        const bins = d.histogram.bins || [];
+        if (bins.length > 0) {
+          const maxCount = Math.max(1, ...bins);
+          const binW = (w - 40) / bins.length;
+          bins.forEach((count, i) => {
+            const barH = (count / maxCount) * (h - 30);
+            ctx.fillStyle = "#38bdf8";
+            ctx.fillRect(20 + i * binW, h - 15 - barH, binW - 2, barH);
+          });
+        }
+      } else {
+        // Statistical summary overlay / info
+        ctx.fillStyle = "#64748b";
+        ctx.font = "12px monospace";
+        if (d.statisticsEnabled && d.stats) {
+          ctx.fillText(
+            `AVG: ${d.stats.average.toFixed(4)} | MIN: ${d.stats.min.toFixed(4)} | MAX: ${
+              d.stats.max.toFixed(4)
+            } | SAMPLES: ${d.stats.count}`,
+            15,
+            h / 2,
+          );
+        } else if (d.limits.enabled && d.limits) {
+          ctx.fillText(
+            `LIMITS LOW: ${d.limits.low} | HIGH: ${d.limits.high} | STATUS: ${d.limits.status} (PASS: ${d.limits.passCount})`,
+            15,
+            h / 2,
+          );
+        } else {
+          ctx.fillText(
+            `SDM3045X High-Precision 60,000 Counts Dual-Display Simulation`,
+            15,
+            h / 2,
+          );
+        }
+      }
+    }
+
+    // Button click handling
+    document.querySelectorAll(".fp-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const button = btn.getAttribute("data-btn") ||
+          (btn.id === "btnPower" ? "POWER" : "");
+        if (button) {
+          await fetch("../api/dmm/frontpanel", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ button }),
+          });
+          pollMultimeter();
+        }
+      });
+    });
+
+    // Input Source Changes
+    function sendInputs() {
+      const payload = {
+        dcVoltage: parseFloat(document.getElementById("inDcVolt").value),
+        acVoltage: parseFloat(document.getElementById("inAcVolt").value),
+        frequency: parseFloat(document.getElementById("inFreq").value),
+        waveType: document.getElementById("inWaveType").value,
+        dcCurrent: parseFloat(document.getElementById("inDcCurr").value),
+        resistance: parseFloat(document.getElementById("inRes").value),
+        leadResistance: parseFloat(document.getElementById("inLeadRes").value),
+        capacitance: parseFloat(document.getElementById("inCap").value),
+        temperature: parseFloat(document.getElementById("inTemp").value),
+        noiseLevel: parseFloat(document.getElementById("inNoise").value),
+      };
+      fetch("../api/dmm/input", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    }
+
+    document.querySelectorAll(".panel-box input, .panel-box select").forEach((el) => {
+      el.addEventListener("change", sendInputs);
+      el.addEventListener("input", sendInputs);
+    });
+
+    // SCPI Console Handling
+    const scpiLog = document.getElementById("scpiLog");
+    const scpiInput = document.getElementById("scpiInput");
+    const btnScpiSend = document.getElementById("btnScpiSend");
+
+    async function sendScpiCommand() {
+      const cmd = scpiInput.value.trim();
+      if (!cmd) return;
+
+      const logItem = document.createElement("div");
+      logItem.textContent = `> ${cmd}`;
+      scpiLog.appendChild(logItem);
+
+      try {
+        const res = await fetch("../api/dmm/command", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ command: cmd }),
+        });
+        const data = await res.json();
+        const respItem = document.createElement("div");
+        respItem.style.color = data.error ? "#ef4444" : "#10b981";
+        respItem.textContent = data.error
+          ? `Error: ${data.error}`
+          : (data.response !== null ? data.response : "<OK>");
+        scpiLog.appendChild(respItem);
+      } catch (e) {
+        const respItem = document.createElement("div");
+        respItem.style.color = "#ef4444";
+        respItem.textContent = `Network Error: ${e.message}`;
+        scpiLog.appendChild(respItem);
+      }
+
+      scpiInput.value = "";
+      scpiLog.scrollTop = scpiLog.scrollHeight;
+      pollMultimeter();
+    }
+
+    btnScpiSend.addEventListener("click", sendScpiCommand);
+    scpiInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendScpiCommand();
+    });
+    </script>
+  </body>
+</html>

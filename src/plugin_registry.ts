@@ -275,7 +275,7 @@ export class PluginRegistry {
             fail(error as Error);
           }
         })();
-        let timeout: number | undefined;
+        let timeout: ReturnType<typeof setTimeout> | undefined;
         try {
           runtime.port = await Promise.race([
             readiness,
@@ -314,7 +314,7 @@ export class PluginRegistry {
       try {
         runtime.child.kill("SIGTERM");
       } catch { /* Already exited. */ }
-      let timer: number | undefined;
+      let timer: ReturnType<typeof setTimeout> | undefined;
       try {
         await Promise.race([
           runtime.exit,

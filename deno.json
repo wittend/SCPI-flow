@@ -1,4 +1,9 @@
 {
+  "workspace": [
+    "./instruments/signal-generator",
+    "./instruments/oscilloscope",
+    "./instruments/multimeter"
+  ],
   "tasks": {
     "dev": "deno run --watch --allow-all main.ts",
     "start": "deno run --allow-all main.ts",
@@ -7,6 +12,12 @@
     "test:instruments": "deno run --allow-all scripts/check_instruments.ts"
   },
   "vendor": true,
+  "fmt": {
+    "exclude": ["**/vendor/**"]
+  },
+  "lint": {
+    "exclude": ["**/vendor/**"]
+  },
   "imports": {
     "@std/assert": "jsr:@std/assert@^1.0.0"
   }

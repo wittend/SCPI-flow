@@ -6,21 +6,27 @@ process lifecycle, and standard MCP interface—not instrument simulation code.
 
 ## Repository layout
 
-Keep these independent repositories beside one another:
+The repository is organized as a Deno workspace containing the host shell and
+subordinate standard instruments:
 
 ```text
-deno-dev/
-├── SCPI-flow/                 # Shell, manifest schema, UI and MCP adapter
-├── SCPI-oScope-sim/           # Oscilloscope engine, front panel and assets
-├── SCPI-mmeter/               # Multimeter engine, front panel and assets
-└── SCPI-signal-generator/     # Signal generator engine, front panel and assets
+SCPI-flow/
+├── deno.json                  # Root workspace configuration
+├── instruments.json           # Default catalog pointing to subordinate instruments
+├── src/                       # Shell, manifest schema, and MCP adapter
+├── web/                       # Data flow canvas UI and assets
+└── instruments/               # Subordinate standard instrument plug-ins
+    ├── oscilloscope/          # Oscilloscope engine, front panel and assets
+    ├── multimeter/            # Multimeter engine, front panel and assets
+    └── signal-generator/      # Signal generator engine, front panel and assets
 ```
 
 Each instrument publishes `instrument.json` and runs in its own Deno process.
 `instruments.json` contains configurable manifest paths, not compiled-in
-instrument classes. Add any number of compatible instrument types without
-editing the shell. Missing sibling repositories appear as unavailable; they do
-not stop the shell. An empty catalog is supported.
+instrument classes. Add any number of compatible internal or external instrument
+types without editing the shell. Missing or custom third-party instruments
+appear as unavailable if unresolvable, but do not stop the shell. An empty
+catalog is supported.
 
 ## Run
 
@@ -125,14 +131,14 @@ standard-library assertions.
 deno task test
 deno fmt --check
 deno lint
-# With the three sibling instruments installed:
+# Run end-to-end integration checks with standard instruments:
 deno task test:instruments
 ```
 
-Core shell tests run without any instrument repositories. Optional integration
-checks launch all catalog instruments, inspect their front panels, send
-commands, and unload them. Instrument engine tests live with their owning
-repositories.
+Running `deno test` executes unit and integration tests across the root
+workspace and all subordinate instruments. Optional integration checks launch
+all catalog instruments, inspect their front panels, send commands, and unload
+them.
 
 ## License
 

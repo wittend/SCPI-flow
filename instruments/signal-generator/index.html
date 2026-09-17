@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal Generator Simulator</title>
+    <style>
+    :root {
+      --bg-color: #1e1e24;
+      --surface-bg: #2b2d42;
+      --panel-bg: #181920;
+      --text-color: #edf2f4;
+      --text-dim: #8d99ae;
+      --header-bg: #111217;
+      --border-color: #3f4254;
+      --accent-ch1: #f5c518;
+      --accent-ch2: #00d2ff;
+      --accent-trig: #ff5964;
+      --btn-bg: #35374d;
+      --btn-hover: #474a68;
+    }
+    [data-theme="light"] {
+      --bg-color: #f4f5f7;
+      --surface-bg: #ffffff;
+      --panel-bg: #e9ecef;
+      --text-color: #2b2d42;
+      --text-dim: #6c757d;
+      --header-bg: #dfe3e6;
+      --border-color: #ced4da;
+      --accent-ch1: #d4a000;
+      --accent-ch2: #0088cc;
+      --accent-trig: #e63946;
+      --btn-bg: #dee2e6;
+      --btn-hover: #ced4da;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #toolbar {
+      background-color: var(--surface-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 6px 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    button,
+    select,
+    input {
+      background-color: var(--btn-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: var(--btn-hover);
+    }
+    #main-view {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .view-panel {
+      display: none;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+    }
+    .view-panel.active {
+      display: flex;
+    }
+    .control-group {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .control-group h4 {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 11px;
+      gap: 6px;
+    }
+    .control-row label {
+      flex: 1;
+      color: var(--text-dim);
+    }
+    .control-row input[type="range"] {
+      flex: 1.5;
+    }
+    .control-row input[type="number"],
+    .control-row select {
+      width: 80px;
+    }
+
+    /* DMM & Signal Generator Views styling */
+    #gen-container {
+      display: flex;
+      flex: 1;
+      flex-direction: row;
+      overflow: hidden;
+      background: #0d0e12;
+    }
+    #gen-screen-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-y: auto;
+      gap: 15px;
+    }
+    #gen-controls-area {
+      width: 420px;
+      background-color: var(--surface-bg);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 10px;
+      gap: 10px;
+    }
+    #gen-chassis {
+      background: linear-gradient(180deg, #2b2d42 0%, #1a1a24 100%);
+      border: 3px solid #8d99ae;
+      border-radius: 10px;
+      padding: 16px;
+      width: 100%;
+      max-width: 860px;
+      box-sizing: border-box;
+    }
+    #gen-canvas {
+      background: #000;
+      border: 2px solid #4a4e69;
+      border-radius: 6px;
+      display: block;
+      width: 100%;
+      max-width: 800px;
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+    .gen-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .gen-wave-btn {
+      padding: 8px 6px;
+      border-radius: 4px;
+      border: 1px solid #4a4e69;
+      background: #2b2d42;
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+    }
+    .gen-wave-btn.active {
+      background: #4cc9f0;
+      color: #020617;
+      border-color: #4cc9f0;
+      box-shadow: 0 0 8px rgba(76, 201, 240, 0.6);
+    }
+    #gen-screen-area {
+      min-width: 0;
+    }
+    @media (max-width: 850px) {
+      #gen-container {
+        flex-direction: column;
+        overflow: auto;
+      }
+      #gen-controls-area {
+        width: 100%;
+        overflow: visible;
+      }
+      #gen-screen-area {
+        flex: none;
+      }
+    }
+    </style>
+  </head>
+  <body data-theme="dark">
+    <div id="toolbar">
+      <strong>Signal Generator</strong><button onclick="toggleTheme()">Theme</button>
+    </div>
+    <div id="main-view">
+      <div id="view-gen" class="view-panel active">
+        <div id="gen-container">
+          <!-- Left: Synthesized Waveform Canvas -->
+          <div id="gen-screen-area">
+            <div id="gen-chassis">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px"
+              >
+                <div
+                  style="font-weight: bold; color: #4cc9f0; font-size: 14px; letter-spacing: 1px"
+                >
+                  SIGLENT SDG ARBITRARY FUNCTION GENERATOR
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <button
+                    id="btn-gen-out"
+                    onclick="toggleGenOutput()"
+                    style="background: #22c55e; color: #000; font-weight: bold; padding: 4px 12px; border-radius: 4px; border: none; cursor: pointer"
+                  >
+                    OUTPUT: ON
+                  </button>
+                </div>
+              </div>
+
+              <!-- Live Generator Waveform Display Canvas -->
+              <canvas id="gen-canvas" width="800" height="420"></canvas>
+
+              <!-- Waveform Type Selection -->
+              <div style="margin-top: 14px">
+                <div
+                  style="font-size: 11px; color: #cbd5e1; font-weight: bold; margin-bottom: 6px"
+                >
+                  Waveform Type:
+                </div>
+                <div class="gen-btn-grid">
+                  <button
+                    class="gen-wave-btn active"
+                    id="btn-gen-sine"
+                    onclick="setGenWave('sine')"
+                  >
+                    Sine
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-square"
+                    onclick="setGenWave('square')"
+                  >
+                    Square
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-triangle"
+                    onclick="setGenWave('triangle')"
+                  >
+                    Triangle
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-sawtooth"
+                    onclick="setGenWave('sawtooth')"
+                  >
+                    Ramp / Saw
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-noise"
+                    onclick="setGenWave('noise')"
+                  >
+                    Noise
+                  </button>
+                  <button
+                    class="gen-wave-btn"
+                    id="btn-gen-dc"
+                    onclick="setGenWave('dc')"
+                  >
+                    DC
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Generator Controls & Quick Presets -->
+          <div id="gen-controls-area">
+            <div class="control-group">
+              <h4>Waveform Parameters</h4>
+
+              <div class="control-row">
+                <label>Frequency (Hz):</label>
+                <input
+                  type="range"
+                  id="gen-freq-slider"
+                  min="1"
+                  max="20000"
+                  step="10"
+                  value="1000"
+                  oninput="onGenParamChanged('frequency', this.value)"
+                >
+                <input
+                  type="number"
+                  id="gen-freq-num"
+                  value="1000"
+                  step="10"
+                  onchange="onGenParamChanged('frequency', this.value)"
+                >
+              </div>
+              <div style="display: flex; gap: 4px; margin-bottom: 8px">
+                <button onclick="setGenFreq(100)">100 Hz</button>
+                <button onclick="setGenFreq(1000)">1 kHz</button>
+                <button onclick="setGenFreq(10000)">10 kHz</button>
+                <button onclick="setGenFreq(100000)">100 kHz</button>
+                <button onclick="setGenFreq(1000000)">1 MHz</button>
+              </div>
+
+              <div class="control-row">
+                <label>Amplitude (V peak):</label>
+                <input
+                  type="range"
+                  id="gen-amp-slider"
+                  min="0.05"
+                  max="10.0"
+                  step="0.05"
+                  value="2.0"
+                  oninput="onGenParamChanged('amplitude', this.value)"
+                >
+                <input
+                  type="number"
+                  id="gen-amp-num"
+                  value="2.0"
+                  step="0.1"
+                  onchange="onGenParamChanged('amplitude', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Offset (V):</label>
+                <input
+                  type="range"
+                  id="gen-offset-slider"
+                  min="-5.0"
+                  max="5.0"
+                  step="0.05"
+                  value="0.0"
+                  oninput="onGenParamChanged('offset', this.value)"
+                >
+                <input
+                  type="number"
+                  id="gen-offset-num"
+                  value="0.0"
+                  step="0.1"
+                  onchange="onGenParamChanged('offset', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Phase (°):</label>
+                <input
+                  type="range"
+                  id="gen-phase-slider"
+                  min="0"
+                  max="360"
+                  step="5"
+                  value="0"
+                  oninput="onGenParamChanged('phase', this.value)"
+                >
+                <input
+                  type="number"
+                  id="gen-phase-num"
+                  value="0"
+                  step="5"
+                  onchange="onGenParamChanged('phase', this.value)"
+                >
+              </div>
+
+              <div class="control-row">
+                <label>Duty Cycle (%):</label>
+                <input
+                  type="range"
+                  id="gen-duty-slider"
+                  min="1"
+                  max="99"
+                  step="1"
+                  value="50"
+                  oninput="onGenParamChanged('dutyCycle', this.value / 100)"
+                >
+                <input
+                  type="number"
+                  id="gen-duty-num"
+                  value="50"
+                  step="1"
+                  onchange="onGenParamChanged('dutyCycle', this.value / 100)"
+                >
+              </div>
+            </div>
+
+            <div class="control-group">
+              <h4>Quick Presets</h4>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px">
+                <button onclick="applyGenPreset('audio')">
+                  Audio 1 kHz Sine
+                </button>
+                <button onclick="applyGenPreset('clock')">100 kHz Clock</button>
+                <button onclick="applyGenPreset('rf')">1 MHz RF Carrier</button>
+                <button onclick="applyGenPreset('sensor')">
+                  50 Hz Sensor Ramp
+                </button>
+                <button onclick="applyGenPreset('noise')">White Noise</button>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <h4>Generator SCPI Console</h4>
+              <div
+                id="gen-scpi-log"
+                style="height: 90px; background: #000; color: #4cc9f0; font-family: monospace; font-size: 10px; padding: 6px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 6px"
+              >
+                Connected to Siglent SDG Function Generator.
+              </div>
+              <div style="display: flex; gap: 4px; margin-bottom: 6px">
+                <input
+                  type="text"
+                  id="gen-scpi-input"
+                  placeholder="e.g. *IDN?, C1:BSWV?, C1:OUTP ON"
+                  style="flex: 1"
+                  onkeydown="if(event.key==='Enter') sendGenScpiCmd()"
+                >
+                <button onclick="sendGenScpiCmd()">Send</button>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px">
+                <button onclick="quickGenScpi('*IDN?')">*IDN?</button>
+                <button onclick="quickGenScpi('C1:BSWV?')">C1:BSWV?</button>
+                <button onclick="quickGenScpi('C1:OUTP ON')">OUTP ON</button>
+                <button onclick="quickGenScpi('C1:OUTP OFF')">OUTP OFF</button>
+                <button onclick="quickGenScpi('SYST:ERR?')">SYST:ERR?</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+    function toggleTheme() {
+      const current = document.body.getAttribute("data-theme");
+      document.body.setAttribute(
+        "data-theme",
+        current === "dark" ? "light" : "dark",
+      );
+    }
+    // --- Signal Generator UI & Waveform Canvas Logic ---
+    const genState = {
+      type: "sine",
+      frequency: 1000,
+      amplitude: 2.0,
+      offset: 0.0,
+      phase: 0,
+      dutyCycle: 0.5,
+      outputEnabled: true,
+    };
+
+    async function fetchGenState() {
+      try {
+        const resp = await fetch("api/gen/state");
+        if (!resp.ok) return;
+        const data = await resp.json();
+        Object.assign(genState, data);
+
+        // Update controls
+        const freqSlider = document.getElementById("gen-freq-slider");
+        const freqNum = document.getElementById("gen-freq-num");
+        if (freqSlider) freqSlider.value = data.frequency;
+        if (freqNum) freqNum.value = data.frequency;
+
+        const ampSlider = document.getElementById("gen-amp-slider");
+        const ampNum = document.getElementById("gen-amp-num");
+        if (ampSlider) ampSlider.value = data.amplitude;
+        if (ampNum) ampNum.value = data.amplitude;
+
+        const offSlider = document.getElementById(
+          "gen-offset-slider",
+        );
+        const offNum = document.getElementById("gen-offset-num");
+        if (offSlider) offSlider.value = data.offset;
+        if (offNum) offNum.value = data.offset;
+
+        const phaseSlider = document.getElementById(
+          "gen-phase-slider",
+        );
+        const phaseNum = document.getElementById("gen-phase-num");
+        if (phaseSlider) phaseSlider.value = data.phase;
+        if (phaseNum) phaseNum.value = data.phase;
+
+        const dutySlider = document.getElementById("gen-duty-slider");
+        const dutyNum = document.getElementById("gen-duty-num");
+        if (dutySlider) {
+          dutySlider.value = Math.round(data.dutyCycle * 100);
+        }
+        if (dutyNum) dutyNum.value = Math.round(data.dutyCycle * 100);
+
+        // Update active wave button
+        const waveMap = {
+          sine: "btn-gen-sine",
+          square: "btn-gen-square",
+          triangle: "btn-gen-triangle",
+          sawtooth: "btn-gen-sawtooth",
+          noise: "btn-gen-noise",
+          dc: "btn-gen-dc",
+        };
+        Object.values(waveMap).forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.classList.remove("active");
+        });
+        const activeId = waveMap[data.type];
+        if (activeId) {
+          const el = document.getElementById(activeId);
+          if (el) el.classList.add("active");
+        }
+
+        drawGenWaveform();
+      } catch {
+        // ignore
+      }
+    }
+
+    async function setGenWave(type) {
+      genState.type = type;
+      await fetch("api/gen/state", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+      fetchGenState();
+    }
+
+    async function onGenParamChanged(key, val) {
+      const numVal = parseFloat(val);
+      if (!Number.isFinite(numVal)) return;
+
+      await fetch("api/gen/state", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ [key]: numVal }),
+      });
+      await fetchGenState();
+    }
+
+    function setGenFreq(freq) {
+      onGenParamChanged("frequency", freq);
+    }
+
+    async function toggleGenOutput() {
+      await fetch("api/gen/state", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ outputEnabled: !genState.outputEnabled }),
+      });
+      await fetchGenState();
+    }
+
+    function updateGenOutputButton() {
+      const btn = document.getElementById("btn-gen-out");
+      if (genState.outputEnabled) {
+        btn.innerText = "OUTPUT: ON";
+        btn.style.background = "#22c55e";
+        btn.style.color = "#000";
+      } else {
+        btn.innerText = "OUTPUT: OFF";
+        btn.style.background = "#ef4444";
+        btn.style.color = "#fff";
+      }
+    }
+
+    async function applyGenPreset(preset) {
+      if (preset === "audio") {
+        await fetch("api/gen/state", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            type: "sine",
+            frequency: 1000,
+            amplitude: 2.0,
+            offset: 0.0,
+          }),
+        });
+      } else if (preset === "clock") {
+        await fetch("api/gen/state", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            type: "square",
+            frequency: 100000,
+            amplitude: 3.3,
+            offset: 1.65,
+            dutyCycle: 0.5,
+          }),
+        });
+      } else if (preset === "rf") {
+        await fetch("api/gen/state", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            type: "sine",
+            frequency: 1000000,
+            amplitude: 1.0,
+            offset: 0.0,
+          }),
+        });
+      } else if (preset === "sensor") {
+        await fetch("api/gen/state", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            type: "sawtooth",
+            frequency: 50,
+            amplitude: 5.0,
+            offset: 2.5,
+          }),
+        });
+      } else if (preset === "noise") {
+        await fetch("api/gen/state", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            type: "noise",
+            frequency: 1000,
+            amplitude: 1.0,
+            offset: 0.0,
+          }),
+        });
+      }
+      fetchGenState();
+    }
+
+    async function drawGenWaveform() {
+      const response = await fetch("api/gen/preview");
+      if (!response.ok) return;
+      const preview = await response.json();
+      Object.assign(genState, preview);
+      updateGenOutputButton();
+      const gCanvas = document.getElementById("gen-canvas");
+      if (!gCanvas) return;
+      const gctx = gCanvas.getContext("2d");
+      const w = gCanvas.width;
+      const h = gCanvas.height;
+
+      gctx.fillStyle = "#020617";
+      gctx.fillRect(0, 0, w, h);
+
+      // Draw Graticule
+      gctx.strokeStyle = "#1e293b";
+      gctx.lineWidth = 1;
+      const gridCols = 10;
+      const gridRows = 8;
+      for (let i = 0; i <= gridCols; i++) {
+        const x = (i / gridCols) * w;
+        gctx.beginPath();
+        gctx.moveTo(x, 0);
+        gctx.lineTo(x, h);
+        gctx.stroke();
+      }
+      for (let j = 0; j <= gridRows; j++) {
+        const y = (j / gridRows) * h;
+        gctx.beginPath();
+        gctx.moveTo(0, y);
+        gctx.lineTo(w, y);
+        gctx.stroke();
+      }
+
+      // Center crosshairs
+      gctx.strokeStyle = "#334155";
+      gctx.lineWidth = 1.5;
+      gctx.beginPath();
+      gctx.moveTo(w / 2, 0);
+      gctx.lineTo(w / 2, h);
+      gctx.moveTo(0, h / 2);
+      gctx.lineTo(w, h / 2);
+      gctx.stroke();
+
+      // Waveform plot
+      if (!genState.outputEnabled) {
+        gctx.fillStyle = "#ef4444";
+        gctx.font = "bold 16px sans-serif";
+        gctx.fillText("OUTPUT DISABLED", w / 2 - 70, h / 2);
+        return;
+      }
+
+      const pts = preview.voltage.length;
+      const freq = genState.frequency;
+      const amp = genState.amplitude;
+      const offset = genState.offset;
+      const type = genState.type;
+
+      const voltScale = Math.max(0.5, Math.abs(offset) + amp * genState.scale * 1.5);
+
+      gctx.strokeStyle = "#4cc9f0";
+      gctx.lineWidth = 2.5;
+      gctx.beginPath();
+
+      for (let i = 0; i < pts; i++) {
+        const v = preview.voltage[i];
+        const x = (i / pts) * w;
+        const y = h / 2 - (v / voltScale) * (h / 2 - 20);
+        if (i === 0) gctx.moveTo(x, y);
+        else gctx.lineTo(x, y);
+      }
+      gctx.stroke();
+
+      // Waveform Parameters HUD
+      gctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+      gctx.fillRect(10, 10, 240, 60);
+      gctx.strokeStyle = "#4cc9f0";
+      gctx.strokeRect(10, 10, 240, 60);
+
+      gctx.fillStyle = "#38bdf8";
+      gctx.font = "bold 12px monospace";
+      gctx.fillText(`TYPE: ${type.toUpperCase()}`, 20, 28);
+      gctx.fillText(
+        `FREQ: ${
+          freq >= 1e6
+            ? (freq / 1e6).toFixed(2) + " MHz"
+            : freq >= 1e3
+            ? (freq / 1e3).toFixed(2) + " kHz"
+            : freq.toFixed(1) + " Hz"
+        }`,
+        20,
+        44,
+      );
+      gctx.fillText(
+        `AMP: ${amp.toFixed(2)} Vpk | OFFS: ${offset.toFixed(2)} V`,
+        20,
+        60,
+      );
+    }
+
+    async function sendGenScpiCmd() {
+      const input = document.getElementById("gen-scpi-input");
+      const cmd = input.value.trim();
+      if (!cmd) return;
+      input.value = "";
+      quickGenScpi(cmd);
+    }
+
+    async function quickGenScpi(cmd) {
+      const log = document.getElementById("gen-scpi-log");
+      const append = (text) => {
+        const line = document.createElement("div");
+        line.textContent = text;
+        log.appendChild(line);
+      };
+      append(`> ${cmd}`);
+      try {
+        const response = await fetch("command", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ command: cmd }),
+        });
+        const data = await response.json();
+        append(response.ok ? data.response || "OK" : `Error: ${data.error}`);
+        await fetchGenState();
+      } catch (error) {
+        append(`Error: ${error.message}`);
+      }
+      log.scrollTop = log.scrollHeight;
+    }
+
+    window.addEventListener("load", fetchGenState);
+    </script>
+  </body>
+</html>
