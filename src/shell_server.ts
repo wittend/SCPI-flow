@@ -55,6 +55,125 @@ export function createHandler(
           status: 201,
         });
       }
+      if (
+        url.pathname === "/api/instruments/discover" &&
+        request.method === "GET"
+      ) {
+        const rawDir = url.searchParams.get("dir")?.trim();
+        const searchRoots = rawDir ? [rawDir] : [
+          new URL("./instruments", root).pathname,
+          new URL("../", root).pathname,
+        ];
+
+        const registeredList = registry.list();
+        const registeredPaths = new Set(
+          registeredList.map((inst) => inst.path),
+        );
+        const registeredIds = new Set(registeredList.map((inst) => inst.id));
+
+        const discovered: Array<{
+          path: string;
+          id: string;
+          name: string;
+          version: string;
+          description?: string;
+          registered: boolean;
+        }> = [];
+        const seenDirs = new Set<string>();
+        const seenManifestPaths = new Set<string>();
+
+        const scanDir = async (dir: string, depth = 0) => {
+          if (depth > 3) return;
+          try {
+            const realDir = await Deno.realPath(dir);
+            if (seenDirs.has(realDir)) return;
+            seenDirs.add(realDir);
+
+            for await (const entry of Deno.readDir(realDir)) {
+              if (
+                entry.name.startsWith(".") ||
+                entry.name === "node_modules" ||
+                entry.name === ".git" ||
+                entry.name === "vendor"
+              ) {
+                continue;
+              }
+              const fullPath = `${realDir}/${entry.name}`;
+              if (entry.isFile && entry.name === "instrument.json") {
+                if (seenManifestPaths.has(fullPath)) continue;
+                seenManifestPaths.add(fullPath);
+                try {
+                  const text = await Deno.readTextFile(fullPath);
+                  const manifest = JSON.parse(text);
+                  if (
+                    manifest &&
+                    typeof manifest.id === "string" &&
+                    typeof manifest.name === "string"
+                  ) {
+                    const isRegistered = registeredIds.has(manifest.id) ||
+                      registeredPaths.has(fullPath);
+                    discovered.push({
+                      path: fullPath,
+                      id: manifest.id,
+                      name: manifest.name,
+                      version: manifest.version ?? "1.0.0",
+                      description: manifest.description,
+                      registered: isRegistered,
+                    });
+                  }
+                } catch {
+                  // Ignore invalid manifest files
+                }
+              } else if (entry.isDirectory) {
+                await scanDir(fullPath, depth + 1);
+              }
+            }
+          } catch {
+            // Ignore unreadable or non-existent directories
+          }
+        };
+
+        for (const rootPath of searchRoots) {
+          await scanDir(rootPath, 0);
+        }
+
+        return Response.json({ discovered });
+      }
+      if (url.pathname === "/api/fs/browse" && request.method === "GET") {
+        const rawDir = url.searchParams.get("dir")?.trim();
+        const startDir = rawDir ? rawDir : Deno.cwd();
+        const current = await Deno.realPath(startDir);
+        const stat = await Deno.stat(current);
+        if (!stat.isDirectory) {
+          throw new Error("Specified path is not a directory");
+        }
+        const entries = [];
+        for await (const entry of Deno.readDir(current)) {
+          if (entry.name.startsWith(".") && entry.name !== ".docs") continue;
+          if (entry.name === "node_modules" || entry.name === ".git") continue;
+          const fullPath = `${current}/${entry.name}`;
+          entries.push({
+            name: entry.name,
+            isDirectory: entry.isDirectory,
+            isManifest: entry.isFile && entry.name === "instrument.json",
+            path: fullPath,
+          });
+        }
+        entries.sort((a, b) => {
+          if (a.isDirectory === b.isDirectory) {
+            return a.name.localeCompare(b.name);
+          }
+          return a.isDirectory ? -1 : 1;
+        });
+        const parent = current === "/"
+          ? null
+          : (current.slice(0, current.lastIndexOf("/")) || "/");
+        return Response.json({
+          current,
+          parent,
+          entries,
+        });
+      }
       const instrument = url.pathname.match(
         /^\/api\/instruments\/([a-zA-Z0-9-]+)(?:\/(load|unload|state|configure|command|reset|icon))?$/,
       );

@@ -9,32 +9,61 @@
   </head>
   <body>
     <header>
+      <button id="toggle-sidebar" title="Toggle catalog sidebar (Ctrl+B)"
+        aria-label="Toggle catalog sidebar">◀ Sidebar</button>
       <strong>SCPI-flow</strong>
       <button id="new-project">New diagram</button>
       <button id="save-project">Save diagram</button>
       <button id="load-project">Load diagram</button>
       <button id="reset-workspace">Reset instruments</button>
+      <button id="maximize-canvas"
+        title="Maximize flow-graph view (Esc to exit)">⛶ Maximize</button>
       <button id="theme">Light / Dark</button>
     </header>
     <main>
-      <aside aria-label="Instrument catalog">
-        <h2>Instrument catalog</h2>
+      <aside id="catalog-sidebar" aria-label="Instrument catalog">
+        <div class="aside-header">
+          <h2>Instrument catalog</h2>
+          <button id="hide-sidebar-btn" class="icon-btn"
+            title="Hide sidebar (Ctrl+B)" aria-label="Hide sidebar">◀</button>
+        </div>
         <p class="muted">
           Load instruments when needed. Each runs in its own process.
         </p>
         <form id="register-form">
           <label for="manifest-path">Local instrument manifest</label>
-          <input
-            id="manifest-path"
-            placeholder="/path/to/instrument.json"
-            required
-          >
-          <button type="submit">Register</button>
-          <button id="refresh" type="button">Refresh</button>
+          <div class="input-with-button">
+            <input
+              id="manifest-path"
+              list="recent-manifests"
+              placeholder="/path/to/instrument.json"
+              required
+            >
+            <datalist id="recent-manifests"></datalist>
+            <button id="browse-btn" type="button"
+              title="Browse local directories for instrument.json">Browse…</button>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Register</button>
+            <button id="discover-btn" type="button"
+              title="Scan workspace for plug-ins">Discover</button>
+            <button id="refresh" type="button">Refresh</button>
+          </div>
         </form>
+        <div id="discovered-section" class="discovered-section"
+          style="display:none;">
+          <div class="discovered-header">
+            <h3>Discovered plug-ins</h3>
+            <button id="close-discovered-btn" type="button" class="icon-btn"
+              title="Dismiss" aria-label="Dismiss">✕</button>
+          </div>
+          <div id="discovered-list"></div>
+        </div>
         <div id="palette">Reading catalog…</div>
       </aside>
       <div id="workspace-area">
+        <button id="restore-canvas" class="floating-restore-btn"
+          title="Exit maximized view (Esc)">⛶ Restore View</button>
         <nav id="tabs" role="tablist" aria-label="Workspace views">
           <button
             id="tab-flow"
@@ -88,6 +117,35 @@
       <textarea id="configuration" spellcheck="false">{}</textarea>
       <button id="apply-config">Apply configuration</button>
       <button id="close-details">Close</button>
+    </dialog>
+    <dialog id="file-browser">
+      <div class="dialog-header">
+        <h2>Browse for Instrument Manifest</h2>
+        <button id="close-file-browser" type="button" class="icon-btn"
+          aria-label="Close">✕</button>
+      </div>
+      <div class="browser-nav">
+        <button id="browser-up-btn" type="button"
+          title="Go up one level">⬆ Up</button>
+        <input id="browser-current-path" type="text" readonly
+          aria-label="Current directory path">
+      </div>
+      <div class="browser-shortcuts">
+        <button id="shortcut-workspace" type="button">Workspace Root</button>
+        <button id="shortcut-instruments" type="button">Instruments</button>
+        <button id="shortcut-parent" type="button">Parent Directory</button>
+      </div>
+      <div id="browser-file-list" class="browser-file-list" role="listbox">
+        Loading directory…
+      </div>
+      <div class="dialog-footer">
+        <span id="browser-selected-info"
+          class="muted">Select an instrument.json file</span>
+        <div class="dialog-actions">
+          <button id="browser-select-btn" type="button" disabled>Select</button>
+          <button id="browser-cancel-btn" type="button">Cancel</button>
+        </div>
+      </div>
     </dialog>
   </body>
 </html>

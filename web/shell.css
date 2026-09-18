@@ -78,6 +78,30 @@ aside {
   padding: 14px;
   overflow: auto;
   border-right: 1px solid var(--border);
+  transition: width 0.15s ease, padding 0.15s ease, opacity 0.15s ease;
+}
+body.sidebar-collapsed aside {
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border-right: none !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.aside-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.aside-header h2 {
+  margin: 0;
+}
+.icon-btn {
+  padding: 3px 7px;
+  font-size: 13px;
+  line-height: 1;
 }
 h2 {
   font-size: 15px;
@@ -89,12 +113,73 @@ h2 {
 }
 #register-form {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-direction: column;
+  gap: 8px;
   margin-bottom: 18px;
 }
-#manifest-path {
+.input-with-button {
+  display: flex;
+  gap: 6px;
   width: 100%;
+}
+.input-with-button input {
+  flex: 1;
+  min-width: 0;
+}
+.form-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.discovered-section {
+  margin-bottom: 16px;
+  padding: 10px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.discovered-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.discovered-header h3 {
+  margin: 0;
+  font-size: 13px;
+  color: var(--accent);
+}
+.discovered-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  gap: 8px;
+}
+.discovered-item:last-child {
+  border-bottom: none;
+}
+.discovered-info {
+  flex: 1;
+  min-width: 0;
+}
+.discovered-info strong {
+  display: block;
+  font-size: 12px;
+}
+.discovered-info span {
+  display: block;
+  font-size: 10px;
+  opacity: 0.75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.discovered-item button {
+  padding: 4px 8px;
+  font-size: 11px;
 }
 .instrument {
   border: 1px solid var(--border);
@@ -276,6 +361,133 @@ dialog pre {
   max-height: 200px;
   overflow: auto;
   white-space: pre-wrap;
+}
+.floating-restore-btn {
+  display: none;
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 1000;
+  background: var(--surface);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 8px 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  font-weight: bold;
+}
+body.canvas-maximized header,
+body.canvas-maximized aside,
+body.canvas-maximized nav#tabs,
+body.canvas-maximized footer,
+body.canvas-maximized #flow-help {
+  display: none !important;
+}
+body.canvas-maximized .floating-restore-btn {
+  display: block !important;
+}
+body.canvas-maximized main {
+  height: 100vh;
+}
+body.canvas-maximized #workspace-area,
+body.canvas-maximized #panels,
+body.canvas-maximized #view-flow,
+body.canvas-maximized #flow-scroll {
+  height: 100%;
+  width: 100%;
+}
+#file-browser {
+  width: min(720px, 95vw);
+  max-height: 85vh;
+}
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.dialog-header h2 {
+  margin: 0;
+}
+.browser-nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.browser-nav input {
+  flex: 1;
+  font-family: monospace;
+  font-size: 12px;
+}
+.browser-shortcuts {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.browser-shortcuts button {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+.browser-file-list {
+  max-height: 320px;
+  min-height: 160px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  margin-bottom: 14px;
+}
+.browser-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 13px;
+}
+.browser-row:hover {
+  background: rgba(56, 189, 248, 0.12);
+}
+.browser-row.selected {
+  background: rgba(56, 189, 248, 0.25);
+  outline: 1px solid var(--accent);
+}
+.browser-row .icon {
+  font-size: 15px;
+  width: 18px;
+  text-align: center;
+}
+.browser-row .name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.browser-row.manifest .name {
+  font-weight: 600;
+  color: var(--accent);
+}
+.browser-row.manifest .badge {
+  font-size: 10px;
+  background: var(--accent);
+  color: var(--bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.dialog-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dialog-actions {
+  display: flex;
+  gap: 8px;
 }
 @media (max-width: 800px) {
   aside {

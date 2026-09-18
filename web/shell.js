@@ -386,8 +386,241 @@ function renderCanvas() {
   drawConnections();
 }
 
+function saveRecentManifest(path) {
+  if (!path) return;
+  try {
+    const list = JSON.parse(
+      localStorage.getItem("scpi-flow-recent-manifests") || "[]",
+    );
+    const updated = [path, ...list.filter((item) => item !== path)].slice(
+      0,
+      10,
+    );
+    localStorage.setItem(
+      "scpi-flow-recent-manifests",
+      JSON.stringify(updated),
+    );
+    populateRecentManifests();
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function populateRecentManifests() {
+  try {
+    const datalist = $("recent-manifests");
+    if (!datalist) return;
+    datalist.replaceChildren();
+    const list = JSON.parse(
+      localStorage.getItem("scpi-flow-recent-manifests") || "[]",
+    );
+    for (const item of list) {
+      const option = document.createElement("option");
+      option.value = item;
+      datalist.append(option);
+    }
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+let browserParentDir = null;
+let browserSelectedPath = null;
+
+async function loadBrowserDir(dir = "") {
+  const fileList = $("browser-file-list");
+  fileList.textContent = "Loading directory…";
+  browserSelectedPath = null;
+  $("browser-select-btn").disabled = true;
+  $("browser-selected-info").textContent = "Select an instrument.json file";
+  try {
+    const query = dir ? `?dir=${encodeURIComponent(dir)}` : "";
+    const result = await api(`/api/fs/browse${query}`);
+    browserParentDir = result.parent;
+    $("browser-current-path").value = result.current;
+    $("browser-up-btn").disabled = !result.parent;
+    fileList.replaceChildren();
+
+    if (!result.entries.length) {
+      fileList.textContent = "Empty directory";
+      return;
+    }
+
+    for (const entry of result.entries) {
+      const row = document.createElement("div");
+      row.className = `browser-row${entry.isManifest ? " manifest" : ""}`;
+      const icon = document.createElement("span");
+      icon.className = "icon";
+      icon.textContent = entry.isDirectory
+        ? "📁"
+        : entry.isManifest
+        ? "📜"
+        : "📄";
+      const name = document.createElement("span");
+      name.className = "name";
+      name.textContent = entry.name;
+      row.append(icon, name);
+
+      if (entry.isManifest) {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = "manifest";
+        row.append(badge);
+      }
+
+      row.onclick = () => {
+        fileList.querySelectorAll(".browser-row").forEach((r) =>
+          r.classList.remove("selected")
+        );
+        row.classList.add("selected");
+        if (entry.isManifest || entry.name.endsWith(".json")) {
+          browserSelectedPath = entry.path;
+          $("browser-select-btn").disabled = false;
+          $("browser-selected-info").textContent = entry.path;
+        } else if (entry.isDirectory) {
+          browserSelectedPath = null;
+          $("browser-select-btn").disabled = true;
+          $("browser-selected-info").textContent =
+            "Double-click folder to open";
+        } else {
+          browserSelectedPath = null;
+          $("browser-select-btn").disabled = true;
+          $("browser-selected-info").textContent =
+            "Select an instrument.json file";
+        }
+      };
+
+      row.ondblclick = action(async () => {
+        if (entry.isDirectory) {
+          await loadBrowserDir(entry.path);
+        } else if (entry.isManifest || entry.name.endsWith(".json")) {
+          $("manifest-path").value = entry.path;
+          $("file-browser").close();
+          $("manifest-path").focus();
+        }
+      });
+
+      fileList.append(row);
+    }
+  } catch (error) {
+    fileList.textContent = `Failed to load: ${error.message}`;
+  }
+}
+
+function openFileBrowser() {
+  $("file-browser").showModal();
+  const currentVal = $("manifest-path").value.trim();
+  const startDir = currentVal
+    ? currentVal.slice(0, currentVal.lastIndexOf("/"))
+    : "";
+  loadBrowserDir(startDir).catch((err) => notify(err.message, true));
+}
+
+async function discoverPlugins() {
+  notify("Scanning for instrument plug-ins…");
+  try {
+    const result = await api("/api/instruments/discover");
+    const section = $("discovered-section");
+    const list = $("discovered-list");
+    list.replaceChildren();
+
+    const unregistered = (result.discovered || []).filter((item) =>
+      !item.registered
+    );
+    if (!unregistered.length) {
+      section.style.display = "none";
+      notify("No new unregistered plug-ins found in workspace");
+      return;
+    }
+
+    for (const item of unregistered) {
+      const row = document.createElement("div");
+      row.className = "discovered-item";
+      const info = document.createElement("div");
+      info.className = "discovered-info";
+      const title = document.createElement("strong");
+      title.textContent = `${item.name} (v${item.version})`;
+      const pathEl = document.createElement("span");
+      pathEl.textContent = item.path;
+      info.append(title, pathEl);
+
+      const regBtn = button("+ Register", async () => {
+        if (
+          !confirm(
+            `Register ${item.name} (${item.path})? Only load trusted repositories.`,
+          )
+        ) return;
+        await api("/api/instruments/register", "POST", { path: item.path });
+        saveRecentManifest(item.path);
+        await refresh();
+        await discoverPlugins();
+        notify(`${item.name} registered`);
+      });
+
+      row.append(info, regBtn);
+      list.append(row);
+    }
+    section.style.display = "block";
+    notify(`Found ${unregistered.length} available plug-in(s)`);
+  } catch (error) {
+    notify(`Discovery failed: ${error.message}`, true);
+  }
+}
+
+function toggleSidebar(forceState) {
+  const isCollapsed = typeof forceState === "boolean"
+    ? forceState
+    : !document.body.classList.contains("sidebar-collapsed");
+  document.body.classList.toggle("sidebar-collapsed", isCollapsed);
+  $("toggle-sidebar").textContent = isCollapsed ? "▶ Sidebar" : "◀ Sidebar";
+  $("toggle-sidebar").setAttribute(
+    "aria-expanded",
+    String(!isCollapsed),
+  );
+  localStorage.setItem("scpi-flow-sidebar-collapsed", String(isCollapsed));
+  drawConnections();
+}
+
+function toggleMaximize(forceState) {
+  const isMaximized = typeof forceState === "boolean"
+    ? forceState
+    : !document.body.classList.contains("canvas-maximized");
+  document.body.classList.toggle("canvas-maximized", isMaximized);
+  if (isMaximized) {
+    switchView("flow");
+  }
+  drawConnections();
+}
+
 $("tab-flow").onclick = () => switchView("flow");
 $("refresh").onclick = action(refresh);
+$("toggle-sidebar").onclick = () => toggleSidebar();
+$("hide-sidebar-btn").onclick = () => toggleSidebar(true);
+$("maximize-canvas").onclick = () => toggleMaximize(true);
+$("restore-canvas").onclick = () => toggleMaximize(false);
+$("browse-btn").onclick = openFileBrowser;
+$("discover-btn").onclick = action(discoverPlugins);
+$("close-discovered-btn").onclick = () => {
+  $("discovered-section").style.display = "none";
+};
+$("browser-up-btn").onclick = action(async () => {
+  if (browserParentDir) await loadBrowserDir(browserParentDir);
+});
+$("shortcut-workspace").onclick = action(() => loadBrowserDir("."));
+$("shortcut-instruments").onclick = action(() =>
+  loadBrowserDir("./instruments")
+);
+$("shortcut-parent").onclick = action(() => loadBrowserDir(".."));
+$("browser-select-btn").onclick = () => {
+  if (browserSelectedPath) {
+    $("manifest-path").value = browserSelectedPath;
+    $("file-browser").close();
+    $("manifest-path").focus();
+  }
+};
+$("close-file-browser").onclick = () => $("file-browser").close();
+$("browser-cancel-btn").onclick = () => $("file-browser").close();
+
 $("theme").onclick = () => {
   document.body.classList.toggle("light");
   localStorage.setItem(
@@ -410,6 +643,7 @@ $("register-form").onsubmit = action(async (event) => {
     )
   ) return;
   await api("/api/instruments/register", "POST", { path });
+  saveRecentManifest(path);
   $("manifest-path").value = "";
   await refresh();
   notify("Instrument registered; load it when needed");
@@ -474,8 +708,32 @@ $("reset-workspace").onclick = action(async () => {
   );
 });
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") connectionStart = null;
+  if (event.key === "Escape") {
+    if ($("file-browser")?.open) {
+      $("file-browser").close();
+    } else if ($("details")?.open) {
+      $("details").close();
+    } else if (document.body.classList.contains("canvas-maximized")) {
+      toggleMaximize(false);
+    } else {
+      connectionStart = null;
+    }
+  } else if (
+    (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "b"
+  ) {
+    event.preventDefault();
+    toggleSidebar();
+  }
 });
+globalThis.addEventListener("resize", () => drawConnections());
+if (globalThis.ResizeObserver) {
+  new ResizeObserver(() => drawConnections()).observe($("flow-scroll"));
+}
+
+if (localStorage.getItem("scpi-flow-sidebar-collapsed") === "true") {
+  toggleSidebar(true);
+}
+populateRecentManifests();
 switchView("flow");
 refresh().catch((error) => notify(error.message, true));
 setInterval(

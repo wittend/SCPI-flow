@@ -72,6 +72,29 @@ Deno.test("shell runs independently with an empty catalog and restricts public f
     );
     assertEquals(invalid.status, 400);
     await invalid.body?.cancel();
+
+    // Test /api/fs/browse
+    const browseRes = await handler(
+      new Request(
+        `http://localhost/api/fs/browse?dir=${encodeURIComponent(root)}`,
+      ),
+    );
+    assertEquals(browseRes.status, 200);
+    const browseData = await browseRes.json();
+    assert(browseData.current);
+    assert(Array.isArray(browseData.entries));
+
+    // Test /api/instruments/discover
+    const discoverRes = await handler(
+      new Request(
+        `http://localhost/api/instruments/discover?dir=${
+          encodeURIComponent(root)
+        }`,
+      ),
+    );
+    assertEquals(discoverRes.status, 200);
+    const discoverData = await discoverRes.json();
+    assert(Array.isArray(discoverData.discovered));
   } finally {
     await registry.close();
     await Deno.remove(root, { recursive: true });
