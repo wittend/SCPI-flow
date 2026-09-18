@@ -7,6 +7,8 @@
   "tasks": {
     "dev": "deno run --watch --allow-all main.ts",
     "start": "deno run --allow-all main.ts",
+    "compile": "mkdir -p ./dist/linux/amd86 && deno compile --allow-all --target x86_64-unknown-linux-gnu --include index.html --include web/ --include instruments.json --include instrument.schema.json --output ./dist/linux/amd86/scpi-flow main.ts",
+    "compile:linux:amd86": "mkdir -p ./dist/linux/amd86 && deno compile --allow-all --target x86_64-unknown-linux-gnu --include index.html --include web/ --include instruments.json --include instrument.schema.json --output ./dist/linux/amd86/scpi-flow main.ts",
     "mcp": "deno run --allow-net=127.0.0.1:8000 src/mcp_cli.ts",
     "test": "deno test --allow-all",
     "test:instruments": "deno run --allow-all scripts/check_instruments.ts"

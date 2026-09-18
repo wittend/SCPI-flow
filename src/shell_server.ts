@@ -294,8 +294,18 @@ export function createHandler(
 export async function startShell(args = Deno.args): Promise<void> {
   const option = (name: string, fallback: string) =>
     args.includes(name) ? args[args.indexOf(name) + 1] ?? fallback : fallback;
+  let catalogDefault = new URL("instruments.json", root).pathname;
+  if (!args.includes("--catalog")) {
+    const cwdCatalog = `${Deno.cwd()}/instruments.json`;
+    try {
+      await Deno.stat(cwdCatalog);
+      catalogDefault = cwdCatalog;
+    } catch {
+      // Keep root instruments.json default
+    }
+  }
   const registry = new PluginRegistry(
-    option("--catalog", new URL("instruments.json", root).pathname),
+    option("--catalog", catalogDefault),
   );
   await registry.initialize();
   const port = Number(option("--port", "8000"));
