@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added Vector Network & Spectrum Analyzer instrument plugin registration in
+  `instruments.json` pointing to `SCPI-SVA-NW-sim`.
+- Added Helmholtz Coil instrument plugin registration in `instruments.json`
+  pointing to `SCPI-Helmholtz`.
+
 ### Changed
 
 - Reorganized SCPI-flow into an instrument-independent shell. Oscilloscope,
