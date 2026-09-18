@@ -17,6 +17,18 @@ The first stdout line contains the assigned port. Common routes are
 ``POST /reset``. The dedicated UI retains ``api/gen/state`` and
 ``api/gen/preview`` and works at ``/plugins/signal-generator/index.html``.
 
+MCP Interface
+-------------
+
+The signal generator is controllable through SCPI-flow's Model Context Protocol (MCP) server.
+Supported operations via MCP tools include:
+
+* ``load`` / ``unload``: Launch or terminate the signal generator subprocess (``{"id": "signal-generator"}``).
+* ``state``: Retrieve current waveform shape, frequency, amplitude, offset, and output status.
+* ``configure``: Set waveform parameters according to ``instrument.json``.
+* ``command``: Send SCPI commands such as ``*IDN?``, ``FREQ 1000``, ``VOLT 2.5``, ``FUNC SINE``, ``OUTP ON``, ``C1:BSWV?``.
+* ``reset``: Reset generator parameters to defaults.
+
 Units and commands
 ------------------
 

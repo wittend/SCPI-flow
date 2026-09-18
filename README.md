@@ -68,9 +68,14 @@ not a signal-routing execution engine. Saving a project saves the layout and
 connections, not a running instrument's internal state. Loading a diagram does
 not execute plug-ins until explicitly requested.
 
-## Standard MCP
+## Standard MCP (Model Context Protocol)
 
-Start the shell first. Configure an MCP client to launch this stdio adapter:
+The entire instrument suite (oscilloscope, multimeter, signal generator, power
+supply, and any registered custom instruments) can be controlled by AI agents
+and automation tools via the built-in MCP server.
+
+Start the shell first (`deno task start`). Configure an MCP client (such as
+Claude Desktop or custom agents) to launch this stdio adapter:
 
 ```json
 {
@@ -91,11 +96,29 @@ Start the shell first. Configure an MCP client to launch this stdio adapter:
 }
 ```
 
-The adapter implements standard MCP initialization, tool discovery and
-invocation over stdio. Tools are `list`, `register`, `load`, `unload`, `state`,
-`configure`, `command`, and `reset`. MCP and UI operations reach the **same
-shell-managed processes**. The shell's HTTP API is not an MCP HTTP transport
-endpoint.
+The adapter implements standard MCP initialization, tool discovery, and tool
+invocation over stdio (supporting protocol versions `2025-06-18`, `2025-03-26`,
+and `2024-11-05`). MCP and UI operations reach the **same shell-managed
+instrument processes**.
+
+### Exposed MCP Tools
+
+- `list`: Discover all registered instruments in the catalog and their current
+  running/loaded status.
+- `register`: Dynamically register a new instrument by specifying its local
+  manifest path (`path: "/path/to/instrument.json"`).
+- `load`: Launch and initialize an instrument process by its ID
+  (`id: "multimeter"`, `"oscilloscope"`, `"signal-generator"`,
+  `"power-supply"`).
+- `unload`: Gracefully terminate a loaded instrument process.
+- `state`: Retrieve real-time telemetry, configuration, and operational status
+  of a loaded instrument.
+- `configure`: Apply JSON configuration parameters matching the instrument's
+  manifest schema.
+- `command`: Send raw SCPI command strings to the instrument (e.g. `*IDN?`,
+  `MEAS:VOLT?`, `FREQ 1000`, `VOLT 5.0`) and receive string responses.
+- `reset`: Issue a reset (`*RST` equivalent) to restore the instrument to
+  default state.
 
 ## Plug-in contract
 

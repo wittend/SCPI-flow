@@ -20,6 +20,18 @@ The frontend retains ``api/scope/frame``, ``api/scope/command`` and
 ``api/scope/measurements`` relative routes; it works behind the proxy path
 ``/plugins/oscilloscope/index.html``.
 
+MCP Interface
+-------------
+
+The oscilloscope can be controlled by AI agents and automated scripts through SCPI-flow's Model Context Protocol (MCP) server.
+Supported operations via MCP tools include:
+
+* ``load`` / ``unload``: Launch or terminate the oscilloscope subprocess (``{"id": "oscilloscope"}``).
+* ``state``: Retrieve acquired frame, waveforms, trigger state, and live measurements.
+* ``configure``: Set timebase, channel vertical scale, generator inputs, and trigger parameters per ``instrument.json``.
+* ``command``: Send SCPI commands such as ``*IDN?``, ``C1:VDIV 1.0``, ``TDIV 0.001``, ``MEAS:ALL?``, ``WAV:DATA?``.
+* ``reset``: Reset registers and scope parameters to default.
+
 Scope and limitations
 ---------------------
 

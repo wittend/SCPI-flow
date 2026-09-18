@@ -50,6 +50,24 @@ the frontend, manifest and public assets, rejects traversal, and resolves symlin
 It does not expose source files. All frontend fetch URLs are relative, including under
 `/plugins/oscilloscope/index.html`.
 
+## MCP Interface Control
+
+When loaded in the SCPI-flow workspace, the oscilloscope is fully controllable via Model Context
+Protocol (MCP) tools:
+
+- **`load` / `unload`**: Start or terminate the oscilloscope subprocess (`{"id": "oscilloscope"}`).
+- **`state`**: Query acquired frame, channel waveforms, trigger status, timebase, and live
+  measurements.
+- **`configure`**: Update timebase, vertical divisions, channel coupling, and generator parameters
+  per `instrument.json`.
+- **`command`**: Send raw SCPI commands:
+  - `{"id": "oscilloscope", "command": "*IDN?"}` -> Returns identity string.
+  - `{"id": "oscilloscope", "command": "C1:VDIV 1.0"}` -> Sets CH1 vertical scale to 1V/div.
+  - `{"id": "oscilloscope", "command": "TDIV 0.001"}` -> Sets timebase to 1ms/div.
+  - `{"id": "oscilloscope", "command": "MEAS:ALL?"}` -> Returns all active measurements.
+  - `{"id": "oscilloscope", "command": "WAV:DATA?"}` -> Returns acquired waveform data points.
+- **`reset`**: Reset oscilloscope registers and settings (`{"id": "oscilloscope"}`).
+
 ## Commands and limitations
 
 The copied engine implements an SDS1000X-style **subset**, not a certified hardware emulator.

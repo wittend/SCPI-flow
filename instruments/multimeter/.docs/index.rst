@@ -29,6 +29,18 @@ command, front-panel button and reset endpoints are retained. Source files are
 not publicly served. There is no physical instrument I/O or inter-process signal
 transport in this adapter.
 
+MCP Interface
+-------------
+
+The multimeter can be automated by AI agents and clients via the SCPI-flow Model Context Protocol (MCP) server.
+Supported operations via MCP tools include:
+
+* ``load`` / ``unload``: Launch or stop the multimeter process (``{"id": "multimeter"}``).
+* ``state``: Retrieve real-time measurement value, active function (DCV, ACV, RES, etc.), range, and math stats.
+* ``configure``: Update multimeter parameters per ``instrument.json``.
+* ``command``: Send SCPI commands such as ``*IDN?``, ``CONF:VOLT:DC 10``, ``MEAS:VOLT:DC?``, ``MEAS:RES?``, ``CALC:AVER:ALL?``.
+* ``reset``: Reset to default state.
+
 Testing and preservation
 ------------------------
 

@@ -45,6 +45,25 @@ UI labels and backend preview agree with these units. All fetch URLs are relativ
 `/plugins/signal-generator/index.html`. The static server does not expose source/configuration code
 and blocks traversal and out-of-root symlinks. The manifest and public assets remain accessible.
 
+## MCP Interface Control
+
+When loaded in the SCPI-flow workspace, the signal generator is fully controllable via Model Context
+Protocol (MCP) tools:
+
+- **`load` / `unload`**: Launch or terminate the signal generator subprocess
+  (`{"id": "signal-generator"}`).
+- **`state`**: Query waveform type, frequency, peak amplitude, offset, phase, duty cycle, scale, and
+  output status.
+- **`configure`**: Adjust generator waveform parameters matching `instrument.json` schema.
+- **`command`**: Send raw SCPI commands:
+  - `{"id": "signal-generator", "command": "*IDN?"}` -> Returns generator identity.
+  - `{"id": "signal-generator", "command": "FREQ 2500"}` -> Sets frequency to 2.5 kHz.
+  - `{"id": "signal-generator", "command": "VOLT 3.3"}` -> Sets peak amplitude to 3.3V.
+  - `{"id": "signal-generator", "command": "FUNC SQU"}` -> Selects square waveform.
+  - `{"id": "signal-generator", "command": "OUTP ON"}` -> Enables output.
+- **`reset`**: Reset waveform parameters and status registers to defaults
+  (`{"id": "signal-generator"}`).
+
 ## Explicit command subset
 
 This is **not** a full SDG2042X SCPI emulator. Supported commands are:

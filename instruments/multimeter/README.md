@@ -41,7 +41,28 @@ SCPI command processor.
   - **SCPI Engine**: IEEE 488.2 common commands (`*IDN?`, `*RST`, `*CLS`, `*OPC?`, `*STB?`, `*ESR?`,
     `*ESE`, `*SRE`, `*TRG`) and Siglent SDM command subsystems (`CONFigure`, `MEASure`, `SENSe`,
     `CALCulate`, `DATA`, `TRIGger`, `SAMPle`, `SYSTem`, `DISPlay`).
-  - **MCP Bridge**: SCPI communication bridge compatible with Python pyVisa or pure TypeScript.
+  - **MCP Control**: Fully controllable by AI agents and automation tools via the SCPI-flow Model
+    Context Protocol (MCP) interface as well as direct SCPI bridge integration.
+
+---
+
+## MCP Interface Control
+
+When running inside the SCPI-flow workspace or launched as an instrument plugin, the multimeter can
+be discovered, configured, and controlled via standard Model Context Protocol (MCP) tools:
+
+- **`load` / `unload`**: Start or stop the multimeter process (`{"id": "multimeter"}`).
+- **`state`**: Read real-time measurement value, active function (DCV, ACV, RES, etc.), range, math
+  statistics, and limits.
+- **`configure`**: Update multimeter settings matching `instrument.json` schema (e.g.
+  `{"id": "multimeter", "configuration": {"function": "VOLT:DC", "range": "10V"}}`).
+- **`command`**: Execute raw SCPI queries and commands:
+  - `{"id": "multimeter", "command": "*IDN?"}` -> Returns instrument model and firmware
+    identification.
+  - `{"id": "multimeter", "command": "CONF:VOLT:DC 10"}` -> Configures DC voltage 10V range.
+  - `{"id": "multimeter", "command": "MEAS:VOLT:DC?"}` -> Reads simulated DC voltage measurement.
+  - `{"id": "multimeter", "command": "MEAS:RES?"}` -> Measures resistance.
+- **`reset`**: Perform an instrument reset (`{"id": "multimeter"}`).
 
 ---
 
