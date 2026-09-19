@@ -15,18 +15,6 @@
       "id": "signal-generator",
       "path": "./instruments/signal-generator/instrument.json",
       "legacyGuid": "d8c4e0b2-2345-6789-0123-345678901bcd"
-    },
-    {
-      "path": "/home/dave/Projects/deno-dev/SCPI-PS/instrument.json",
-      "id": "power-supply"
-    },
-    {
-      "path": "/home/dave/Projects/deno-dev/SCPI-Helmholtz/instrument.json",
-      "id": "helmholtz-coil"
-    },
-    {
-      "path": "/home/dave/Projects/deno-dev/SCPI-SVA-NW-sim/instrument.json",
-      "id": "vector-network-analyzer"
     }
   ]
 }

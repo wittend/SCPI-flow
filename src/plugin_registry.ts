@@ -5,6 +5,7 @@ import {
   validateConfiguration,
   validateManifest,
 } from "./plugin_manifest.ts";
+import { ensureDefaultInstruments } from "./default_instruments.ts";
 
 interface CatalogEntry {
   path: string;
@@ -40,18 +41,68 @@ export interface InstrumentInfo {
   manifest?: InstrumentManifest;
 }
 
+function getDenoCommand(): string {
+  const envDeno = Deno.env.get("DENO_BIN");
+  if (envDeno) return envDeno;
+  try {
+    const exec = Deno.execPath();
+    const fileName = exec.slice(exec.lastIndexOf("/") + 1).toLowerCase();
+    if (fileName === "deno" || fileName === "deno.exe") {
+      return exec;
+    }
+  } catch {
+    // Ignore
+  }
+  return "deno";
+}
+
 export class PluginRegistry {
   private catalogPath: string;
+  private dataDir?: string;
   private records = new Map<string, Runtime>();
   private catalogQueue: Promise<unknown> = Promise.resolve();
   private closed = false;
 
-  constructor(catalogPath: string) {
+  constructor(catalogPath: string, options?: { dataDir?: string }) {
     this.catalogPath = catalogPath;
+    this.dataDir = options?.dataDir;
   }
 
   async initialize(): Promise<void> {
-    this.catalogPath = await Deno.realPath(this.catalogPath);
+    if (this.dataDir) {
+      try {
+        await ensureDefaultInstruments(this.dataDir);
+      } catch {
+        // Non-fatal if dataDir cannot be seeded
+      }
+    }
+    try {
+      this.catalogPath = await Deno.realPath(this.catalogPath);
+    } catch (error) {
+      if (error instanceof Deno.errors.NotFound) {
+        const lastSlash = this.catalogPath.lastIndexOf("/");
+        if (lastSlash > 0) {
+          await Deno.mkdir(this.catalogPath.slice(0, lastSlash), {
+            recursive: true,
+          });
+        }
+        try {
+          const template = await Deno.readTextFile(
+            new URL("../instruments.json", import.meta.url),
+          );
+          await Deno.writeTextFile(this.catalogPath, template);
+        } catch {
+          await Deno.writeTextFile(
+            this.catalogPath,
+            JSON.stringify({ schemaVersion: 1, instruments: [] }, null, 2) +
+              "\n",
+          );
+        }
+        this.catalogPath = await Deno.realPath(this.catalogPath);
+      } else {
+        throw error;
+      }
+    }
     const catalog = JSON.parse(await Deno.readTextFile(this.catalogPath));
     if (
       !isObject(catalog) || catalog.schemaVersion !== 1 ||
@@ -83,13 +134,62 @@ export class PluginRegistry {
     }
   }
 
-  private async readManifest(runtime: Runtime): Promise<void> {
-    const base = this.catalogPath.slice(0, this.catalogPath.lastIndexOf("/"));
-    const path = await Deno.realPath(
-      runtime.entry.path.startsWith("/")
-        ? runtime.entry.path
-        : `${base}/${runtime.entry.path}`,
+  private async resolveManifestPath(entryPath: string): Promise<string> {
+    if (entryPath.startsWith("/")) {
+      return await Deno.realPath(entryPath);
+    }
+    const catalogDir = this.catalogPath.slice(
+      0,
+      this.catalogPath.lastIndexOf("/"),
     );
+    const candidates: string[] = [];
+
+    // 1. Relative to catalog directory
+    candidates.push(`${catalogDir}/${entryPath}`);
+
+    // 2. Relative to dataDir (e.g. ~/.local/share/SCPI-flow)
+    if (this.dataDir) {
+      candidates.push(`${this.dataDir}/${entryPath}`);
+      candidates.push(`${this.dataDir}/instruments/${entryPath}`);
+    }
+
+    // 3. Relative to binary/executable directory and parent directories
+    try {
+      const execPath = Deno.execPath();
+      const execDir = execPath.slice(0, execPath.lastIndexOf("/"));
+      candidates.push(`${execDir}/${entryPath}`);
+      candidates.push(`${execDir}/../${entryPath}`);
+      candidates.push(`${execDir}/../../${entryPath}`);
+      candidates.push(`${execDir}/../share/SCPI-flow/${entryPath}`);
+    } catch {
+      // Ignore if execPath unavailable
+    }
+
+    // 4. Relative to current working directory
+    try {
+      const cwd = Deno.cwd();
+      candidates.push(`${cwd}/${entryPath}`);
+    } catch {
+      // Ignore
+    }
+
+    // 5. Standard system directories
+    candidates.push(`/usr/local/share/SCPI-flow/${entryPath}`);
+    candidates.push(`/usr/share/SCPI-flow/${entryPath}`);
+
+    let lastError: Error | undefined;
+    for (const candidate of candidates) {
+      try {
+        return await Deno.realPath(candidate);
+      } catch (err) {
+        lastError = err as Error;
+      }
+    }
+    throw lastError ?? new Error(`Cannot resolve manifest path: ${entryPath}`);
+  }
+
+  private async readManifest(runtime: Runtime): Promise<void> {
+    const path = await this.resolveManifestPath(runtime.entry.path);
     const root = path.slice(0, path.lastIndexOf("/"));
     const manifest = validateManifest(
       JSON.parse(await Deno.readTextFile(path)),
@@ -215,7 +315,7 @@ export class PluginRegistry {
           runtime.root!,
           runtime.manifest!.entrypoint,
         );
-        const child = new Deno.Command(Deno.execPath(), {
+        const child = new Deno.Command(getDenoCommand(), {
           args: [
             "run",
             "--no-prompt",

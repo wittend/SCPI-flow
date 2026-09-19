@@ -1,6 +1,6 @@
 import { assert, assertEquals, assertThrows } from "@std/assert";
 import { PluginRegistry } from "../src/plugin_registry.ts";
-import { createHandler } from "../src/shell_server.ts";
+import { createHandler, openBrowser } from "../src/shell_server.ts";
 import { normalizeProject } from "../src/projects.ts";
 
 Deno.test("shell runs independently with an empty catalog and restricts public files", async () => {
@@ -193,4 +193,9 @@ Deno.test("legacy project GUIDs migrate using catalog metadata, never embedded c
       }],
     }, [])
   );
+});
+
+Deno.test("openBrowser returns boolean without throwing", async () => {
+  const result = await openBrowser("http://127.0.0.1:8000");
+  assertEquals(typeof result, "boolean");
 });

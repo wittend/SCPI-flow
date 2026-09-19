@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "@std/assert";
+import { assert, assertEquals, assertRejects } from "@std/assert";
 import { PluginRegistry } from "../src/plugin_registry.ts";
 import { validateManifest } from "../src/plugin_manifest.ts";
 
@@ -173,6 +173,79 @@ Deno.test("manifest assets cannot escape the instrument repository through symli
     await Deno.symlink(await Deno.realPath("deno.json"), `${root}/icon.svg`);
     await assertRejects(() => registry.icon("test-meter"), Error, "escapes");
     await assertRejects(() => registry.load("test-meter"), Error, "escapes");
+  } finally {
+    await registry.close();
+    await Deno.remove(root, { recursive: true });
+  }
+});
+
+Deno.test("registry resolves relative manifest paths against dataDir and candidate locations", async () => {
+  const root = await Deno.makeTempDir({
+    dir: "tests",
+    prefix: ".plugin-data-",
+  });
+  const dataDir = `${root}/data`;
+  const configDir = `${root}/config`;
+  const instDir = `${dataDir}/instruments/test-meter`;
+  await Deno.mkdir(instDir, { recursive: true });
+  await Deno.mkdir(configDir, { recursive: true });
+
+  await Deno.writeTextFile(
+    `${instDir}/instrument.json`,
+    JSON.stringify(manifest),
+  );
+  await Deno.writeTextFile(`${instDir}/index.html`, "<h1>Test meter</h1>");
+  await Deno.writeTextFile(`${instDir}/icon.svg`, "<svg/>");
+  await Deno.writeTextFile(`${instDir}/plugin.ts`, "Deno.serve({port: 0});");
+
+  const catalogPath = `${configDir}/instruments.json`;
+  await Deno.writeTextFile(
+    catalogPath,
+    JSON.stringify({
+      schemaVersion: 1,
+      instruments: [
+        {
+          id: "test-meter",
+          path: "./instruments/test-meter/instrument.json",
+        },
+      ],
+    }),
+  );
+
+  const registry = new PluginRegistry(catalogPath, { dataDir });
+  try {
+    await registry.initialize();
+    const list = registry.list();
+    assertEquals(list.length, 1);
+    assertEquals(list[0].id, "test-meter");
+    assertEquals(list[0].status, "unloaded");
+    assertEquals(list[0].manifest?.name, "Test Meter");
+  } finally {
+    await registry.close();
+    await Deno.remove(root, { recursive: true });
+  }
+});
+
+Deno.test("registry seeds default instruments into empty dataDir on initialize", async () => {
+  const root = await Deno.makeTempDir({
+    dir: "tests",
+    prefix: ".plugin-seed-",
+  });
+  const dataDir = `${root}/data`;
+  const catalogPath = `${root}/config/instruments.json`;
+
+  const registry = new PluginRegistry(catalogPath, { dataDir });
+  try {
+    await registry.initialize();
+    const list = registry.list();
+    assertEquals(list.length, 3);
+    const ids = list.map((item) => item.id).sort();
+    assertEquals(ids, ["multimeter", "oscilloscope", "signal-generator"]);
+    for (const item of list) {
+      assertEquals(item.status, "unloaded");
+      assert(item.manifest !== undefined);
+      assert(item.manifest.name.length > 0);
+    }
   } finally {
     await registry.close();
     await Deno.remove(root, { recursive: true });

@@ -1,6 +1,12 @@
 import { PluginRegistry } from "./plugin_registry.ts";
 import { isObject } from "./plugin_manifest.ts";
 import { normalizeProject } from "./projects.ts";
+import {
+  getOption,
+  removeInstanceState,
+  resolveAppPaths,
+  writeInstanceState,
+} from "./paths.ts";
 
 const root = new URL("../", import.meta.url);
 const mime: Record<string, string> = {
@@ -27,6 +33,7 @@ async function body(request: Request): Promise<Record<string, unknown>> {
 export function createHandler(
   registry: PluginRegistry,
   projectDirectory = new URL("projects/", root).pathname,
+  dataDir?: string,
 ) {
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
@@ -60,10 +67,28 @@ export function createHandler(
         request.method === "GET"
       ) {
         const rawDir = url.searchParams.get("dir")?.trim();
-        const searchRoots = rawDir ? [rawDir] : [
-          new URL("./instruments", root).pathname,
-          new URL("../", root).pathname,
-        ];
+        const searchRoots: string[] = [];
+        if (rawDir) {
+          searchRoots.push(rawDir);
+        } else {
+          searchRoots.push(new URL("./instruments", root).pathname);
+          searchRoots.push(new URL("../", root).pathname);
+          if (dataDir) {
+            searchRoots.push(dataDir);
+            searchRoots.push(`${dataDir}/instruments`);
+            searchRoots.push(`${dataDir}/plugins`);
+          }
+          try {
+            const execPath = Deno.execPath();
+            const execDir = execPath.slice(0, execPath.lastIndexOf("/"));
+            searchRoots.push(execDir);
+            searchRoots.push(`${execDir}/instruments`);
+            searchRoots.push(`${execDir}/../instruments`);
+            searchRoots.push(`${execDir}/../../instruments`);
+          } catch {
+            // Ignore
+          }
+        }
 
         const registeredList = registry.list();
         const registeredPaths = new Set(
@@ -291,37 +316,78 @@ export function createHandler(
   };
 }
 
-export async function startShell(args = Deno.args): Promise<void> {
-  const option = (name: string, fallback: string) =>
-    args.includes(name) ? args[args.indexOf(name) + 1] ?? fallback : fallback;
-  let catalogDefault = new URL("instruments.json", root).pathname;
-  if (!args.includes("--catalog")) {
-    const cwdCatalog = `${Deno.cwd()}/instruments.json`;
-    try {
-      await Deno.stat(cwdCatalog);
-      catalogDefault = cwdCatalog;
-    } catch {
-      // Keep root instruments.json default
-    }
+export async function openBrowser(url: string): Promise<boolean> {
+  const os = Deno.build.os;
+  const cmd = os === "windows"
+    ? ["cmd", "/c", "start", url]
+    : os === "darwin"
+    ? ["open", url]
+    : ["xdg-open", url];
+
+  try {
+    const process = new Deno.Command(cmd[0], {
+      args: cmd.slice(1),
+      stdout: "null",
+      stderr: "null",
+    });
+    const status = await process.spawn().status;
+    return status.success;
+  } catch {
+    return false;
   }
-  const registry = new PluginRegistry(
-    option("--catalog", catalogDefault),
-  );
+}
+
+export async function startShell(args = Deno.args): Promise<void> {
+  const paths = await resolveAppPaths({ args });
+  const registry = new PluginRegistry(paths.catalogPath, {
+    dataDir: paths.dataDir,
+  });
   await registry.initialize();
-  const port = Number(option("--port", "8000"));
+  const portStr = getOption(args, ["--port", "-p"], "8000")!;
+  const port = Number(portStr);
   if (!Number.isInteger(port) || port < 0 || port > 65535) {
     throw new Error("Invalid port");
   }
+  const handler = createHandler(
+    registry,
+    paths.projectDirectory,
+    paths.dataDir,
+  );
   const server = Deno.serve({
     hostname: "127.0.0.1",
     port,
-    onListen: ({ port }) =>
-      console.log(`SCPI-flow shell: http://127.0.0.1:${port}`),
-  }, createHandler(registry));
+    onListen: async ({ port }) => {
+      const url = `http://127.0.0.1:${port}`;
+      console.log(`SCPI-flow shell: ${url}`);
+      try {
+        await writeInstanceState(paths.instanceStateDir, {
+          pid: Deno.pid,
+          port,
+          url,
+          catalogPath: paths.catalogPath,
+          projectDirectory: paths.projectDirectory,
+          instanceName: paths.instanceName,
+        });
+      } catch {
+        // Non-fatal if state directory cannot be written
+      }
+      const shouldOpen = args.includes("--open") ||
+        (!args.includes("--no-open") && !args.includes("--headless") &&
+          Deno.stdout.isTerminal());
+      if (shouldOpen) {
+        openBrowser(url).catch(() => {});
+      }
+    },
+  }, handler);
   let closing = false;
   const shutdown = async () => {
     if (closing) return;
     closing = true;
+    try {
+      await removeInstanceState(paths.instanceStateDir);
+    } catch {
+      // Ignore
+    }
     await server.shutdown();
     await registry.close();
   };
@@ -330,6 +396,11 @@ export async function startShell(args = Deno.args): Promise<void> {
   try {
     await server.finished;
   } finally {
+    try {
+      await removeInstanceState(paths.instanceStateDir);
+    } catch {
+      // Ignore
+    }
     await registry.close();
     Deno.removeSignalListener("SIGINT", shutdown);
     Deno.removeSignalListener("SIGTERM", shutdown);

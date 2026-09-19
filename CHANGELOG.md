@@ -10,10 +10,27 @@ and this project adheres to
 
 ### Added
 
-- Added Vector Network & Spectrum Analyzer instrument plugin registration in
-  `instruments.json` pointing to `SCPI-SVA-NW-sim`.
-- Added Helmholtz Coil instrument plugin registration in `instruments.json`
-  pointing to `SCPI-Helmholtz`.
+- Embedded default subordinate instruments (`oscilloscope`, `multimeter`,
+  `signal-generator`) directly in standalone compiled binaries with automatic
+  first-run extraction to persistent user data directory
+  (`~/.local/share/SCPI-flow/instruments/`).
+- Added system browser auto-launching on server startup in interactive terminal
+  sessions, with support for `--open`, `--no-open`, and `--headless` flags.
+- Added OS-predictable directories following standard operating system
+  conventions (XDG Base Directory Specification on Linux, Application Support on
+  macOS, and AppData on Windows). Runtime paths resolve configuration
+  (`~/.config/SCPI-flow/instruments.json`), persistent user data
+  (`~/.local/share/SCPI-flow/projects/`), and instance state
+  (`~/.local/state/SCPI-flow/$APP_INSTANCE/`).
+- Added multi-root candidate path resolution for plugin manifests across catalog
+  directory, persistent data directory
+  (`~/.local/share/SCPI-flow/instruments/`), executable binary parent
+  directories, and working directory.
+- Added standalone compiled binary support for plugin child process spawning via
+  Deno runner detection.
+- Added CLI overrides (`--project-dir`, `--state-dir`, `--instance`) and
+  environment variables (`SCPI_FLOW_PROJECTS`, `SCPI_FLOW_STATE`,
+  `APP_INSTANCE`, `SCPI_FLOW_CATALOG`).
 
 ### Changed
 
