@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Frequency Response Characterization Flow",
+  "description": "Automated frequency sweep setting Signal Generator outputs and recording Oscilloscope / Multimeter telemetry via MCP tools.",
+  "version": "1.0.0",
+  "instruments": ["signal-generator", "oscilloscope", "multimeter"],
+  "setup": [
+    {
+      "tool": "load",
+      "args": { "id": "signal-generator" }
+    },
+    {
+      "tool": "load",
+      "args": { "id": "oscilloscope" }
+    },
+    {
+      "tool": "load",
+      "args": { "id": "multimeter" }
+    },
+    {
+      "tool": "command",
+      "args": { "id": "signal-generator", "command": "*IDN?" }
+    },
+    {
+      "tool": "command",
+      "args": { "id": "oscilloscope", "command": "*IDN?" }
+    },
+    {
+      "tool": "configure",
+      "args": {
+        "id": "signal-generator",
+        "configuration": {
+          "waveform": "sine",
+          "frequency": 1000,
+          "amplitude": 3.0,
+          "offset": 0.0,
+          "output": true
+        }
+      }
+    },
+    {
+      "tool": "command",
+      "args": { "id": "oscilloscope", "command": "C1:VDIV 1.0" }
+    },
+    {
+      "tool": "command",
+      "args": { "id": "multimeter", "command": "CONF:VOLT:AC 10" }
+    }
+  ],
+  "steps": [
+    {
+      "name": "Step 1: 100 Hz Baseline",
+      "actions": [
+        {
+          "tool": "command",
+          "args": { "id": "signal-generator", "command": "FREQ 100" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "TDIV 0.002" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "MEAS:ALL?" },
+          "capture": "scope_100hz"
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "MEAS:VOLT:AC?" },
+          "capture": "dmm_100hz"
+        }
+      ]
+    },
+    {
+      "name": "Step 2: 1 kHz Nominal",
+      "actions": [
+        {
+          "tool": "command",
+          "args": { "id": "signal-generator", "command": "FREQ 1000" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "TDIV 0.0002" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "MEAS:ALL?" },
+          "capture": "scope_1khz"
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "MEAS:VOLT:AC?" },
+          "capture": "dmm_1khz"
+        }
+      ]
+    },
+    {
+      "name": "Step 3: 10 kHz High Frequency",
+      "actions": [
+        {
+          "tool": "command",
+          "args": { "id": "signal-generator", "command": "FREQ 10000" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "TDIV 0.00002" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "MEAS:ALL?" },
+          "capture": "scope_10khz"
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "MEAS:VOLT:AC?" },
+          "capture": "dmm_10khz"
+        }
+      ]
+    }
+  ],
+  "teardown": [
+    {
+      "tool": "reset",
+      "args": { "id": "signal-generator" }
+    },
+    {
+      "tool": "reset",
+      "args": { "id": "oscilloscope" }
+    },
+    {
+      "tool": "reset",
+      "args": { "id": "multimeter" }
+    },
+    {
+      "tool": "unload",
+      "args": { "id": "signal-generator" }
+    },
+    {
+      "tool": "unload",
+      "args": { "id": "oscilloscope" }
+    },
+    {
+      "tool": "unload",
+      "args": { "id": "multimeter" }
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Digital Multimeter Characterization & Limit Flow",
+  "description": "Configures DMM functions (DCV, ACV, 2W RES, Statistics) and runs limit checks via MCP.",
+  "version": "1.0.0",
+  "instruments": ["multimeter"],
+  "setup": [
+    { "tool": "load", "args": { "id": "multimeter" } },
+    { "tool": "command", "args": { "id": "multimeter", "command": "*IDN?" } },
+    { "tool": "command", "args": { "id": "multimeter", "command": "*RST" } }
+  ],
+  "steps": [
+    {
+      "name": "Step 1: DC Voltage 10V Range",
+      "actions": [
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "CONF:VOLT:DC 10" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "MEAS:VOLT:DC?" },
+          "capture": "dcv_reading"
+        }
+      ]
+    },
+    {
+      "name": "Step 2: AC Voltage with Statistics Enabled",
+      "actions": [
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "CONF:VOLT:AC 10" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "CALC:AVER:STAT ON" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "MEAS:VOLT:AC?" },
+          "capture": "acv_reading"
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "CALC:AVER:AVER?" },
+          "capture": "acv_average"
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "CALC:AVER:COUN?" },
+          "capture": "acv_sample_count"
+        }
+      ]
+    },
+    {
+      "name": "Step 3: 2-Wire Resistance Mode",
+      "actions": [
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "CONF:RES 10000" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "MEAS:RES?" },
+          "capture": "res_reading"
+        }
+      ]
+    }
+  ],
+  "teardown": [
+    { "tool": "reset", "args": { "id": "multimeter" } },
+    { "tool": "unload", "args": { "id": "multimeter" } }
+  ]
+}

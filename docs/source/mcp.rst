@@ -97,3 +97,8 @@ Power Supply (``id: "power-supply"``)
   * ``MEAS:CURR?`` -> Measures actual output current.
   * ``MEAS:POW?`` -> Measures actual output power.
   * ``OUTP:RESE:PROT`` -> Resets tripped OVP/OCP protections.
+
+External MCP Flow Examples
+--------------------------
+
+For complete, runnable flow examples across TypeScript, Python, and Shell, refer to :doc:`mcp_flows` and the ``examples/mcp-flows/`` directory.

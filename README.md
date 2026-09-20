@@ -128,6 +128,31 @@ instrument processes**.
 - `reset`: Issue a reset (`*RST` equivalent) to restore the instrument to
   default state.
 
+### External MCP Flow Examples
+
+Runnable automation scripts and flow definitions demonstrating multi-instrument
+coordination, automated frequency sweeps, AI diagnostic loops, and declarative
+flows across TypeScript, Python, and Shell are provided in
+`examples/mcp-flows/`:
+
+- **TypeScript (`examples/mcp-flows/typescript/`)**:
+  - `automated_test_flow.ts`: Programmatic multi-instrument automated sweep
+    flow.
+  - `declarative_flow_runner.ts`: Generic workflow runner for declarative flow
+    JSONs.
+  - `interactive_agent_flow.ts`: Autonomous AI agent diagnostic loop.
+  - `mcp_client.ts`: Typed MCP client library.
+- **Python (`examples/mcp-flows/python/`)**:
+  - `mcp_client.py`: Dependency-free Python 3 MCP stdio client.
+  - `automated_sweep_flow.py`: Multi-frequency sweep and measurement script.
+- **Bash & Stdio (`examples/mcp-flows/bash/`)**:
+  - `quick_health_check.sh`: Quick discovery and identification flow.
+  - `automated_dmm_flow.sh`: Multimeter measurement pipeline.
+- **Declarative Flows (`examples/mcp-flows/flows/`)**:
+  - `frequency_response_sweep.json`: Frequency response characterization flow.
+  - `multi_instrument_coordination.json`: Cross-instrument calibration flow.
+  - `dmm_voltage_characterization.json`: DMM function & limits testing.
+
 ## Plug-in contract
 
 See `docs/source/plugins.rst` and `instrument.schema.json` for the versioned

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Multi-Instrument Coordination Flow",
+  "description": "Cross-instrument test verifying waveform generation, triggering, and dual-display multimeters via MCP.",
+  "version": "1.0.0",
+  "instruments": ["signal-generator", "oscilloscope", "multimeter"],
+  "setup": [
+    { "tool": "load", "args": { "id": "signal-generator" } },
+    { "tool": "load", "args": { "id": "oscilloscope" } },
+    { "tool": "load", "args": { "id": "multimeter" } }
+  ],
+  "steps": [
+    {
+      "name": "Phase 1: Sine Wave Calibration",
+      "actions": [
+        {
+          "tool": "configure",
+          "args": {
+            "id": "signal-generator",
+            "configuration": {
+              "waveform": "sine",
+              "frequency": 2500,
+              "amplitude": 2.5,
+              "offset": 0.0,
+              "output": true
+            }
+          }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "C1:VDIV 0.5" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "TDIV 0.0001" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "MEAS:ALL?" },
+          "capture": "sine_scope_metrics"
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "MEAS:VOLT:AC?" },
+          "capture": "sine_dmm_acv"
+        }
+      ]
+    },
+    {
+      "name": "Phase 2: Square Wave & DC Offset Response",
+      "actions": [
+        {
+          "tool": "configure",
+          "args": {
+            "id": "signal-generator",
+            "configuration": {
+              "waveform": "square",
+              "frequency": 1000,
+              "amplitude": 1.5,
+              "offset": 1.0,
+              "output": true
+            }
+          }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "C1:VDIV 1.0" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "TDIV 0.0005" }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "oscilloscope", "command": "MEAS:ALL?" },
+          "capture": "square_scope_metrics"
+        },
+        {
+          "tool": "command",
+          "args": { "id": "multimeter", "command": "MEAS:VOLT:DC?" },
+          "capture": "square_dmm_dcv"
+        }
+      ]
+    },
+    {
+      "name": "Phase 3: Telemetry Inspection",
+      "actions": [
+        {
+          "tool": "state",
+          "args": { "id": "signal-generator" },
+          "capture": "siggen_final_state"
+        },
+        {
+          "tool": "state",
+          "args": { "id": "oscilloscope" },
+          "capture": "scope_final_state"
+        },
+        {
+          "tool": "state",
+          "args": { "id": "multimeter" },
+          "capture": "dmm_final_state"
+        }
+      ]
+    }
+  ],
+  "teardown": [
+    { "tool": "reset", "args": { "id": "signal-generator" } },
+    { "tool": "reset", "args": { "id": "oscilloscope" } },
+    { "tool": "reset", "args": { "id": "multimeter" } },
+    { "tool": "unload", "args": { "id": "signal-generator" } },
+    { "tool": "unload", "args": { "id": "oscilloscope" } },
+    { "tool": "unload", "args": { "id": "multimeter" } }
+  ]
+}

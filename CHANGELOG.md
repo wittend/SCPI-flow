@@ -10,6 +10,20 @@ and this project adheres to
 
 ### Added
 
+- Added complete examples and test runner suite for External Model Context
+  Protocol (MCP) flows in `examples/mcp-flows/`:
+  - TypeScript programmatic automation flow (`automated_test_flow.ts`), generic
+    declarative flow runner (`declarative_flow_runner.ts`), and interactive AI
+    agent loop (`interactive_agent_flow.ts`).
+  - Declarative JSON flow definitions for frequency response sweep,
+    multi-instrument coordination, and DMM characterization (`flows/*.json`).
+  - Lightweight Python 3 MCP stdio client (`mcp_client.py`) and automated sweep
+    flow (`automated_sweep_flow.py`).
+  - Unix Shell and JSON-RPC pipelines (`quick_health_check.sh` and
+    `automated_dmm_flow.sh`).
+  - Sphinx documentation for External MCP Flows (`docs/source/mcp_flows.rst`).
+  - Test suite in `tests/examples_mcp_flow_test.ts` verifying external MCP
+    handshake and workflow execution.
 - Added ReadTheDocs configuration (`.readthedocs.yaml`) and Sphinx documentation
   requirements (`docs/requirements.txt`) with Furo theme support for automated
   documentation builds.

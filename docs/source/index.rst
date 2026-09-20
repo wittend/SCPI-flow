@@ -7,6 +7,7 @@ SCPI-flow Documentation
 
    plugins
    mcp
+   mcp_flows
 
 Indices and tables
 ==================
