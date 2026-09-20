@@ -10,6 +10,15 @@ and this project adheres to
 
 ### Added
 
+- Added dedicated Sphinx documentation page for Installation & Platform Setup
+  (`docs/source/installation.rst`) covering system requirements,
+  platform-specific installation instructions (.deb, .rpm, .apk, generic binary,
+  macOS, Windows), package dependencies, OS directory conventions, and source
+  build tasks.
+- Added dedicated Sphinx documentation page for MCP Integration Strategies &
+  Examples (`docs/source/mcp_strategies.rst`) with complete, runnable code
+  examples for Python MCP stdio clients, curl REST commands, JavaScript /
+  TypeScript clients, and agentic workflows for PI and Hermes AI agents.
 - Added complete examples and test runner suite for External Model Context
   Protocol (MCP) flows in `examples/mcp-flows/`:
   - TypeScript programmatic automation flow (`automated_test_flow.ts`), generic

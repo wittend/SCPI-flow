@@ -5,9 +5,11 @@ SCPI-flow Documentation
    :maxdepth: 2
    :caption: Contents:
 
+   installation
    plugins
    mcp
    mcp_flows
+   mcp_strategies
 
 Indices and tables
 ==================
