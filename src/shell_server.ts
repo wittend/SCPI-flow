@@ -174,7 +174,7 @@ export function createHandler(
         }
         const entries = [];
         for await (const entry of Deno.readDir(current)) {
-          if (entry.name.startsWith(".") && entry.name !== ".docs") continue;
+          if (entry.name.startsWith(".")) continue;
           if (entry.name === "node_modules" || entry.name === ".git") continue;
           const fullPath = `${current}/${entry.name}`;
           entries.push({

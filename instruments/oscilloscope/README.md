@@ -99,4 +99,4 @@ extracted scope markup/styles/scripts; the shell, multimeter and generator panel
 local signal generator module is an internal test-signal dependency, not a second instrument
 process.
 
-See `.docs/index.rst` for the Sphinx documentation entry point.
+See `docs/index.rst` for the Sphinx documentation entry point.

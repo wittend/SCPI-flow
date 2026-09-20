@@ -108,7 +108,7 @@ or automatic inter-process waveform wiring are implemented by this adapter.
 lifecycle/configuration/static tests, and the copied SCPI-flow multimeter tests. The older copied
 engine is quarantined under `tests/flow-legacy/` and is **not** imported by the plugin; the richer
 existing standalone engine is authoritative. All test and legacy-server dependencies are vendored
-for offline use. See `.docs/index.rst` for plugin documentation; the existing documentation is
+for offline use. See `docs/index.rst` for plugin documentation; the existing documentation is
 retained.
 
 ### Prerequisites

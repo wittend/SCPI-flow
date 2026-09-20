@@ -37,6 +37,14 @@ assets are required by the shell.
 deno task start
 # Development reload:
 deno task dev
+# Compile standalone Linux amd64 binary:
+deno task compile
+# Package standalone Linux binary into installable packages (.deb / .rpm / .apk):
+deno task package:deb
+deno task package:rpm
+deno task package:apk
+# Package all Linux packages (.deb, .rpm, and .apk):
+deno task package:linux:amd86
 # Optional custom catalog and port:
 deno run --allow-all main.ts --catalog ./instruments.json --port 8000
 ```
@@ -122,7 +130,7 @@ instrument processes**.
 
 ## Plug-in contract
 
-See `.docs/source/plugins.rst` and `instrument.schema.json` for the versioned
+See `docs/source/plugins.rst` and `instrument.schema.json` for the versioned
 manifest, supported configuration-schema subset, process protocol, API, and
 migration notes. All instrument-specific assets and behavior belong to their own
 repositories. Front panels use relative URLs so the shell can proxy them under

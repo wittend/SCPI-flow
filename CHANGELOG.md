@@ -10,6 +10,24 @@ and this project adheres to
 
 ### Added
 
+- Added ReadTheDocs configuration (`.readthedocs.yaml`) and Sphinx documentation
+  requirements (`docs/requirements.txt`) with Furo theme support for automated
+  documentation builds.
+
+- Added Alpine Linux APK (.apk) packaging workflow and tooling
+  (`scripts/build_apk.ts`, `deno task package:apk`, and `APKBUILD` template) to
+  package the standalone x86_64 compiled Linux binary into an installable `.apk`
+  package for Alpine Linux with desktop integration (.desktop file, icons, doc,
+  and package metadata) and `gcompat` runtime dependency declaration.
+- Added RPM (.rpm) packaging workflow and tooling (`scripts/build_rpm.ts` and
+  `deno task package:rpm`) to package the standalone x86_64 compiled Linux
+  binary into an installable `.rpm` package for Red Hat, Fedora, and RPM-based
+  distributions with desktop integration (.desktop file, icons, doc, and package
+  metadata).
+- Added Debian (.deb) packaging workflow and tooling (`scripts/build_deb.ts`,
+  `deno task package:deb`, and `deno task package:linux:amd86`) to package the
+  standalone amd64 compiled Linux binary into an installable `.deb` package with
+  desktop integration (.desktop file, icons, doc, and package metadata).
 - Embedded default subordinate instruments (`oscilloscope`, `multimeter`,
   `signal-generator`) directly in standalone compiled binaries with automatic
   first-run extraction to persistent user data directory
@@ -34,6 +52,9 @@ and this project adheres to
 
 ### Changed
 
+- Consolidated project documentation into a single standard `docs/` directory
+  (eliminating `.docs/` and wrapper shims) for streamlined Sphinx and Read The
+  Docs builds.
 - Reorganized SCPI-flow into an instrument-independent shell. Oscilloscope,
   multimeter and signal-generator implementations, front panels, icons and tests
   are owned by separate sibling repositories.

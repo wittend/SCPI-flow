@@ -95,4 +95,4 @@ and MIT license. Its shared page's generator-only markup/styles/scripts became `
 unrelated panels and shell logic were removed. No originals were deleted. The output switch and
 command console now control the backend instead of only local browser state. Contract, negative
 configuration, process lifecycle and command tests are added. Assertions are vendored for offline
-tests. Sphinx entry point: `.docs/index.rst`.
+tests. Sphinx entry point: `docs/index.rst`.
