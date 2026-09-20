@@ -238,9 +238,16 @@ Deno.test("registry seeds default instruments into empty dataDir on initialize",
   try {
     await registry.initialize();
     const list = registry.list();
-    assertEquals(list.length, 3);
+    assertEquals(list.length, 6);
     const ids = list.map((item) => item.id).sort();
-    assertEquals(ids, ["multimeter", "oscilloscope", "signal-generator"]);
+    assertEquals(ids, [
+      "data-source",
+      "formatted-data-sink",
+      "multimeter",
+      "oscilloscope",
+      "raw-data-sink",
+      "signal-generator",
+    ]);
     for (const item of list) {
       assertEquals(item.status, "unloaded");
       assert(item.manifest !== undefined);

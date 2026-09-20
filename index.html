@@ -9,23 +9,97 @@
   </head>
   <body>
     <header>
-      <button id="toggle-sidebar" title="Toggle catalog sidebar (Ctrl+B)"
-        aria-label="Toggle catalog sidebar">◀ Sidebar</button>
+      <button id="toggle-sidebar" class="tool-btn"
+        title="Toggle catalog sidebar (Ctrl+B)"
+        aria-label="Toggle catalog sidebar">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="2" width="12" height="12" rx="2"></rect>
+          <path d="M6 2v12"></path>
+          <path d="M4.5 8l-1.5 0"></path>
+        </svg>
+      </button>
       <strong>SCPI-flow</strong>
-      <button id="new-project">New diagram</button>
-      <button id="save-project">Save diagram</button>
-      <button id="load-project">Load diagram</button>
-      <button id="reset-workspace">Reset instruments</button>
-      <button id="maximize-canvas"
-        title="Maximize flow-graph view (Esc to exit)">⛶ Maximize</button>
-      <button id="theme">Light / Dark</button>
+      <button id="new-project" class="tool-btn" title="New diagram"
+        aria-label="New diagram">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path
+            d="M3 2h7l4 4v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"></path>
+          <path d="M10 2v4h4"></path>
+          <line x1="8" y1="8" x2="8" y2="12"></line>
+          <line x1="6" y1="10" x2="10" y2="10"></line>
+        </svg>
+      </button>
+      <button id="save-project" class="tool-btn" title="Save diagram"
+        aria-label="Save diagram">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path
+            d="M3 2h8l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"></path>
+          <path d="M5 2v4h6V2"></path>
+          <rect x="5" y="9" width="6" height="5"></rect>
+        </svg>
+      </button>
+      <button id="load-project" class="tool-btn" title="Load diagram"
+        aria-label="Load diagram">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path
+            d="M2 4.5A1.5 1.5 0 0 1 3.5 3H6l1.5 2H13a1 1 0 0 1 1 1v1.5H3.5A1.5 1.5 0 0 0 2 9V4.5z"></path>
+          <path
+            d="M2 9a1.5 1.5 0 0 1 1.5-1.5h10.8a1 1 0 0 1 .98 1.2l-1.2 4.5a1 1 0 0 1-.98.8H3.5A1.5 1.5 0 0 1 2 12.5V9z"></path>
+        </svg>
+      </button>
+      <button id="reset-workspace" class="tool-btn" title="Reset instruments"
+        aria-label="Reset instruments">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M2.5 8a5.5 5.5 0 1 1 1.5 3.8"></path>
+          <path d="M2.5 12V8H6.5"></path>
+        </svg>
+      </button>
+      <button id="maximize-canvas" class="tool-btn"
+        title="Maximize flow-graph view (Esc to exit)"
+        aria-label="Maximize flow-graph view">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 6V2h4"></path>
+          <path d="M14 6V2h-4"></path>
+          <path d="M2 10v4h4"></path>
+          <path d="M14 10v4h-4"></path>
+        </svg>
+      </button>
+      <button id="theme" class="tool-btn" title="Light / Dark mode"
+        aria-label="Light / Dark mode">
+        <svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <circle cx="8" cy="8" r="4"></circle>
+          <path
+            d="M8 1.5v1.5M8 13v1.5M1.5 8h1.5M13 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"></path>
+        </svg>
+      </button>
     </header>
     <main>
       <aside id="catalog-sidebar" aria-label="Instrument catalog">
         <div class="aside-header">
           <h2>Instrument catalog</h2>
-          <button id="hide-sidebar-btn" class="icon-btn"
-            title="Hide sidebar (Ctrl+B)" aria-label="Hide sidebar">◀</button>
+          <button id="hide-sidebar-btn" class="icon-btn tool-btn"
+            title="Hide sidebar (Ctrl+B)" aria-label="Hide sidebar">
+            <svg class="icon" viewBox="0 0 16 16" width="14" height="14"
+              fill="none"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" aria-hidden="true">
+              <path d="M10 3L5 8l5 5"></path>
+            </svg>
+          </button>
         </div>
         <p class="muted">
           Load instruments when needed. Each runs in its own process.
@@ -40,8 +114,19 @@
               required
             >
             <datalist id="recent-manifests"></datalist>
-            <button id="browse-btn" type="button"
-              title="Browse local directories for instrument.json">Browse…</button>
+            <button id="browse-btn" type="button" class="tool-btn"
+              title="Browse local directories for instrument.json"
+              aria-label="Browse local directories">
+              <svg class="icon" viewBox="0 0 16 16" width="14" height="14"
+                fill="none"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" aria-hidden="true">
+                <path
+                  d="M2 4.5A1.5 1.5 0 0 1 3.5 3H6l1.5 2H13a1 1 0 0 1 1 1v1.5H3.5A1.5 1.5 0 0 0 2 9V4.5z"></path>
+                <path
+                  d="M2 9a1.5 1.5 0 0 1 1.5-1.5h10.8a1 1 0 0 1 .98 1.2l-1.2 4.5a1 1 0 0 1-.98.8H3.5A1.5 1.5 0 0 1 2 12.5V9z"></path>
+              </svg>
+            </button>
           </div>
           <div class="form-actions">
             <button type="submit">Register</button>
@@ -62,8 +147,18 @@
         <div id="palette">Reading catalog…</div>
       </aside>
       <div id="workspace-area">
-        <button id="restore-canvas" class="floating-restore-btn"
-          title="Exit maximized view (Esc)">⛶ Restore View</button>
+        <button id="restore-canvas" class="floating-restore-btn tool-btn"
+          title="Restore view (Esc)" aria-label="Restore view">
+          <svg class="icon" viewBox="0 0 16 16" width="16" height="16"
+            fill="none"
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 2v4H2"></path>
+            <path d="M10 2v4h4"></path>
+            <path d="M6 14v-4H2"></path>
+            <path d="M10 14v-4h4"></path>
+          </svg>
+        </button>
         <nav id="tabs" role="tablist" aria-label="Workspace views">
           <button
             id="tab-flow"

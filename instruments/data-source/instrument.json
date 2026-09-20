@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "id": "data-source",
+  "version": "1.0.0",
+  "name": "Data Source",
+  "description": "Multi-protocol asynchronous data origin supporting JSONL file playback with cadence control, WebSocket stream input, and MQTT broker subscriptions / notifications.",
+  "entrypoint": "plugin.ts",
+  "frontend": "index.html",
+  "icon": "assets/icons/data-source.svg",
+  "capabilities": [
+    "data-source",
+    "jsonl-playback",
+    "websocket-client",
+    "mqtt-client",
+    "scpi-subset"
+  ],
+  "sources": [
+    { "id": "out", "name": "Data Out", "type": "stream" },
+    { "id": "json", "name": "JSON Out", "type": "json" }
+  ],
+  "sinks": [],
+  "configuration": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "mode": {
+        "type": "string",
+        "enum": ["file", "websocket", "mqtt"],
+        "default": "file",
+        "description": "Origin protocol / transport"
+      },
+      "filePath": {
+        "type": "string",
+        "default": "",
+        "description": "Path to local JSONL / data file"
+      },
+      "cadenceHz": {
+        "type": "number",
+        "minimum": 0.01,
+        "maximum": 10000,
+        "default": 1,
+        "description": "Playback rate in lines / items per second"
+      },
+      "loop": {
+        "type": "boolean",
+        "default": false,
+        "description": "Loop file playback continuously"
+      },
+      "wsUrl": {
+        "type": "string",
+        "default": "ws://127.0.0.1:9001",
+        "description": "WebSocket endpoint URL"
+      },
+      "mqttBroker": {
+        "type": "string",
+        "default": "127.0.0.1",
+        "description": "MQTT Broker hostname or IP"
+      },
+      "mqttPort": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65535,
+        "default": 1883,
+        "description": "MQTT Broker port"
+      },
+      "mqttTopic": {
+        "type": "string",
+        "default": "sensors/#",
+        "description": "MQTT Topic filter to subscribe to"
+      },
+      "mqttUseWs": {
+        "type": "boolean",
+        "default": false,
+        "description": "Connect to MQTT broker over WebSocket transport"
+      },
+      "mqttPollIntervalMs": {
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 60000,
+        "default": 1000,
+        "description": "Polling interval if broker polling is configured"
+      },
+      "format": {
+        "type": "string",
+        "enum": ["jsonl", "json", "raw", "scpi"],
+        "default": "jsonl",
+        "description": "Incoming message format parsing mode"
+      },
+      "active": {
+        "type": "boolean",
+        "default": false,
+        "description": "Active data ingestion state"
+      }
+    }
+  }
+}

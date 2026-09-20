@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "id": "formatted-data-sink",
+  "version": "1.0.0",
+  "name": "Formatted Data Sink",
+  "description": "Structured data consumer writing formatted JSON or JSONL records to local files and publishing structured messages to MQTT brokers.",
+  "entrypoint": "plugin.ts",
+  "frontend": "index.html",
+  "icon": "assets/icons/formatted-data-sink.svg",
+  "capabilities": [
+    "data-sink",
+    "formatted-sink",
+    "json-sink",
+    "jsonl-sink",
+    "mqtt-publisher",
+    "scpi-subset"
+  ],
+  "sources": [],
+  "sinks": [
+    { "id": "in", "name": "Data In", "type": "json" }
+  ],
+  "configuration": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "mode": {
+        "type": "string",
+        "enum": ["file", "mqtt", "both"],
+        "default": "file",
+        "description": "Destination channel (file, MQTT broker, or both)"
+      },
+      "format": {
+        "type": "string",
+        "enum": ["jsonl", "json"],
+        "default": "jsonl",
+        "description": "File record formatting"
+      },
+      "filePath": {
+        "type": "string",
+        "default": "",
+        "description": "Target output file path"
+      },
+      "fileWriteMode": {
+        "type": "string",
+        "enum": ["append", "overwrite"],
+        "default": "append",
+        "description": "File write strategy (append or overwrite)"
+      },
+      "prettyJson": {
+        "type": "boolean",
+        "default": false,
+        "description": "Pretty-print formatted JSON output"
+      },
+      "mqttBroker": {
+        "type": "string",
+        "default": "127.0.0.1",
+        "description": "MQTT Broker hostname or IP"
+      },
+      "mqttPort": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65535,
+        "default": 1883,
+        "description": "MQTT Broker port"
+      },
+      "mqttTopic": {
+        "type": "string",
+        "default": "telemetry/experiment",
+        "description": "MQTT publishing topic"
+      },
+      "mqttUseWs": {
+        "type": "boolean",
+        "default": false,
+        "description": "Connect to MQTT broker using WebSocket transport"
+      },
+      "mqttRetain": {
+        "type": "boolean",
+        "default": false,
+        "description": "Retain published MQTT messages on broker"
+      },
+      "includeTimestamp": {
+        "type": "boolean",
+        "default": true,
+        "description": "Automatically inject ISO timestamp if not present in object"
+      },
+      "active": {
+        "type": "boolean",
+        "default": false,
+        "description": "Active sink receiver state"
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "id": "raw-data-sink",
+  "version": "1.0.0",
+  "name": "Raw Data Sink",
+  "description": "General-purpose raw payload data sink supporting streaming output to WebSocket servers or continuous file writing/appending.",
+  "entrypoint": "plugin.ts",
+  "frontend": "index.html",
+  "icon": "assets/icons/raw-data-sink.svg",
+  "capabilities": [
+    "data-sink",
+    "raw-sink",
+    "websocket-sink",
+    "file-sink",
+    "scpi-subset"
+  ],
+  "sources": [],
+  "sinks": [
+    { "id": "in", "name": "Raw In", "type": "stream" }
+  ],
+  "configuration": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "mode": {
+        "type": "string",
+        "enum": ["file", "websocket"],
+        "default": "file",
+        "description": "Destination transport"
+      },
+      "filePath": {
+        "type": "string",
+        "default": "",
+        "description": "Output destination file path"
+      },
+      "fileWriteMode": {
+        "type": "string",
+        "enum": ["append", "overwrite"],
+        "default": "append",
+        "description": "File write strategy (append or overwrite)"
+      },
+      "wsUrl": {
+        "type": "string",
+        "default": "ws://127.0.0.1:9002",
+        "description": "Target WebSocket URL for remote streaming"
+      },
+      "autoFlush": {
+        "type": "boolean",
+        "default": true,
+        "description": "Automatically flush buffers to disk after each write"
+      },
+      "active": {
+        "type": "boolean",
+        "default": false,
+        "description": "Sink active receiver state"
+      }
+    }
+  }
+}

@@ -38,6 +38,44 @@ Deno.test("shell runs independently with an empty catalog and restricts public f
     assert(!content.includes('id="tab-scope"'));
     assert(!content.includes('id="tab-dmm"'));
     assert(content.includes('src="/web/shell.js"'));
+    assert(content.includes('id="toggle-sidebar"'));
+    assert(content.includes('id="new-project"'));
+    assert(content.includes('id="save-project"'));
+    assert(content.includes('id="load-project"'));
+    assert(content.includes('id="reset-workspace"'));
+    assert(content.includes('id="maximize-canvas"'));
+    assert(content.includes('id="theme"'));
+    assert(content.includes('id="hide-sidebar-btn"'));
+    assert(content.includes('id="browse-btn"'));
+    assert(content.includes('id="restore-canvas"'));
+    assert(content.includes('title="Toggle catalog sidebar (Ctrl+B)"'));
+    assert(content.includes('title="New diagram"'));
+    assert(content.includes('title="Save diagram"'));
+    assert(content.includes('title="Load diagram"'));
+    assert(content.includes('title="Reset instruments"'));
+    assert(content.includes('title="Maximize flow-graph view (Esc to exit)"'));
+    assert(content.includes('title="Light / Dark mode"'));
+    assert(content.includes('title="Restore view (Esc)"'));
+    assert(content.includes('<svg class="icon"'));
+    assert(content.includes('id="status"'));
+
+    const jsRes = await handler(new Request("http://localhost/web/shell.js"));
+    assertEquals(jsRes.status, 200);
+    const jsContent = await jsRes.text();
+    assert(jsContent.includes('button("Add",'));
+    assert(!jsContent.includes('button("Add to canvas",'));
+    assert(jsContent.includes("iconButton("));
+    assert(jsContent.includes("Capabilities and configuration"));
+
+    const cssRes = await handler(new Request("http://localhost/web/shell.css"));
+    assertEquals(cssRes.status, 200);
+    const cssContent = await cssRes.text();
+    assert(cssContent.includes("body.canvas-maximized footer"));
+    assert(cssContent.includes("text-overflow: ellipsis;"));
+    assert(cssContent.includes(".tool-btn"));
+    assert(cssContent.includes("aside {"));
+    assert(cssContent.includes(".instrument-toolbar"));
+    assert(cssContent.includes(".floating-restore-btn"));
     const unknown = await handler(
       new Request("http://localhost/api/instruments/unknown/load", {
         method: "POST",

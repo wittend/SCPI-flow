@@ -10,6 +10,23 @@ and this project adheres to
 
 ### Added
 
+- Added three new built-in default instruments for data streaming, ingestion,
+  and output:
+  - **Data Source (`data-source`)**: Origin instrument supporting JSONL file
+    playback with cadence control, asynchronous WebSocket client streams, and
+    MQTT 3.1.1 broker subscriptions and notifications.
+  - **Raw Data Sink (`raw-data-sink`)**: Data destination instrument for
+    streaming raw payloads to WebSocket endpoints or continuous file
+    appending/writing.
+  - **Formatted Data Sink (`formatted-data-sink`)**: Structured telemetry sink
+    writing formatted JSON/JSONL records to disk (with automated timestamping
+    and indentation options) and publishing messages to MQTT topics.
+- Added comprehensive documentation in Sphinx
+  (`docs/source/data_sources_sinks.rst`) and declarative MCP example flow
+  (`examples/mcp-flows/flows/data_source_sink_flow.json`).
+- Added unit and integration test coverage in
+  `tests/data_source_sink_instruments_test.ts`.
+
 - Added dedicated Sphinx documentation page for Installation & Platform Setup
   (`docs/source/installation.rst`) covering system requirements,
   platform-specific installation instructions (.deb, .rpm, .apk, generic binary,
@@ -75,6 +92,16 @@ and this project adheres to
 
 ### Changed
 
+- Tightened presentation chrome for the workspace UI and Instrument catalog:
+  - Reduced font size across the Instrument catalog window by ~10% and tightened
+    padding and margins proportionally.
+  - Renamed the catalog button label from "Add to canvas" to "Add".
+  - Replaced button text across toolbars (top header, instrument tab toolbars,
+    and floating restore button) with icon-only SVG buttons displaying
+    descriptive hover tooltips.
+  - Reduced header toolbar height by ~10% for improved screen real estate.
+  - Formatted the bottom footer into a single-line status window with ellipsis
+    overflow for error and status reporting, hidden in maximize mode.
 - Consolidated project documentation into a single standard `docs/` directory
   (eliminating `.docs/` and wrapper shims) for streamlined Sphinx and Read The
   Docs builds.

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Raw Data Sink</title>
+    <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent: #facc15;
+      --success: #4ade80;
+      --error: #f87171;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    h2,
+    h3 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    input,
+    select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 10px;
+      color: var(--text);
+      font: inherit;
+    }
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    button {
+      background: var(--surface-hover);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 14px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      background: var(--surface-hover);
+    }
+    .badge.ready,
+    .badge.connected {
+      background: #064e3b;
+      color: var(--success);
+    }
+    .badge.error {
+      background: #7f1d1d;
+      color: var(--error);
+    }
+    .badge.idle {
+      background: #334155;
+      color: var(--muted);
+    }
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 180px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      color: var(--muted);
+    }
+    .stats strong {
+      color: var(--text);
+    }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Raw Data Sink Control</h2>
+        <div>Status: <span id="status-badge" class="badge idle">idle</span></div>
+      </div>
+
+      <div class="grid">
+        <label>
+        Sink Mode
+        <select id="mode">
+          <option value="file">File Output</option>
+          <option value="websocket">WebSocket Stream Output</option>
+        </select>
+      </label>
+
+        <label id="file-path-wrap">
+        File Path
+        <input type="text" id="filePath" placeholder="/path/to/output.bin">
+      </label>
+
+        <label id="write-mode-wrap">
+        File Write Strategy
+        <select id="fileWriteMode">
+          <option value="append">Append to existing file</option>
+          <option value="overwrite">Overwrite / Truncate</option>
+        </select>
+      </label>
+
+        <label id="ws-wrap" style="display:none;">
+        Destination WebSocket URL
+        <input type="text" id="wsUrl" placeholder="ws://127.0.0.1:9002">
+      </label>
+
+        <label>
+        Auto Flush Disk Buffers
+        <select id="autoFlush">
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </label>
+      </div>
+
+      <div class="btn-row">
+        <button id="btn-start" class="primary">Enable Sink</button>
+        <button id="btn-stop">Disable</button>
+        <button id="btn-reset">Reset Stats</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Sink Statistics & Latest Payload</h3>
+      <div class="stats">
+        <div>Items Received: <strong id="stat-items">0</strong></div>
+        <div>Bytes Written: <strong id="stat-bytes">0</strong></div>
+        <div>Last Write: <strong id="stat-time">-</strong></div>
+      </div>
+      <p
+        style="margin: 8px 0 4px; font-weight: 500; color: var(--muted);">Last Written Payload:</p>
+      <pre id="latest-record">No data yet</pre>
+    </div>
+
+    <script>
+    const $ = (id) => document.getElementById(id);
+
+    function updateModeVisibility() {
+      const mode = $("mode").value;
+      $("file-path-wrap").style.display = mode === "file" ? "" : "none";
+      $("write-mode-wrap").style.display = mode === "file" ? "" : "none";
+      $("ws-wrap").style.display = mode === "websocket" ? "" : "none";
+    }
+
+    $("mode").onchange = updateModeVisibility;
+
+    async function fetchState() {
+      try {
+        const res = await fetch("/state");
+        if (!res.ok) return;
+        const state = await res.json();
+
+        $("status-badge").textContent = state.status;
+        $("status-badge").className = `badge ${state.status}`;
+
+        $("stat-items").textContent = state.itemsReceived;
+        $("stat-bytes").textContent = state.bytesWritten;
+        $("stat-time").textContent = state.lastTimestamp || "-";
+
+        if (state.lastItem !== null) {
+          $("latest-record").textContent = state.lastItem;
+        }
+
+        if (
+          document.activeElement.tagName !== "INPUT" &&
+          document.activeElement.tagName !== "SELECT"
+        ) {
+          $("mode").value = state.config.mode;
+          $("filePath").value = state.config.filePath || "";
+          $("fileWriteMode").value = state.config.fileWriteMode || "append";
+          $("wsUrl").value = state.config.wsUrl || "";
+          $("autoFlush").value = String(state.config.autoFlush);
+          updateModeVisibility();
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    async function applyConfig(active = true) {
+      const config = {
+        mode: $("mode").value,
+        filePath: $("filePath").value,
+        fileWriteMode: $("fileWriteMode").value,
+        wsUrl: $("wsUrl").value,
+        autoFlush: $("autoFlush").value === "true",
+        active: active,
+      };
+      await fetch("/configure", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(config),
+      });
+      fetchState();
+    }
+
+    $("btn-start").onclick = () => applyConfig(true);
+    $("btn-stop").onclick = () => applyConfig(false);
+    $("btn-reset").onclick = async () => {
+      await fetch("/reset", { method: "POST" });
+      fetchState();
+    };
+
+    updateModeVisibility();
+    fetchState();
+    setInterval(fetchState, 1000);
+    </script>
+  </body>
+</html>

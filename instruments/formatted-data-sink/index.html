@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Formatted Data Sink</title>
+    <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent: #4ade80;
+      --success: #4ade80;
+      --error: #f87171;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    h2,
+    h3 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    input,
+    select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 10px;
+      color: var(--text);
+      font: inherit;
+    }
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    button {
+      background: var(--surface-hover);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 14px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      background: var(--surface-hover);
+    }
+    .badge.ready,
+    .badge.connected {
+      background: #064e3b;
+      color: var(--success);
+    }
+    .badge.error {
+      background: #7f1d1d;
+      color: var(--error);
+    }
+    .badge.idle {
+      background: #334155;
+      color: var(--muted);
+    }
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 180px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      color: var(--muted);
+    }
+    .stats strong {
+      color: var(--text);
+    }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Formatted Data Sink Control</h2>
+        <div>Status: <span id="status-badge" class="badge idle">idle</span></div>
+      </div>
+
+      <div class="grid">
+        <label>
+        Output Destination
+        <select id="mode">
+          <option value="file">File Output (JSON / JSONL)</option>
+          <option value="mqtt">MQTT Broker Publisher</option>
+          <option value="both">Both (File + MQTT)</option>
+        </select>
+      </label>
+
+        <label id="format-wrap">
+        Record Format
+        <select id="format">
+          <option value="jsonl">JSONL (One JSON object per line)</option>
+          <option value="json">JSON Array (Array of records)</option>
+        </select>
+      </label>
+
+        <label id="file-path-wrap">
+        File Path
+        <input type="text" id="filePath" placeholder="/path/to/telemetry.jsonl">
+      </label>
+
+        <label id="write-mode-wrap">
+        File Write Strategy
+        <select id="fileWriteMode">
+          <option value="append">Append</option>
+          <option value="overwrite">Overwrite / Truncate</option>
+        </select>
+      </label>
+
+        <label id="pretty-wrap">
+        Pretty JSON
+        <select id="prettyJson">
+          <option value="false">Compact</option>
+          <option value="true">Indented (2 spaces)</option>
+        </select>
+      </label>
+
+        <label id="mqtt-broker-wrap" style="display:none;">
+        MQTT Broker Host
+        <input type="text" id="mqttBroker" value="127.0.0.1">
+      </label>
+
+        <label id="mqtt-port-wrap" style="display:none;">
+        MQTT Port
+        <input type="number" id="mqttPort" value="1883">
+      </label>
+
+        <label id="mqtt-topic-wrap" style="display:none;">
+        MQTT Publish Topic
+        <input type="text" id="mqttTopic" value="telemetry/experiment">
+      </label>
+
+        <label>
+        Inject ISO Timestamp
+        <select id="includeTimestamp">
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </label>
+      </div>
+
+      <div class="btn-row">
+        <button id="btn-start" class="primary">Enable Sink</button>
+        <button id="btn-stop">Disable</button>
+        <button id="btn-reset">Reset Stats</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Sink Statistics & Latest Payload</h3>
+      <div class="stats">
+        <div>Items Received: <strong id="stat-items">0</strong></div>
+        <div>Bytes Written: <strong id="stat-bytes">0</strong></div>
+        <div>Last Output: <strong id="stat-time">-</strong></div>
+      </div>
+      <p
+        style="margin: 8px 0 4px; font-weight: 500; color: var(--muted);">Last Formatted Record:</p>
+      <pre id="latest-record">No data yet</pre>
+    </div>
+
+    <script>
+    const $ = (id) => document.getElementById(id);
+
+    function updateModeVisibility() {
+      const mode = $("mode").value;
+      const isFile = mode === "file" || mode === "both";
+      const isMqtt = mode === "mqtt" || mode === "both";
+      $("format-wrap").style.display = isFile ? "" : "none";
+      $("file-path-wrap").style.display = isFile ? "" : "none";
+      $("write-mode-wrap").style.display = isFile ? "" : "none";
+      $("pretty-wrap").style.display = isFile ? "" : "none";
+      $("mqtt-broker-wrap").style.display = isMqtt ? "" : "none";
+      $("mqtt-port-wrap").style.display = isMqtt ? "" : "none";
+      $("mqtt-topic-wrap").style.display = isMqtt ? "" : "none";
+    }
+
+    $("mode").onchange = updateModeVisibility;
+
+    async function fetchState() {
+      try {
+        const res = await fetch("/state");
+        if (!res.ok) return;
+        const state = await res.json();
+
+        $("status-badge").textContent = state.status;
+        $("status-badge").className = `badge ${state.status}`;
+
+        $("stat-items").textContent = state.itemsReceived;
+        $("stat-bytes").textContent = state.bytesWritten;
+        $("stat-time").textContent = state.lastTimestamp || "-";
+
+        if (state.lastItem !== null) {
+          $("latest-record").textContent = typeof state.lastItem === "object"
+            ? JSON.stringify(state.lastItem, null, 2)
+            : String(state.lastItem);
+        }
+
+        if (
+          document.activeElement.tagName !== "INPUT" &&
+          document.activeElement.tagName !== "SELECT"
+        ) {
+          $("mode").value = state.config.mode;
+          $("format").value = state.config.format || "jsonl";
+          $("filePath").value = state.config.filePath || "";
+          $("fileWriteMode").value = state.config.fileWriteMode || "append";
+          $("prettyJson").value = String(state.config.prettyJson);
+          $("mqttBroker").value = state.config.mqttBroker || "127.0.0.1";
+          $("mqttPort").value = state.config.mqttPort || 1883;
+          $("mqttTopic").value = state.config.mqttTopic || "telemetry/experiment";
+          $("includeTimestamp").value = String(state.config.includeTimestamp);
+          updateModeVisibility();
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    async function applyConfig(active = true) {
+      const config = {
+        mode: $("mode").value,
+        format: $("format").value,
+        filePath: $("filePath").value,
+        fileWriteMode: $("fileWriteMode").value,
+        prettyJson: $("prettyJson").value === "true",
+        mqttBroker: $("mqttBroker").value,
+        mqttPort: parseInt($("mqttPort").value) || 1883,
+        mqttTopic: $("mqttTopic").value,
+        includeTimestamp: $("includeTimestamp").value === "true",
+        active: active,
+      };
+      await fetch("/configure", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(config),
+      });
+      fetchState();
+    }
+
+    $("btn-start").onclick = () => applyConfig(true);
+    $("btn-stop").onclick = () => applyConfig(false);
+    $("btn-reset").onclick = async () => {
+      await fetch("/reset", { method: "POST" });
+      fetchState();
+    };
+
+    updateModeVisibility();
+    fetchState();
+    setInterval(fetchState, 1000);
+    </script>
+  </body>
+</html>

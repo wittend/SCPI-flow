@@ -15,6 +15,18 @@
       "id": "signal-generator",
       "path": "./instruments/signal-generator/instrument.json",
       "legacyGuid": "d8c4e0b2-2345-6789-0123-345678901bcd"
+    },
+    {
+      "id": "data-source",
+      "path": "./instruments/data-source/instrument.json"
+    },
+    {
+      "id": "raw-data-sink",
+      "path": "./instruments/raw-data-sink/instrument.json"
+    },
+    {
+      "id": "formatted-data-sink",
+      "path": "./instruments/formatted-data-sink/instrument.json"
     }
   ]
 }

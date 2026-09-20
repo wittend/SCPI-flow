@@ -42,6 +42,17 @@ function button(text, callback) {
   return element;
 }
 
+function iconButton(svgHtml, title, callback) {
+  const element = document.createElement("button");
+  element.type = "button";
+  element.className = "tool-btn";
+  element.title = title;
+  element.setAttribute("aria-label", title);
+  element.innerHTML = svgHtml;
+  element.onclick = action(callback);
+  return element;
+}
+
 function switchView(id) {
   activeView = id;
   document.querySelectorAll(".view-panel").forEach((panel) =>
@@ -86,16 +97,25 @@ function addTab(info) {
   const toolbar = document.createElement("div");
   toolbar.className = "instrument-toolbar";
   toolbar.append(
-    button(
-      "Capabilities / Configure",
+    iconButton(
+      `<svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="2.5"></circle><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"></path></svg>`,
+      "Capabilities and configuration",
       () => showDetails(catalog.find((item) => item.id === info.id)),
     ),
-    button("Reset instrument", async () => {
-      await api(`/api/instruments/${info.id}/reset`, "POST", {});
-      switchView("flow");
-      notify(`${info.manifest.name} reset`);
-    }),
-    button("Unload", () => unload(info.id)),
+    iconButton(
+      `<svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 1 1.5 3.8"></path><path d="M2.5 12V8H6.5"></path></svg>`,
+      "Reset instrument",
+      async () => {
+        await api(`/api/instruments/${info.id}/reset`, "POST", {});
+        switchView("flow");
+        notify(`${info.manifest.name} reset`);
+      },
+    ),
+    iconButton(
+      `<svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h10"></path><path d="M8 3v7"></path><path d="m5 6 3-3 3 3"></path></svg>`,
+      "Unload instrument",
+      () => unload(info.id),
+    ),
   );
   const command = document.createElement("input");
   command.placeholder = "Instrument command, e.g. *IDN?";
@@ -113,7 +133,14 @@ function addTab(info) {
   command.onkeydown = action(async (event) => {
     if (event.key === "Enter") await send();
   });
-  toolbar.append(command, button("Send", send));
+  toolbar.append(
+    command,
+    iconButton(
+      `<svg class="icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 8 10-5-4 5 4 5-10-5z"></path></svg>`,
+      "Send command (Enter)",
+      send,
+    ),
+  );
   const frame = document.createElement("iframe");
   frame.title = info.manifest.name;
   frame.src = `/plugins/${info.id}/${info.manifest.frontend}`;
@@ -156,7 +183,7 @@ async function refresh() {
           info.status === "loaded" ? "Open" : "Load",
           () => load(info.id, true),
         ),
-        button("Add to canvas", () => addNode(info.id)),
+        button("Add", () => addNode(info.id)),
         button("Details", () => showDetails(info)),
       );
       if (info.status === "loaded") {

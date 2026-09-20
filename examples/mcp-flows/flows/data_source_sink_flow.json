@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Data Source & Sink Ingestion and Logging Flow",
+  "description": "Configures a Data Source to stream data records, routes measurements through SCPI-flow instruments, and records outputs to formatted and raw data sinks.",
+  "version": "1.0.0",
+  "instruments": [
+    "data-source",
+    "formatted-data-sink",
+    "raw-data-sink",
+    "multimeter"
+  ],
+  "setup": [
+    {
+      "tool": "load",
+      "args": { "id": "data-source" }
+    },
+    {
+      "tool": "load",
+      "args": { "id": "formatted-data-sink" }
+    },
+    {
+      "tool": "load",
+      "args": { "id": "raw-data-sink" }
+    },
+    {
+      "tool": "load",
+      "args": { "id": "multimeter" }
+    },
+    {
+      "tool": "command",
+      "args": { "id": "data-source", "command": "*IDN?" }
+    },
+    {
+      "tool": "command",
+      "args": { "id": "formatted-data-sink", "command": "*IDN?" }
+    },
+    {
+      "tool": "configure",
+      "args": {
+        "id": "data-source",
+        "configuration": {
+          "mode": "file",
+          "cadenceHz": 10,
+          "format": "jsonl",
+          "loop": true
+        }
+      }
+    },
+    {
+      "tool": "configure",
+      "args": {
+        "id": "formatted-data-sink",
+        "configuration": {
+          "mode": "file",
+          "format": "jsonl",
+          "filePath": "tests/.tmp_telemetry.jsonl",
+          "includeTimestamp": true,
+          "active": true
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "name": "Step 1: Check Ingestion Status",
+      "actions": [
+        {
+          "tool": "command",
+          "args": { "id": "data-source", "command": ":STATUS?" },
+          "capture": "source_status"
+        },
+        {
+          "tool": "command",
+          "args": { "id": "formatted-data-sink", "command": ":STATUS?" },
+          "capture": "sink_status"
+        }
+      ]
+    },
+    {
+      "name": "Step 2: Emit and Log Data Record",
+      "actions": [
+        {
+          "tool": "command",
+          "args": {
+            "id": "formatted-data-sink",
+            "command": ":WRITE {\"channel\":1,\"voltage\":3.305,\"unit\":\"V\"}"
+          }
+        },
+        {
+          "tool": "command",
+          "args": {
+            "id": "raw-data-sink",
+            "command": ":WRITE [RAW_STREAM_PACKET_0x01]"
+          }
+        },
+        {
+          "tool": "command",
+          "args": { "id": "formatted-data-sink", "command": "DATA:COUNT?" },
+          "capture": "formatted_count"
+        },
+        {
+          "tool": "command",
+          "args": { "id": "raw-data-sink", "command": "DATA:COUNT?" },
+          "capture": "raw_count"
+        }
+      ]
+    }
+  ],
+  "teardown": [
+    {
+      "tool": "reset",
+      "args": { "id": "data-source" }
+    },
+    {
+      "tool": "reset",
+      "args": { "id": "formatted-data-sink" }
+    },
+    {
+      "tool": "reset",
+      "args": { "id": "raw-data-sink" }
+    },
+    {
+      "tool": "unload",
+      "args": { "id": "data-source" }
+    },
+    {
+      "tool": "unload",
+      "args": { "id": "formatted-data-sink" }
+    },
+    {
+      "tool": "unload",
+      "args": { "id": "raw-data-sink" }
+    },
+    {
+      "tool": "unload",
+      "args": { "id": "multimeter" }
+    }
+  ]
+}

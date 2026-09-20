@@ -53,8 +53,8 @@ Open **http://127.0.0.1:8000**. No instruments are started automatically.
 
 - The **Data Flow Canvas** is always the leftmost and initial tab.
 - Use **Load** to start an instrument and open its own front-panel tab.
-- Drag an instrument from the catalog, or choose **Add to canvas**, to load it
-  and place a node. Double-click a node to open its instrument.
+- Drag an instrument from the catalog, or choose **Add**, to load it and place a
+  node. Double-click a node to open its instrument.
 - Click an output connector, then a compatible input, to draw a connection.
   Double-click a wire to remove it; Escape cancels an unfinished connection.
 - **Unload** terminates the instrument process and removes its tab, retaining

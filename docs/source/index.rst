@@ -7,6 +7,7 @@ SCPI-flow Documentation
 
    installation
    plugins
+   data_sources_sinks
    mcp
    mcp_flows
    mcp_strategies

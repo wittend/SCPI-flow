@@ -39,6 +39,31 @@ export const DEFAULT_INSTRUMENT_FILES: string[] = [
   "instruments/signal-generator/plugin_http.ts",
   "instruments/signal-generator/src/signal_generator.ts",
   "instruments/signal-generator/deno.json",
+
+  // data-source
+  "instruments/data-source/instrument.json",
+  "instruments/data-source/index.html",
+  "instruments/data-source/assets/icons/data-source.svg",
+  "instruments/data-source/plugin.ts",
+  "instruments/data-source/plugin_http.ts",
+  "instruments/data-source/src/data_source.ts",
+  "instruments/data-source/src/mqtt_client.ts",
+
+  // raw-data-sink
+  "instruments/raw-data-sink/instrument.json",
+  "instruments/raw-data-sink/index.html",
+  "instruments/raw-data-sink/assets/icons/raw-data-sink.svg",
+  "instruments/raw-data-sink/plugin.ts",
+  "instruments/raw-data-sink/plugin_http.ts",
+  "instruments/raw-data-sink/src/raw_data_sink.ts",
+
+  // formatted-data-sink
+  "instruments/formatted-data-sink/instrument.json",
+  "instruments/formatted-data-sink/index.html",
+  "instruments/formatted-data-sink/assets/icons/formatted-data-sink.svg",
+  "instruments/formatted-data-sink/plugin.ts",
+  "instruments/formatted-data-sink/plugin_http.ts",
+  "instruments/formatted-data-sink/src/formatted_data_sink.ts",
 ];
 
 export async function ensureDefaultInstruments(

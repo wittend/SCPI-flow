@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Data Source</title>
+    <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-hover: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent: #38bdf8;
+      --success: #4ade80;
+      --error: #f87171;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    h2,
+    h3 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    input,
+    select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 10px;
+      color: var(--text);
+      font: inherit;
+    }
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    button {
+      background: var(--surface-hover);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 14px;
+      font: inherit;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      background: var(--surface-hover);
+    }
+    .badge.running,
+    .badge.connected {
+      background: #064e3b;
+      color: var(--success);
+    }
+    .badge.error {
+      background: #7f1d1d;
+      color: var(--error);
+    }
+    .badge.idle {
+      background: #334155;
+      color: var(--muted);
+    }
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 180px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      color: var(--muted);
+    }
+    .stats strong {
+      color: var(--text);
+    }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Data Source Control</h2>
+        <div>Status: <span id="status-badge" class="badge idle">idle</span></div>
+      </div>
+
+      <div class="grid">
+        <label>
+        Origin Mode
+        <select id="mode">
+          <option value="file">Local File (JSONL / Data)</option>
+          <option value="websocket">WebSocket Stream</option>
+          <option value="mqtt">MQTT Broker Subscription</option>
+        </select>
+      </label>
+
+        <label id="file-path-wrap">
+        File Path
+        <input type="text" id="filePath" placeholder="/path/to/data.jsonl">
+      </label>
+
+        <label id="cadence-wrap">
+        Playback Cadence (lines / sec)
+        <input type="number" id="cadenceHz" min="0.01" step="0.5" value="1">
+      </label>
+
+        <label id="loop-wrap">
+        Loop File Playback
+        <select id="loop">
+          <option value="false">No (Stop at EOF)</option>
+          <option value="true">Yes (Loop)</option>
+        </select>
+      </label>
+
+        <label id="ws-wrap" style="display:none;">
+        WebSocket URL
+        <input type="text" id="wsUrl" placeholder="ws://127.0.0.1:9001">
+      </label>
+
+        <label id="mqtt-broker-wrap" style="display:none;">
+        MQTT Broker Host
+        <input type="text" id="mqttBroker" value="127.0.0.1">
+      </label>
+
+        <label id="mqtt-port-wrap" style="display:none;">
+        MQTT Port
+        <input type="number" id="mqttPort" value="1883">
+      </label>
+
+        <label id="mqtt-topic-wrap" style="display:none;">
+        MQTT Topic
+        <input type="text" id="mqttTopic" value="sensors/#">
+      </label>
+
+        <label>
+        Payload Format
+        <select id="format">
+          <option value="jsonl">JSONL / Parsed JSON</option>
+          <option value="json">Raw JSON</option>
+          <option value="raw">Raw String / Bytes</option>
+        </select>
+      </label>
+      </div>
+
+      <div class="btn-row">
+        <button id="btn-start" class="primary">Start Ingestion</button>
+        <button id="btn-stop">Stop</button>
+        <button id="btn-reset">Reset Stats</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Live Diagnostics & Telemetry</h3>
+      <div class="stats">
+        <div>Items Emitted: <strong id="stat-items">0</strong></div>
+        <div>Bytes Emitted: <strong id="stat-bytes">0</strong></div>
+        <div>File Progress: <strong id="stat-file">0 / 0</strong></div>
+        <div>Last Emitted: <strong id="stat-time">-</strong></div>
+      </div>
+      <p
+        style="margin: 8px 0 4px; font-weight: 500; color: var(--muted);">Latest Received Record:</p>
+      <pre id="latest-record">No data yet</pre>
+    </div>
+
+    <script>
+    const $ = (id) => document.getElementById(id);
+
+    function updateModeVisibility() {
+      const mode = $("mode").value;
+      $("file-path-wrap").style.display = mode === "file" ? "" : "none";
+      $("cadence-wrap").style.display = mode === "file" ? "" : "none";
+      $("loop-wrap").style.display = mode === "file" ? "" : "none";
+      $("ws-wrap").style.display = mode === "websocket" ? "" : "none";
+      $("mqtt-broker-wrap").style.display = mode === "mqtt" ? "" : "none";
+      $("mqtt-port-wrap").style.display = mode === "mqtt" ? "" : "none";
+      $("mqtt-topic-wrap").style.display = mode === "mqtt" ? "" : "none";
+    }
+
+    $("mode").onchange = updateModeVisibility;
+
+    async function fetchState() {
+      try {
+        const res = await fetch("/state");
+        if (!res.ok) return;
+        const state = await res.json();
+
+        $("status-badge").textContent = state.status;
+        $("status-badge").className = `badge ${state.status}`;
+
+        $("stat-items").textContent = state.itemsEmitted;
+        $("stat-bytes").textContent = state.bytesEmitted;
+        $("stat-file").textContent =
+          `${state.fileCurrentLine} / ${state.fileTotalLines}`;
+        $("stat-time").textContent = state.lastTimestamp || "-";
+
+        if (state.lastItem !== null) {
+          $("latest-record").textContent = typeof state.lastItem === "object"
+            ? JSON.stringify(state.lastItem, null, 2)
+            : String(state.lastItem);
+        }
+
+        if (
+          document.activeElement.tagName !== "INPUT" &&
+          document.activeElement.tagName !== "SELECT"
+        ) {
+          $("mode").value = state.config.mode;
+          $("filePath").value = state.config.filePath || "";
+          $("cadenceHz").value = state.config.cadenceHz;
+          $("loop").value = String(state.config.loop);
+          $("wsUrl").value = state.config.wsUrl || "";
+          $("mqttBroker").value = state.config.mqttBroker || "";
+          $("mqttPort").value = state.config.mqttPort || 1883;
+          $("mqttTopic").value = state.config.mqttTopic || "";
+          $("format").value = state.config.format || "jsonl";
+          updateModeVisibility();
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    async function applyConfig(active = true) {
+      const config = {
+        mode: $("mode").value,
+        filePath: $("filePath").value,
+        cadenceHz: parseFloat($("cadenceHz").value) || 1,
+        loop: $("loop").value === "true",
+        wsUrl: $("wsUrl").value,
+        mqttBroker: $("mqttBroker").value,
+        mqttPort: parseInt($("mqttPort").value) || 1883,
+        mqttTopic: $("mqttTopic").value,
+        format: $("format").value,
+        active: active,
+      };
+      await fetch("/configure", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(config),
+      });
+      fetchState();
+    }
+
+    $("btn-start").onclick = () => applyConfig(true);
+    $("btn-stop").onclick = () => applyConfig(false);
+    $("btn-reset").onclick = async () => {
+      await fetch("/reset", { method: "POST" });
+      fetchState();
+    };
+
+    updateModeVisibility();
+    fetchState();
+    setInterval(fetchState, 1000);
+    </script>
+  </body>
+</html>
