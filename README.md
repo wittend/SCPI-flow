@@ -4,6 +4,8 @@ An instrument-independent Deno workspace for discovering and managing local
 instrument plug-ins. SCPI-flow owns the dataflow canvas, project files, catalog,
 process lifecycle, and standard MCP interface—not instrument simulation code.
 
+[![SCPI-flow UI](assets/SCPI-flow%20UI%202026-09-20.JPG)](assets/SCPI-flow%20UI%202026-09-20.JPG)
+
 ## Repository layout
 
 The repository is organized as a Deno workspace containing the host shell and

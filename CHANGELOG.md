@@ -10,6 +10,7 @@ and this project adheres to
 
 ### Added
 
+- Added UI screenshot and visual link in `README.md`.
 - Added three new built-in default instruments for data streaming, ingestion,
   and output:
   - **Data Source (`data-source`)**: Origin instrument supporting JSONL file
