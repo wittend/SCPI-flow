@@ -19,8 +19,8 @@ const flags = parseArgs(Deno.args, {
     h: "help",
   },
   default: {
-    "output-dir": "./dist/linux/amd86",
-    binary: "./dist/linux/amd86/scpi-flow",
+    "output-dir": "./dist/bin",
+    binary: "./dist/bin/scpi-flow",
     compile: false,
   },
 });
@@ -31,7 +31,7 @@ if (flags.help) {
 Options:
   -v, --version <semver>      Package version (default: parsed from CHANGELOG.md)
   -b, --binary <path>         Path to compiled scpi-flow binary
-  -o, --output-dir <path>     Directory where the .deb package will be written (default: ./dist/linux/amd86)
+  -o, --output-dir <path>     Directory where the .deb package will be written (default: ./dist/bin)
   -c, --compile               Compile the binary first before packaging
   -h, --help                  Show this help message
 `);
@@ -236,7 +236,17 @@ Description: Instrument-independent visual dataflow workspace and SCPI controlle
     Deno.exit(1);
   }
 
+  // Calculate and write SHA-256 digest file
+  const debData = await Deno.readFile(finalDebPath);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", debData);
+  const sha256Hex = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  const sha256Path = `${finalDebPath}.sha256`;
+  await Deno.writeTextFile(sha256Path, `${sha256Hex}  ${debFileName}\n`);
+
   console.log(`Successfully generated Debian package: ${finalDebPath}`);
+  console.log(`SHA-256 Digest (${debFileName}): ${sha256Hex}`);
 } finally {
   // Clean up temporary directory
   try {

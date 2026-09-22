@@ -45,8 +45,8 @@ deno task compile
 deno task package:deb
 deno task package:rpm
 deno task package:apk
-# Package all Linux packages (.deb, .rpm, and .apk):
-deno task package:linux:amd86
+# Package all Linux packages and generate SHA-256 digests:
+deno task package
 # Optional custom catalog and port:
 deno run --allow-all main.ts --catalog ./instruments.json --port 8000
 ```

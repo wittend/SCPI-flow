@@ -6,10 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.0.1-alpha] - 2026-09-22
 
 ### Added
 
+- Added SHA-256 digest (.sha256) file generation and unified `SHA256SUMS`
+  cataloging for all distributable packages and binaries
+  (`scripts/generate_checksums.ts`).
 - Added UI screenshot and visual link in `README.md`.
 - Added three new built-in default instruments for data streaming, ingestion,
   and output:
@@ -66,9 +69,9 @@ and this project adheres to
   distributions with desktop integration (.desktop file, icons, doc, and package
   metadata).
 - Added Debian (.deb) packaging workflow and tooling (`scripts/build_deb.ts`,
-  `deno task package:deb`, and `deno task package:linux:amd86`) to package the
-  standalone amd64 compiled Linux binary into an installable `.deb` package with
-  desktop integration (.desktop file, icons, doc, and package metadata).
+  `deno task package:deb`, and `deno task package`) to package the standalone
+  amd64 compiled Linux binary into an installable `.deb` package with desktop
+  integration (.desktop file, icons, doc, and package metadata).
 - Embedded default subordinate instruments (`oscilloscope`, `multimeter`,
   `signal-generator`) directly in standalone compiled binaries with automatic
   first-run extraction to persistent user data directory
@@ -93,6 +96,8 @@ and this project adheres to
 
 ### Changed
 
+- Renamed the distributable binaries directory from `dist/linux/amd86` to
+  standard `dist/bin`.
 - Tightened presentation chrome for the workspace UI and Instrument catalog:
   - Reduced font size across the Instrument catalog window by ~10% and tightened
     padding and margins proportionally.

@@ -112,13 +112,13 @@ If you do not want to install system packages, use the standalone compiled execu
 .. code-block:: bash
 
    # Make the binary executable
-   chmod +x dist/linux/amd86/scpi-flow
+   chmod +x dist/bin/scpi-flow
 
    # Run directly
-   ./dist/linux/amd86/scpi-flow
+   ./dist/bin/scpi-flow
 
    # Or copy to system PATH
-   sudo cp dist/linux/amd86/scpi-flow /usr/local/bin/
+   sudo cp dist/bin/scpi-flow /usr/local/bin/
 
 5. macOS (Apple Silicon M1/M2/M3/M4 & Intel)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -194,7 +194,7 @@ If you want to build standalone binaries or package distributions from source:
 .. code-block:: bash
 
    # 1. Compile standalone Linux binary with all embedded assets:
-   deno task compile:linux:amd86
+   deno task compile:linux
 
    # 2. Build Debian (.deb) package:
    deno task package:deb
@@ -205,8 +205,8 @@ If you want to build standalone binaries or package distributions from source:
    # 4. Build Alpine (.apk) package:
    deno task package:apk
 
-   # 5. Build all packages at once:
-   deno task package:linux:amd86
+   # 5. Build all packages and SHA-256 digests at once:
+   deno task package
 
 Command-Line Options & Environment Variables
 --------------------------------------------

@@ -22,8 +22,8 @@ const flags = parseArgs(Deno.args, {
   },
   default: {
     release: "1",
-    "output-dir": "./dist/linux/amd86",
-    binary: "./dist/linux/amd86/scpi-flow",
+    "output-dir": "./dist/bin",
+    binary: "./dist/bin/scpi-flow",
     compile: false,
   },
 });
@@ -35,7 +35,7 @@ Options:
   -v, --version <semver>      Package version (default: parsed from CHANGELOG.md)
   -r, --release <string>      Package release number (default: 1)
   -b, --binary <path>         Path to compiled scpi-flow binary
-  -o, --output-dir <path>     Directory where the .apk package will be written (default: ./dist/linux/amd86)
+  -o, --output-dir <path>     Directory where the .apk package will be written (default: ./dist/bin)
   -c, --compile               Compile the binary first before packaging
   -h, --help                  Show this help message
 `);
@@ -329,7 +329,17 @@ package() {
   await Deno.writeFile(finalApkPath, combined);
   await Deno.writeTextFile(finalApkbuildPath, apkbuildContent);
 
+  // Calculate and write SHA-256 digest file
+  const apkData = await Deno.readFile(finalApkPath);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", apkData);
+  const sha256Hex = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  const sha256Path = `${finalApkPath}.sha256`;
+  await Deno.writeTextFile(sha256Path, `${sha256Hex}  ${apkFileName}\n`);
+
   console.log(`Successfully generated Alpine APK package: ${finalApkPath}`);
+  console.log(`SHA-256 Digest (${apkFileName}): ${sha256Hex}`);
 } finally {
   // Clean up temporary directory
   try {

@@ -21,8 +21,8 @@ const flags = parseArgs(Deno.args, {
   },
   default: {
     release: "1",
-    "output-dir": "./dist/linux/amd86",
-    binary: "./dist/linux/amd86/scpi-flow",
+    "output-dir": "./dist/bin",
+    binary: "./dist/bin/scpi-flow",
     compile: false,
   },
 });
@@ -34,7 +34,7 @@ Options:
   -v, --version <semver>      Package version (default: parsed from CHANGELOG.md)
   -r, --release <string>      Package release number (default: 1)
   -b, --binary <path>         Path to compiled scpi-flow binary
-  -o, --output-dir <path>     Directory where the .rpm package will be written (default: ./dist/linux/amd86)
+  -o, --output-dir <path>     Directory where the .rpm package will be written (default: ./dist/bin)
   -c, --compile               Compile the binary first before packaging
   -h, --help                  Show this help message
 `);
@@ -288,7 +288,17 @@ cp -a ${payloadDir}/* %{buildroot}/
   const finalRpmPath = join(outDir, rpmFileName);
   await Deno.copyFile(generatedRpmPath, finalRpmPath);
 
+  // Calculate and write SHA-256 digest file
+  const rpmData = await Deno.readFile(finalRpmPath);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", rpmData);
+  const sha256Hex = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  const sha256Path = `${finalRpmPath}.sha256`;
+  await Deno.writeTextFile(sha256Path, `${sha256Hex}  ${rpmFileName}\n`);
+
   console.log(`Successfully generated RPM package: ${finalRpmPath}`);
+  console.log(`SHA-256 Digest (${rpmFileName}): ${sha256Hex}`);
 } finally {
   // Clean up temporary directory
   try {
